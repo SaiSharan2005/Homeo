@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import AppointmentBooking from './AppointmentBooking';
-import DoctorSearch from './DoctorSearch';
-import PatientProfile from './PatientProfile';
-import logo from '../../images/doctorPatient.jpg'; // Adjust the path as needed
-import heroImage from '../../images/doctorPatient.jpg'; // Adjust the path as needed
-import serviceImage1 from '../../images/doctorPatient.jpg'; // Adjust the path as needed
-import serviceImage2 from '../../images/doctorPatient.jpg'; // Adjust the path as needed
-import serviceImage3 from '../../images/doctorPatient.jpg'; // Adjust the path as needed
+// import AppointmentBooking from './AppointmentBooking';
+// import DoctorSearch from './DoctorSearch';
+// import PatientProfile from './PatientProfile';
+// import logo from '../../images/doctorPatient.jpg'; // Adjust the path as needed
+// import heroImage from '../../images/doctorPatient.jpg'; // Adjust the path as needed
+// import serviceImage1 from '../../images/doctorPatient.jpg'; // Adjust the path as needed
+// import serviceImage2 from '../../images/doctorPatient.jpg'; // Adjust the path as needed
+// import serviceImage3 from '../../images/doctorPatient.jpg'; // Adjust the path as needed
 import {Link} from "react-router-dom"
 
-export default function PatientHome() {
+export default function PatientNavbar() {
     const [activeButton, setActiveButton] = useState(1);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -50,16 +50,16 @@ export default function PatientHome() {
     }, []);
 
     return (
-        
-        <div className='min-h-screen'>
             <nav className="bg-[#AADCD2] p-4 flex justify-between items-center px-7 md:px-10 lg:px-20">
                 <div className="text-black font-bold lg:text-2xl">LOGO</div>
                 <div className="flex items-center space-x-6">
                     <div className="hidden md:flex space-x-6">
+                        <Link>
                         <button
                             className={`p-2 lg:px-4 font-semibold bg-transparent ${selectedOption === 'Option 1' ? 'text-white' : 'text-black'}`}
                             onClick={() => handleOptionChange('Option 1')}
-                        >Home</button>
+                            >Home</button>
+                            </Link>
                         <Link to="/doctorSearch">
                         <button
                             className={`p-2 lg:px-4 font-semibold bg-transparent ${selectedOption === 'Option 2' ? 'text-white' : 'text-black'}`}
@@ -119,72 +119,6 @@ export default function PatientHome() {
                     )}
                 </div>
             </nav>
-            {/* <div>
-                {selectedOption === 'Option 1' && <AppointmentBooking />}
-                {selectedOption === 'Option 2' && <DoctorSearch />}
-                {selectedOption === 'Option 3' && <></>}
-                {selectedOption === 'Option 4' && <></>}
-                {selectedOption === 'Option 5' && <></>}
-                {selectedOption === 'Profile' && <PatientProfile />}
-            </div>
-             */}
-
-      <main className="flex-grow">
-        <section className="bg-white py-20">
-          <div className="container mx-auto flex flex-col lg:flex-row items-center">
-            <div className="w-full lg:w-1/2 px-4">
-              <h1 className="text-4xl lg:text-5xl font-bold text-[#0a2822] leading-tight">Welcome to Our Healthcare System</h1>
-              <p className="mt-4 text-lg text-gray-700">Providing the best medical services for you and your family.</p>
-              <Link to="/services" className="mt-8 bg-[#2BA78F] text-white py-2 px-6 rounded-full">Explore Services</Link>
-            </div>
-            <div className="w-full lg:w-1/2 mt-8 lg:mt-0 px-4">
-              <img src={heroImage} alt="Healthcare" className="w-full h-full object-cover rounded-lg shadow-lg" />
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-[#f7fafa] py-20">
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl font-bold text-[#0a2822] mb-12">Our Services</h2>
-            <div className="flex flex-wrap justify-center">
-              <div className="w-full md:w-1/2 lg:w-1/3 p-4">
-                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                  <img src={serviceImage1} alt="Service 1" className="w-full h-48 object-cover" />
-                  <div className="p-6">
-                    <h3 className="text-2xl font-bold text-[#0a2822] mb-4">Consultations</h3>
-                    <p className="text-gray-700">Get expert advice from our experienced doctors.</p>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full md:w-1/2 lg:w-1/3 p-4">
-                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                  <img src={serviceImage2} alt="Service 2" className="w-full h-48 object-cover" />
-                  <div className="p-6">
-                    <h3 className="text-2xl font-bold text-[#0a2822] mb-4">Diagnostics</h3>
-                    <p className="text-gray-700">Comprehensive diagnostic services for accurate results.</p>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full md:w-1/2 lg:w-1/3 p-4">
-                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                  <img src={serviceImage3} alt="Service 3" className="w-full h-48 object-cover" />
-                  <div className="p-6">
-                    <h3 className="text-2xl font-bold text-[#0a2822] mb-4">Emergency Care</h3>
-                    <p className="text-gray-700">24/7 emergency services for urgent medical needs.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer className="bg-white py-6">
-        <div className="container mx-auto text-center">
-          <p className="text-gray-700">&copy; 2024 Healthcare System. All rights reserved.</p>
-        </div>
-      </footer>
-        </div>
     );
 
 }

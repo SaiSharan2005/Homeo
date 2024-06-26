@@ -16,6 +16,43 @@ export default function PatientSignUp(){
             });
           }
         };
+        const registerPatient = async () => {
+            const url = 'http://localhost:8080/patient/register';
+            const data = {
+              patientName: credentials.name,
+              phoneNumber: credentials.number,
+              email: credentials.email,
+              password: credentials.password
+            };
+          
+            try {
+              const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+              });
+          
+              if (!response.ok) {
+                const errorMessage = await response.text();
+                throw new Error(errorMessage);
+              }
+          
+              const responseData = await response.json();
+              console.log('Doctor registered successfully:', responseData);
+              // Handle success, maybe redirect or show a success message
+              return {
+                "status":"success",
+                "message":"Registered Succesfully "
+        
+              } 
+               } catch (error) {
+              console.error('Error registering doctor:', error.message);
+              // Handle error, show an error message or log the error
+            }
+          };
+          
     const handleSubmit = (event) => {
         event.preventDefault();
         // Handle form submission logic here, e.g., sending data to backend, storing in state, etc.
@@ -27,6 +64,7 @@ export default function PatientSignUp(){
         //     email: '',
         //     password: '',
         // });
+        registerPatient()
     };
 
     return (

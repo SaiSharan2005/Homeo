@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 
 
-export default function DoctorSignUp() {
+export default function LoginStaff() {
   const navigate = useNavigate();
 
   const [credentials, setCredentials] = useState({

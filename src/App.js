@@ -22,6 +22,8 @@ import PatientHome from "./patient/home/PatientHome";
 
 // Staff imports
 import StaffSignUp from "./staff/signup";
+import DoctorSearch from "./patient/home/DoctorSearch";
+import AppointmentBooking from "./patient/home/AppointmentBooking";
 
 export default function App(){
   return (
@@ -35,11 +37,13 @@ export default function App(){
 
           {/* Patient Screens and Components */}
           <Route exact path="/patient/signup" element={<PatientSignUp />} />
-          <Route exact path="/patient/home/PatientHome" element={<PatientHome />} />
+          <Route exact path="/patient/home" element={<PatientHome />} />
+          <Route path="/doctorSearch" element={<DoctorSearch/>}/>
 
           {/* Doctor Screens and Components */}
           <Route exact path="/doctor/signup" element={<DoctorSignUp />} />
           <Route exact path="/doctor/home/DoctorHome" element={<DoctorHome />} />
+          <Route path = "/BookAppoinment/:doctorId" element={<AppointmentBooking/>}/>
 
           {/* Staff Screens and Components */}
           <Route exact path="/staff/signup" element={<StaffSignUp />} />

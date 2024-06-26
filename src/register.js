@@ -25,6 +25,7 @@ export default function Register(){
     return (
         <div class="h-100vh lg:h-[100vh] bg-[#eef8f6] w-full flex flex-row justify-center items-center relative">
             <div>
+                {selectedOption}
                 <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse absolute top-5 left-10 z-10">
                     <img src="https://flowbite.com/docs/images/logo.svg" className="h-6 md:h-8 " alt="Flowbite Logo" />
                     <span className="self-center text-lg font-semibold whitespace-nowrap dark:text-white sm:text-2xl landscape:text-lg">Flowbite</span>

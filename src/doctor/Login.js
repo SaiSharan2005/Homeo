@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 
 
-export default function DoctorSignUp() {
+export default function DoctorLogin() {
   const navigate = useNavigate();
 
   const [credentials, setCredentials] = useState({
@@ -23,7 +23,7 @@ export default function DoctorSignUp() {
 
 
   const registerDoctor = async () => {
-    const url = 'http://localhost:8080/doctor/register';
+    const url = 'http://localhost:8080/doctor/login';
     const data = {
       doctorName: credentials.name,
       phoneNumber: credentials.phoneNumber,
@@ -41,12 +41,16 @@ export default function DoctorSignUp() {
       });
   
       if (!response.ok) {
-        const errorMessage = await response.text();
+        const errorMessage = await response.json();
         throw new Error(errorMessage);
       }
   
       const responseData = await response.json();
       console.log('Doctor registered successfully:', responseData);
+      localStorage.setItem("userId",responseData.id);
+      localStorage.setItem("doctorId",responseData.doctorId);
+      localStorage.setItem("role","patient");
+
       navigate('/');
 
       // Handle success, maybe redirect or show a success message
@@ -84,7 +88,7 @@ export default function DoctorSignUp() {
       onSubmit={handleSubmit}
     >
       <div className="w-full flex flex-row flex-wrap justify-center gap-4 lg:gap-x-8">
-        <input
+        {/* <input
           id="nameInput"
           type="text"
           name="name"
@@ -93,7 +97,7 @@ export default function DoctorSignUp() {
           value={credentials.name}
           onChange={onChange}
           required
-        />
+        /> */}
         <input
           id="phoneNumberInput"
           type="number"
@@ -104,7 +108,7 @@ export default function DoctorSignUp() {
           onChange={onChange}
           required
         />
-        <input
+        {/* <input
           id="emailInput"
           type="email"
           name="email"
@@ -113,7 +117,7 @@ export default function DoctorSignUp() {
           value={credentials.email}
           onChange={onChange}
           required
-        />
+        /> */}
         <input
           id="passwordInput"
           type="text"
