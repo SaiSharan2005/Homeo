@@ -185,6 +185,7 @@ const AppointmentBooking = () => {
             </div>
           </div>
           <div className="mt-8">
+            Link
             <button onClick={BookAppointment} className="w-full bg-[#2BA78F] text-white px-4 py-2 rounded">
               Book an appointment
             </button>

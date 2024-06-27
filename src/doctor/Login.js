@@ -88,7 +88,7 @@ export default function DoctorLogin() {
       onSubmit={handleSubmit}
     >
       <div className="w-full flex flex-row flex-wrap justify-center gap-4 lg:gap-x-8">
-        {/* <input
+        <input
           id="nameInput"
           type="text"
           name="name"
@@ -97,7 +97,7 @@ export default function DoctorLogin() {
           value={credentials.name}
           onChange={onChange}
           required
-        /> */}
+        />
         <input
           id="phoneNumberInput"
           type="number"
@@ -108,7 +108,7 @@ export default function DoctorLogin() {
           onChange={onChange}
           required
         />
-        {/* <input
+        <input
           id="emailInput"
           type="email"
           name="email"
@@ -117,7 +117,7 @@ export default function DoctorLogin() {
           value={credentials.email}
           onChange={onChange}
           required
-        /> */}
+        />
         <input
           id="passwordInput"
           type="text"

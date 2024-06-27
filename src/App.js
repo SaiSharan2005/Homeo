@@ -11,6 +11,7 @@ import {
 import Base from './base';
 import Register from './register';
 import Login from './login';
+import Details from "./doctor/Details";
 
 // Doctor imports
 import DoctorSignUp from "./doctor/signup";
@@ -34,6 +35,7 @@ export default function App(){
           <Route exact path="/" element={<Base />} />
           <Route exact path="/register" element={<Register />} />
           <Route exact path="/login" element={<Login />} />
+          <Route path= "/details/doctor" element={<Details/>}/>
 
           {/* Patient Screens and Components */}
           <Route exact path="/patient/signup" element={<PatientSignUp />} />

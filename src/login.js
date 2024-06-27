@@ -174,8 +174,8 @@ export default function Register(){
                 {/* Partition */}
                 <div class="h-full md:h-[60vh] w-3/4 lg:w-7/12 lg:h-full lg:w-1/2 flex flex-col justify-center md:p-12 gap-y-15 ">
                     <div class="w-full">
-                        <h1 class="font-custom text-[2rem] lg:text-2xl text-[#0a2822]">Login Now</h1>
-                        <hr class="w-1/6 border-t-4 border-[#2BA78F] mb-4"/>
+                    <h1 class="font-custom text-[2rem] lg:text-2xl text-[#0a2822]">Login Now</h1>
+                    <hr class="w-1/6 border-t-4 border-[#2BA78F] mb-4"/>
                         <div class="flex w-full flex-col gap-y-2 items-start justify-center py-3">
                             <p class="text-lg md:text-xl lg:text-base">Who do you want to Login as?</p>
                             <div class="w-full gap-x-6 flex flex-row justify-start items-center mb-4 ">
