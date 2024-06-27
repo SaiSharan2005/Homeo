@@ -22,44 +22,45 @@ export default function DoctorSignUp() {
   };
 
 
-  const registerDoctor = async () => {
-    const url = 'http://localhost:8080/doctor/register';
-    const data = {
-      doctorName: credentials.name,
-      phoneNumber: credentials.phoneNumber,
-      email: credentials.email,
-      password: credentials.password
-    };
   
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
+  // const registerDoctor = async () => {
+  //   const url = 'http://localhost:8080/doctor/register';
+  //   const data = {
+  //     doctorName: credentials.name,
+  //     phoneNumber: credentials.phoneNumber,
+  //     email: credentials.email,
+  //     password: credentials.password
+  //   };
   
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(errorMessage);
-      }
+  //   try {
+  //     const response = await fetch(url, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify(data)
+  //     });
   
-      const responseData = await response.json();
-      console.log('Doctor registered successfully:', responseData);
-      navigate('/');
+  //     if (!response.ok) {
+  //       const errorMessage = await response.text();
+  //       throw new Error(errorMessage);
+  //     }
+  
+  //     const responseData = await response.json();
+  //     console.log('Doctor registered successfully:', responseData);
+  //     navigate('/doctor/details',{ state: { data: responseData } });
 
-      // Handle success, maybe redirect or show a success message
-      return {
-        "status":"success",
-        "message":"Registered Succesfully "
+  //     // Handle success, maybe redirect or show a success message
+  //     return {
+  //       "status":"success",
+  //       "message":"Registered Succesfully "
 
-      } 
-       } catch (error) {
-      console.error('Error registering doctor:', error.message);
-      // Handle error, show an error message or log the error
-    }
-  };
+  //     } 
+  //      } catch (error) {
+  //     console.error('Error registering doctor:', error.message);
+  //     // Handle error, show an error message or log the error
+  //   }
+  // };
   
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -72,7 +73,7 @@ export default function DoctorSignUp() {
     //     email: '',
     //     password: '',
     // });
-    registerDoctor();
+    // registerDoctor();
 
 
 
@@ -126,6 +127,7 @@ export default function DoctorSignUp() {
         />
       </div>
       <button
+      onClick={()=>navigate('/doctor/details',{ state: { data:credentials  } })}
         type="submit"
         className="inline font-semibold py-3 px-6 text-lg bg-[#228672] text-white rounded-full hover:bg-[#1a6456] focus:outline-none"
       >

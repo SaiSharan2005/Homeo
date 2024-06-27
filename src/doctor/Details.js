@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { Link,useLocation, useNavigate } from "react-router-dom";
 import img from '../images/doctorPatient.jpg'; // Importing the image
 
 export default function Details() {
+    const [doctorRegister,setDoctorRegister] = useState();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { data } = location.state || {};
+    useEffect(() => {
+        setDoctorRegister(data);
+    }, [data]);
     const [formData, setFormData] = useState({
-        doctorId: {
-            "id": 1,
-            "doctorName": "saisharan",
-            "phoneNumber": "9959584192",
-            "password": "Dhoni@2005",
-            "email": "duginisaisharan@gmail.come",
-            "doctorId": "D29sais4192",
-            "doctorDetails": null
-          },
+        // doctorId: {
+        //     "id": 1,
+        //     "doctorName": "saisharan",
+        //     "phoneNumber": "9959584192",
+        //     "password": "Dhoni@2005",
+        //     "email": "duginisaisharan@gmail.come",
+        //     "doctorId": "D29sais4192",
+        //     "doctorDetails": null
+        //   },
+  
         age: '',
         gender: '',
         address: '',
@@ -34,13 +42,21 @@ export default function Details() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const data = {};
+        data.email = doctorRegister.email;
+        data.doctorName = doctorRegister.name;
+        data.password = doctorRegister.password;
+        data.phoneNumber = doctorRegister.phoneNumber
+        data.doctorDetails = formData;
+        console.log(data);
+
         try {
-            const response = await fetch('http://localhost:8080/doctor/profile', {
+            const response = await fetch('http://localhost:8080/doctor/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(data)
             });
 
             if (response.ok) {
@@ -48,6 +64,7 @@ export default function Details() {
             } else {
                 console.error('Failed to save doctor details');
             }
+            navigate("/login")
         } catch (error) {
             console.error('Error:', error);
         }

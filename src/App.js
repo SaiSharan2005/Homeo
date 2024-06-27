@@ -35,7 +35,7 @@ export default function App(){
           <Route exact path="/" element={<Base />} />
           <Route exact path="/register" element={<Register />} />
           <Route exact path="/login" element={<Login />} />
-          <Route path= "/details/doctor" element={<Details/>}/>
+          <Route path= "/doctor/details" element={<Details/>}/>
 
           {/* Patient Screens and Components */}
           <Route exact path="/patient/signup" element={<PatientSignUp />} />
