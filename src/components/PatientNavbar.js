@@ -54,7 +54,7 @@ export default function PatientNavbar() {
                 <div className="text-black font-bold lg:text-2xl">LOGO</div>
                 <div className="flex items-center space-x-6">
                     <div className="hidden md:flex space-x-6">
-                        <Link>
+                        <Link to = "/patient/home">
                         <button
                             className={`p-2 lg:px-4 font-semibold bg-transparent ${selectedOption === 'Option 1' ? 'text-white' : 'text-black'}`}
                             onClick={() => handleOptionChange('Option 1')}

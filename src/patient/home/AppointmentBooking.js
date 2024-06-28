@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-
+import { useNavigate, useParams } from "react-router-dom";
+import PatientNavbar from "../../components/PatientNavbar";
 const AppointmentBooking = () => {
   const { doctorId } = useParams();
   const [doctor, setDoctor] = useState(null);
   const [schedules, setSchedules] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate()
 
   useEffect(() => {
     // Fetch the doctor data based on doctorId
@@ -83,7 +84,10 @@ const AppointmentBooking = () => {
       });
       
       if (response.ok) {
-        console.log("Appointment booked successfully!");
+        const responseData = await response.json();
+        console.log("Appointment booked successfully!" +responseData);
+        // console.log(responseData)
+        navigate( `/token/${responseData.token}`)
         // Optionally update the schedule state to reflect the booked appointment
         setSchedules((prevSchedules) =>
           prevSchedules.map((sch) =>
@@ -93,6 +97,8 @@ const AppointmentBooking = () => {
       } else {
         console.error("Failed to book appointment");
       }
+      
+
     } catch (error) {
       console.error("Failed to book appointment:", error);
     }
@@ -116,13 +122,29 @@ const AppointmentBooking = () => {
   };
 
   return (
+    <>
+    
+    <PatientNavbar/>
     <div className="min-h-[90vh] bg-gray-50 flex flex-col items-center">
       <main className="w-full max-w-3xl mt-8 p-4 bg-white shadow-md rounded-md">
         <h1 className="text-2xl font-bold">{doctor.doctorName}</h1>
-        <p className="text-[#2BA78F]">
-          {doctor.specialty || "Specialty not specified"}
-        </p>
 
+        
+
+        {doctor.doctorDetails && (
+            <>
+              <p className="text-[#2BA78F]">
+                {doctor.doctorDetails.specialization || "Specialty not specified"}
+              </p>
+
+              <p className="">Phone Number : {doctor.phoneNumber}</p>
+              <p className="">Consultation Fee : {doctor.doctorDetails.consultationFee}</p>
+              <p className="">
+                Address : {doctor.doctorDetails.address} {doctor.doctorDetails.city}
+              </p>
+            </>
+          )}
+    
         <div>
           <h2 className="text-lg font-semibold mb-4">Select a time</h2>
           <p className="mb-4">
@@ -148,12 +170,12 @@ const AppointmentBooking = () => {
                   })
                   .map((schedule) => (
                     <button
-                      onClick={() => setSelectedSchedule(schedule)}
-                      key={schedule.scheduleId}
-                      className={`px-4 py-2 rounded ${
-                        schedule.booked ? "bg-red-300" : "bg-green-400"
-                      } ${schedule === selectedSchedule ? "bg-blue-400" : ""}`}
-                      disabled={schedule.booked}
+                    onClick={() => setSelectedSchedule(schedule)}
+                    key={schedule.scheduleId}
+                    className={`px-4 py-2 rounded ${
+                      schedule.booked ? "bg-red-300" : "bg-green-400"
+                    } ${schedule === selectedSchedule ? "bg-blue-400" : ""}`}
+                    disabled={schedule.booked}
                     >
                       {formatTime(schedule.startTime)}
                     </button>
@@ -171,12 +193,12 @@ const AppointmentBooking = () => {
                   })
                   .map((schedule) => (
                     <button
-                      onClick={() => setSelectedSchedule(schedule)}
-                      key={schedule.scheduleId}
-                      className={`px-4 py-2 rounded ${
-                        schedule.booked ? "bg-red-300" : "bg-green-400"
-                      } ${schedule === selectedSchedule ? "bg-blue-400" : ""}`}
-                      disabled={schedule.booked}
+                    onClick={() => setSelectedSchedule(schedule)}
+                    key={schedule.scheduleId}
+                    className={`px-4 py-2 rounded ${
+                      schedule.booked ? "bg-red-300" : "bg-green-400"
+                    } ${schedule === selectedSchedule ? "bg-blue-400" : ""}`}
+                    disabled={schedule.booked}
                     >
                       {formatTime(schedule.startTime)}
                     </button>
@@ -193,6 +215,7 @@ const AppointmentBooking = () => {
         </div>
       </main>
     </div>
+</>
   );
 };
 

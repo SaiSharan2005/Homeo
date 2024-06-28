@@ -50,7 +50,7 @@ export default function PatientLogin() {
       localStorage.setItem("userId",responseData.id);
       localStorage.setItem("PatientId",responseData.patientId);
       localStorage.setItem("role","patient");
-      navigate('/');
+      navigate('/patient/home');
 
       // Handle success, maybe redirect or show a success message
       return {

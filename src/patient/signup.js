@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function PatientSignUp(){
+  const navigate = useNavigate()
     const [credentials, setcredentials] = useState({
         name: "",
         number: "",
@@ -33,6 +35,7 @@ export default function PatientSignUp(){
                 },
                 body: JSON.stringify(data)
               });
+              navigate("/login")
           
               if (!response.ok) {
                 const errorMessage = await response.text();

@@ -49,9 +49,9 @@ export default function DoctorLogin() {
       console.log('Doctor registered successfully:', responseData);
       localStorage.setItem("userId",responseData.id);
       localStorage.setItem("doctorId",responseData.doctorId);
-      localStorage.setItem("role","patient");
+      localStorage.setItem("role","doctor");
 
-      navigate('/');
+      navigate('/doctor/home');
 
       // Handle success, maybe redirect or show a success message
       return {
