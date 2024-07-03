@@ -6,9 +6,9 @@ export default function LoginStaff() {
   const navigate = useNavigate();
 
   const [credentials, setCredentials] = useState({
-    name: "",
+    // name: "",
     phoneNumber: "",
-    email: "",
+    // email: "",
     password: "",
   });
 
@@ -23,9 +23,9 @@ export default function LoginStaff() {
 
 
   const registerDoctor = async () => {
-    const url = 'http://localhost:8080/doctor/register';
+    const url = 'http://localhost:8080/staff/login';
     const data = {
-      doctorName: credentials.name,
+      // doctorName: credentials.name,
       phoneNumber: credentials.phoneNumber,
       email: credentials.email,
       password: credentials.password
@@ -84,7 +84,7 @@ export default function LoginStaff() {
       onSubmit={handleSubmit}
     >
       <div className="w-full flex flex-row flex-wrap justify-center gap-4 lg:gap-x-8">
-        <input
+        {/* <input
           id="nameInput"
           type="text"
           name="name"
@@ -93,7 +93,7 @@ export default function LoginStaff() {
           value={credentials.name}
           onChange={onChange}
           required
-        />
+        /> */}
         <input
           id="phoneNumberInput"
           type="number"
@@ -104,7 +104,8 @@ export default function LoginStaff() {
           onChange={onChange}
           required
         />
-        <input
+
+        {/* <input
           id="emailInput"
           type="email"
           name="email"
@@ -113,7 +114,7 @@ export default function LoginStaff() {
           value={credentials.email}
           onChange={onChange}
           required
-        />
+        /> */}
         <input
           id="passwordInput"
           type="text"
@@ -127,6 +128,7 @@ export default function LoginStaff() {
       </div>
       <button
         type="submit"
+        onClick={registerDoctor}
         className="inline font-semibold py-3 px-6 text-lg bg-[#228672] text-white rounded-full hover:bg-[#1a6456] focus:outline-none"
       >
         Submit

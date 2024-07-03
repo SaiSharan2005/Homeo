@@ -145,7 +145,7 @@
 
 import React, { useState } from 'react';
 import DoctorLogin from './doctor/Login';
-import LoginStaff from "./staff/signup";
+import LoginStaff from "./staff/login";
 import img from "./images/doctorPatient.jpg";
 import {Link} from "react-router-dom";
 import PatientLogin from './patient/login';

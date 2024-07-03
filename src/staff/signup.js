@@ -34,9 +34,9 @@ export default function StaffSignUp() {
     <form
       className="w-full flex flex-col justify-center items-center gap-y-6 py-3 lg:py-8"
       onSubmit={handleSubmit}
-    >
+    >ertghyjukmnbvfgth
       <div className="w-full flex flex-row flex-wrap justify-center gap-4 lg:gap-x-8">
-        <input
+        {/* <input
           id="nameInput"
           type="text"
           name="name"
@@ -45,7 +45,7 @@ export default function StaffSignUp() {
           value={credentials.name}
           onChange={onChange}
           required
-        />
+        /> */}
         <input
           id="phoneNumberInput"
           type="number"
@@ -56,7 +56,7 @@ export default function StaffSignUp() {
           onChange={onChange}
           required
         />
-        <input
+        {/* <input
           id="emailInput"
           type="email"
           name="email"
@@ -65,7 +65,7 @@ export default function StaffSignUp() {
           value={credentials.email}
           onChange={onChange}
           required
-        />
+        /> */}
         <input
           id="passwordInput"
           type="text"
