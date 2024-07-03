@@ -16,18 +16,22 @@ import Details from "./doctor/Details";
 // Doctor imports
 import DoctorSignUp from "./doctor/signup";
 import DoctorHome from "./doctor/home/DoctorHome";
-
+import DoctorScheduleCreation from "./doctor/DoctorScheduleCreation";
+import DoctorProfile from "./doctor/home/DoctorProfile";
+import DoctorHistory from "./doctor/History"
 // Patient imports
 import PatientSignUp from "./patient/signup";
 import PatientHome from "./patient/home/PatientHome";
 import AppointmentDetails from "./patient/AppointmentDetails";
-// import GetAllAppointment from "./staff/GetAllAppointment"
-// Staff imports
+import AppointmentBooking from "./staff/AppointmentBooking"
+import PatientHistory from "./patient/History";
+
 import StaffSignUp from "./staff/signup";
 import DoctorSearch from "./patient/home/DoctorSearch";
-import AppointmentBooking from "./patient/home/AppointmentBooking";
 import GetAllAppointment from "./staff/GetAllAppointment";
-import UpdateAppointment from "./patient/home/UpdateAppointment";
+import UpdateAppointment from "./staff/UpdateAppointment";
+import PatientProfile from "./patient/home/PatientProfile";
+import Schedules from "./doctor/home/Schedules";
 
 export default function App(){
   return (
@@ -40,12 +44,18 @@ export default function App(){
           <Route exact path="/login" element={<Login />} />
           <Route path= "/doctor/details" element={<Details/>}/>
           <Route path="/AllAppointment" element={<GetAllAppointment/>}/>
+          <Route path = "/doctorSchedule/Create" element= {<DoctorScheduleCreation/>} />
+          <Route path = "/doctor/profile" element= {<DoctorProfile/>} />
+          <Route path = "/doctor/schedule" element={<Schedules/>}/>
+          <Route path = "/doctor/history" element={<DoctorHistory/>}/>
+
           {/* Patient Screens and Components */}
           <Route exact path="/patient/signup" element={<PatientSignUp />} />
           <Route exact path="/patient/home" element={<PatientHome />} />
           <Route path="/doctorSearch" element={<DoctorSearch/>}/>
           <Route path = "/token/:tokenId/" element= {<AppointmentDetails/>}/>
-
+          <Route path="/patient/details" element = {<PatientProfile/>}/>
+          <Route path = "/patient/history" element = {<PatientHistory/>}/>
 
           {/* Doctor Screens and Components */}
           <Route exact path="/doctor/signup" element={<DoctorSignUp />} />

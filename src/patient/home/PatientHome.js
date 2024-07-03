@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import AppointmentBooking from './AppointmentBooking';
-import DoctorSearch from './DoctorSearch';
-import PatientProfile from './PatientProfile';
+// import AppointmentBooking from './AppointmentBooking';
+
 import logo from '../../images/doctorPatient.jpg'; // Adjust the path as needed
 import heroImage from '../../images/doctorPatient.jpg'; // Adjust the path as needed
 import serviceImage1 from '../../images/doctorPatient.jpg'; // Adjust the path as needed

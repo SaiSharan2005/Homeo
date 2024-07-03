@@ -88,7 +88,7 @@ export default function Details() {
                         onSubmit={handleSubmit}
                     >
                         <div className="w-full flex flex-row flex-wrap justify-center gap-4 lg:gap-x-8">
-                            <input
+                            {/* <input
                                 id="doctorIdInput"
                                 type="text"
                                 name="doctorId"
@@ -97,7 +97,7 @@ export default function Details() {
                                 value={formData.doctorId}
                                 onChange={handleInputChange}
                                 required
-                            />
+                            /> */}
                             <input
                                 id="ageInput"
                                 type="number"

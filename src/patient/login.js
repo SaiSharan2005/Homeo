@@ -48,7 +48,7 @@ export default function PatientLogin() {
       const responseData = await response.json();
       console.log('Doctor registered successfully:', responseData);
       localStorage.setItem("userId",responseData.id);
-      localStorage.setItem("PatientId",responseData.patientId);
+      localStorage.setItem("patientId",responseData.patientId);
       localStorage.setItem("role","patient");
       navigate('/patient/home');
 

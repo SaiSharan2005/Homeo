@@ -7,7 +7,7 @@ import React, { useState, useRef, useEffect } from 'react';
 // import serviceImage1 from '../../images/doctorPatient.jpg'; // Adjust the path as needed
 // import serviceImage2 from '../../images/doctorPatient.jpg'; // Adjust the path as needed
 // import serviceImage3 from '../../images/doctorPatient.jpg'; // Adjust the path as needed
-import {Link} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
 
 export default function PatientNavbar() {
     const [activeButton, setActiveButton] = useState(1);
@@ -15,7 +15,7 @@ export default function PatientNavbar() {
     const [isOpen, setIsOpen] = useState(false);
     const profileMenuRef = useRef(null);
     const mobileMenuRef = useRef(null);
-
+    const navigator = useNavigate();
     const handleButtonClick = (buttonId) => {
         setActiveButton(buttonId);
     };
@@ -69,8 +69,8 @@ export default function PatientNavbar() {
                         
                         <button
                             className={`p-2 lg:px-4 font-semibold bg-transparent ${selectedOption === 'Option 3' ? 'text-white' : 'text-black'}`}
-                            onClick={() => handleOptionChange('Option 3')}
-                        >Medical Records</button>
+                            onClick={() => navigator("/patient/history")}
+                        >Appointment</button>
                         <button
                             className={`p-2 lg:px-4 font-semibold bg-transparent ${selectedOption === 'Option 4' ? 'text-white' : 'text-black'}`}
                             onClick={() => handleOptionChange('Option 4')}

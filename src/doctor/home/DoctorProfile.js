@@ -1,17 +1,18 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
+import DoctorNavbar from "../../components/DoctorNavbar";
+import { fetchDoctorById } from "../../utils/doctorService";
 // Assuming you have a constant or variable for doctor details
-const doctor = {
-  name: "Dr. John Doe",
-  specialization: "Cardiologist",
-  experience: "15+ years",
-  clinic: "HeartCare Clinic",
-  phoneNumber: "987-654-3210",
-  email: "john.doe@example.com",
-  address: "123 Cardiology Street, Cityville, State, Country",
-};
+// const doctor = {
+//   name: "Dr. John Doe",
+//   specialization: "Cardiologist",
+//   experience: "15+ years",
+//   clinic: "HeartCare Clinic",
+//   phoneNumber: "987-654-3210",
+//   email: "john.doe@example.com",
+//   address: "123 Cardiology Street, Cityville, State, Country",
+// };
 
 const PencilIcon = ({ onClick }) => (
   <svg
@@ -34,12 +35,17 @@ const PencilIcon = ({ onClick }) => (
 const DoctorProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedDoctor, setEditedDoctor] = useState({ ...doctor });
-
+  const [doctor,setDoctor] = useState({});
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditedDoctor({ ...editedDoctor, [name]: value });
   };
 
+  useEffect(async()=>{
+    const data =await fetchDoctorById(localStorage.getItem("doctorId"))
+
+    setDoctor(data);
+  },)
   const handleFormSubmit = (e) => {
     e.preventDefault();
     // Implement logic to save editedDoctor data
@@ -48,6 +54,8 @@ const DoctorProfile = () => {
   };
 
   return (
+    <>
+    <DoctorNavbar/>
     <div className="min-h-[90vh] flex flex-col bg-[#E3F9F5]">
       <main className="flex-1 bg-[#F7FAFC] p-8">
         <div className="flex justify-between items-center">
@@ -59,7 +67,7 @@ const DoctorProfile = () => {
               src="https://via.placeholder.com/150"
               alt="Profile"
               className="w-24 h-24 rounded-full"
-            />
+              />
             <div>
               <h2 className="text-xl font-bold">{doctor.name}</h2>
               <p className="text-gray-600">{doctor.specialization}</p>
@@ -90,7 +98,7 @@ const DoctorProfile = () => {
                         value={editedDoctor.clinic}
                         onChange={handleInputChange}
                         className="border-gray-300 border p-2 rounded-md w-2/3"
-                      />
+                        />
                     </div>
                     <div className="flex justify-between">
                       <label htmlFor="specialization" className="font-semibold">
@@ -103,7 +111,7 @@ const DoctorProfile = () => {
                         value={editedDoctor.specialization}
                         onChange={handleInputChange}
                         className="border-gray-300 border p-2 rounded-md w-2/3"
-                      />
+                        />
                     </div>
                     <div className="flex justify-between">
                       <label htmlFor="experience" className="font-semibold">
@@ -116,7 +124,7 @@ const DoctorProfile = () => {
                         value={editedDoctor.experience}
                         onChange={handleInputChange}
                         className="border-gray-300 border p-2 rounded-md w-2/3"
-                      />
+                        />
                     </div>
                     <div className="flex justify-between">
                       <label htmlFor="phoneNumber" className="font-semibold">
@@ -129,7 +137,7 @@ const DoctorProfile = () => {
                         value={editedDoctor.phoneNumber}
                         onChange={handleInputChange}
                         className="border-gray-300 border p-2 rounded-md w-2/3"
-                      />
+                        />
                     </div>
                     <div className="flex justify-between">
                       <label htmlFor="email" className="font-semibold">
@@ -142,7 +150,7 @@ const DoctorProfile = () => {
                         value={editedDoctor.email}
                         onChange={handleInputChange}
                         className="border-gray-300 border p-2 rounded-md w-2/3"
-                      />
+                        />
                     </div>
                     <div className="flex justify-between">
                       <label htmlFor="address" className="font-semibold">
@@ -155,13 +163,13 @@ const DoctorProfile = () => {
                         value={editedDoctor.address}
                         onChange={handleInputChange}
                         className="border-gray-300 border p-2 rounded-md w-2/3"
-                      />
+                        />
                     </div>
                     <div className="flex justify-end">
                       <button
                         type="submit"
                         className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mt-4"
-                      >
+                        >
                         Save
                       </button>
                     </div>
@@ -244,6 +252,7 @@ const DoctorProfile = () => {
         </div>
       </main>
     </div>
+              </>
   );
 };
 
