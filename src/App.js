@@ -11,7 +11,7 @@ import {
 import Base from './base';
 import Register from './register';
 import Login from './login';
-import Details from "./doctor/Details";
+import DoctorDetails from "./doctor/Details";
 
 // Doctor imports
 import DoctorSignUp from "./doctor/signup";
@@ -23,7 +23,7 @@ import DoctorHistory from "./doctor/History"
 import PatientSignUp from "./patient/signup";
 import PatientHome from "./patient/home/PatientHome";
 import AppointmentDetails from "./patient/AppointmentDetails";
-import AppointmentBooking from "./staff/AppointmentBooking"
+// import AppointmentBooking from "./staff/AppointmentBooking"
 import PatientHistory from "./patient/History";
 
 import StaffSignUp from "./staff/signup";
@@ -32,6 +32,12 @@ import GetAllAppointment from "./staff/GetAllAppointment";
 import UpdateAppointment from "./staff/UpdateAppointment";
 import PatientProfile from "./patient/home/PatientProfile";
 import Schedules from "./doctor/home/Schedules";
+import StaffHome from "./staff/Home/Home";
+import UploadForm from "./staff/Adv";
+import AdvManagement from "./staff/Home/AdvManage";
+import BannerTable from "./staff/Home/AdvManage";
+import AdvertisementForm from "./staff/Adv";
+import AppointmentBooking from "./staff/AppointmentBooking";
 
 export default function App(){
   return (
@@ -42,7 +48,7 @@ export default function App(){
           <Route exact path="/" element={<Base />} />
           <Route exact path="/register" element={<Register />} />
           <Route exact path="/login" element={<Login />} />
-          <Route path= "/doctor/details" element={<Details/>}/>
+          <Route path= "/doctor/details" element={<DoctorDetails/>}/>
           <Route path="/AllAppointment" element={<GetAllAppointment/>}/>
           <Route path = "/doctorSchedule/Create" element= {<DoctorScheduleCreation/>} />
           <Route path = "/doctor/profile" element= {<DoctorProfile/>} />
@@ -65,8 +71,11 @@ export default function App(){
 
           {/* Staff Screens and Components */}
           <Route exact path="/staff/signup" element={<StaffSignUp />} />
+          <Route exact path="/staff/home" element={<GetAllAppointment />} />
           <Route path = "/GetAllAppointment" element={<GetAllAppointment/>}/>
-
+          <Route path = "/adv" element={<UploadForm/>}/>
+          <Route path = "/adv/management" element={<BannerTable/>}/>
+          
         </Routes>
       </div>
     </Router>

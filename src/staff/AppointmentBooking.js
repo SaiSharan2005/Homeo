@@ -61,7 +61,7 @@ const AppointmentBooking = () => {
       return;
     }
 
-    const patientDetail = await getPatientDetail(localStorage.getItem("PatientId"));
+    const patientDetail = await getPatientDetail(localStorage.getItem("patientId"));
     if (!patientDetail) {
       console.error("Failed to fetch patient detail");
       return;
@@ -85,6 +85,28 @@ const AppointmentBooking = () => {
       
       if (response.ok) {
         const responseData = await response.json();
+
+
+
+
+
+
+
+        const sendEmail = async () => {
+          try {
+            const response = await fetch(`http://localhost:8080/sendEmail?Token=${responseData.token}`);
+            if (!response.ok) {
+              throw new Error('Failed to send email');
+            }
+            const data = await response.text();
+            console.log(data); // Log success message
+            alert('Email sent successfully!');
+          } catch (error) {
+            console.error('Error sending email:', error);
+            alert('Failed to send email. Please try again later.');
+          }
+        };
+        sendEmail()
         console.log("Appointment booked successfully!" +responseData);
         // console.log(responseData)
         navigate( `/token/${responseData.token}`)

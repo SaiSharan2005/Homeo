@@ -101,7 +101,7 @@ export default function DoctorHome() {
 
       <div className="bg-white">
         <main className="flex justify-center items-center h-full py-20">
-          <div className="bg-white p-8 rounded-lg shadow-md flex items-center space-x-8 max-w-4xl">
+          <div className="bg-white p-8 rounded-lg shadow-md flex items-center space-x-8 max-w-[60vw]">
             <img src={image} alt="Health" className="rounded-lg w-1/2" />
             <div>
               <h1 className="text-4xl font-bold mb-4">

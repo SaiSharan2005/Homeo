@@ -46,8 +46,11 @@ export default function LoginStaff() {
       }
   
       const responseData = await response.json();
+      localStorage.setItem("staffId",responseData.id)
+      localStorage.setItem("role",responseData.role)
+
       console.log('Doctor registered successfully:', responseData);
-      navigate('/');
+      navigate('/staff/home');
 
       // Handle success, maybe redirect or show a success message
       return {
