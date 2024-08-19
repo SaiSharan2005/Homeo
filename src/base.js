@@ -332,6 +332,7 @@ export default function Base() {
                 <img
                   className="aspect-[1/1] w-11/12 lg:h-11/12 rounded-[2rem]"
                   src={`${image}`}
+                  alt = {"image"}
                 />
               </div>
               <div className="w-5/6 lg:flex-1 h-[55vh] lg:h-5/6 rectangle rounded-b-[2rem] lg:rounded-none lg:rounded-r-[2rem] bg-[#AADCD2]"></div>

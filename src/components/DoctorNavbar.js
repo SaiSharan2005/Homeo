@@ -2,16 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 
 export default function DoctorNavbar() {
-    const [activeButton, setActiveButton] = useState(1);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    // const [activeButton, setActiveButton] = useState(1);
+    // const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const profileMenuRef = useRef(null);
     const mobileMenuRef = useRef(null);
     const navigate = useNavigate();
 
-    const handleButtonClick = (buttonId) => {
-        setActiveButton(buttonId);
-    };
+    // const handleButtonClick = (buttonId) => {
+    //     setActiveButton(buttonId);
+    // };
 
     const [selectedOption, setSelectedOption] = useState('Option 1');
 

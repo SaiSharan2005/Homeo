@@ -11,7 +11,6 @@ import {
 } from "react-router-dom";
 
 // Landing Page imports
-import Base from './base';
 import Register from './register';
 import Login from './login';
 import DoctorDetails from "./doctor/Details";
@@ -34,9 +33,9 @@ import DoctorSearch from "./patient/home/DoctorSearch";
 import StaffDoctorSearch from "./staff/Search/Doctor-Search";
 import GetAllAppointment from "./staff/GetAllAppointment";
 import UpdateAppointment from "./staff/UpdateAppointment";
-import PatientProfile from "./patient/home/PatientProfile";
+// import PatientProfile from "./patient/home/PatientProfile";
 import Schedules from "./doctor/home/Schedules";
-import StaffHome from "./staff/Home/Home";
+// import StaffHome from "./staff/Home/Home";
 // import UploadForm from "./staff/Adv";
 // import AdvManagement from "./staff/Home/AdvManage";
 // import BannerTable from "./staff/Home/AdvManage";
@@ -56,7 +55,7 @@ import DoctorActivitySearch from "./staff/activity/Doctor-Activity";
 import PatientActivitySearch from "./staff/activity/Patient-Activity";
 import AppointmentActivitySearch from "./staff/activity/Appointment-Activity";
 import AdvertisementActivitySearch from "./staff/activity/Advertisement-Activity";
-import Home from "./base";
+// import Home from "./base";
 import Mainhome from "./crocs/views/home"
 
 export default function App(){
