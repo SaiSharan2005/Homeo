@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function DoctorNavbar() {
     // const [activeButton, setActiveButton] = useState(1);
-    // const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const profileMenuRef = useRef(null);
     const mobileMenuRef = useRef(null);
