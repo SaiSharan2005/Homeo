@@ -235,7 +235,6 @@
 // };
 
 // export default DoctorScheduleCreation;
-
 import React, { useState, useEffect } from "react";
 import { format, addMinutes, parse } from "date-fns";
 import DoctorNavbar from "../components/DoctorNavbar";
@@ -246,6 +245,7 @@ const DoctorScheduleCreation = () => {
   const [endTime, setEndTime] = useState("5:00 PM");
   const [timeGap, setTimeGap] = useState("15 minutes");
   const [schedules, setSchedules] = useState([]);
+  const [notification, setNotification] = useState("");
 
   // Function to generate time slots based on start time, end time, and time gap
   const generateSlots = () => {
@@ -280,7 +280,7 @@ const DoctorScheduleCreation = () => {
   };
 
   function addMinutesToTime(timeString, minutesToAdd) {
-    var timeParts = timeString.split(':');
+    var timeParts = timeString.split(":");
     var hours = parseInt(timeParts[0]);
     var minutes = parseInt(timeParts[1]);
     var date = new Date();
@@ -289,14 +289,16 @@ const DoctorScheduleCreation = () => {
     date.setMinutes(date.getMinutes() + minutesToAdd);
     var newHours = date.getHours();
     var newMinutes = date.getMinutes();
-    var formattedHours = (newHours < 10 ? '0' : '') + newHours;
-    var formattedMinutes = (newMinutes < 10 ? '0' : '') + newMinutes;
-    return formattedHours + ':' + formattedMinutes;
+    var formattedHours = (newHours < 10 ? "0" : "") + newHours;
+    var formattedMinutes = (newMinutes < 10 ? "0" : "") + newMinutes;
+    return formattedHours + ":" + formattedMinutes;
   }
 
   const CreateSchedule = async () => {
     try {
-      const doctorData = await fetchDoctorById(localStorage.getItem("doctorId"));
+      const doctorData = await fetchDoctorById(
+        localStorage.getItem("doctorId")
+      );
       const data = schedules.map((slot) => ({
         doctorId: doctorData,
         startTime: slot,
@@ -304,29 +306,37 @@ const DoctorScheduleCreation = () => {
         inUse: true,
       }));
 
-      await fetch(process.env.REACT_APP_BACKEND_URL+"/doctor-timings/set-in-use-false", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(doctorData),
-      });
+      await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/doctor-timings/set-in-use-false",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(doctorData),
+        }
+      );
 
-      const response = await fetch(process.env.REACT_APP_BACKEND_URL+"/doctor-timings/multi", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/doctor-timings/multi",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to create schedules");
       }
 
-      console.log("Schedules created successfully");
+      // Display success notification
+      setNotification("Schedules created successfully!");
     } catch (error) {
       console.error("Error creating schedules:", error);
+      setNotification("Error creating schedules.");
     }
   };
 
@@ -340,6 +350,14 @@ const DoctorScheduleCreation = () => {
       <div className="flex flex-col min-h-screen bg-gradient-to-r from-[#00B4DB] to-[#0083B0] text-white">
         <div className="container mx-auto p-6">
           <h1 className="text-3xl font-bold mb-6 text-center">Create Your Schedule</h1>
+          
+          {/* Notification */}
+          {notification && (
+            <div className={`mb-4 p-4 rounded-lg ${notification.includes('success') ? 'bg-green-500' : 'bg-red-500'} text-white text-center`}>
+              {notification}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white text-black p-6 rounded-lg shadow-lg">
               <label className="block mb-4">
@@ -373,7 +391,9 @@ const DoctorScheduleCreation = () => {
                 />
               </label>
               <div className="flex justify-between">
-                <button className="bg-red-500 text-white px-4 py-2 rounded-lg">Cancel</button>
+                <button className="bg-red-500 text-white px-4 py-2 rounded-lg">
+                  Cancel
+                </button>
                 <button
                   className="bg-blue-500 text-white px-4 py-2 rounded-lg"
                   onClick={CreateSchedule}
@@ -387,7 +407,10 @@ const DoctorScheduleCreation = () => {
               <p className="mb-4">{`${startTime} - ${endTime} with a ${timeGap} slot`}</p>
               <div className="space-y-2">
                 {schedules.map((slot, index) => (
-                  <div key={index} className="flex items-center justify-between bg-gray-100 p-3 rounded-lg">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between bg-gray-100 p-3 rounded-lg"
+                  >
                     <span>{slot}</span>
                     <button
                       className="text-red-500"

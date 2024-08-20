@@ -29,12 +29,10 @@ export default function AdBanner({ targetPage }) {
   }, [targetPage]);
 
   return (
-    <div className="w-[15vw]">
+    <div className="w-full lg:w-[15vw] my-4 lg:my-0">
       {ad ? (
         <div className="ad-banner bg-blue-500">
           <img src={ad.imageUrl} alt={ad.title} className="w-full h-auto" />
-          <h2 className="text-white text-center">{ad.title}</h2>
-          <p className="text-white text-center">{ad.description}</p>
         </div>
       ) : (
         <div className="ad-placeholder"></div>
