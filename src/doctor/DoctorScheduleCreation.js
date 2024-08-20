@@ -312,7 +312,7 @@ const DoctorScheduleCreation = () => {
         body: JSON.stringify(doctorData),
       });
 
-      const response = await fetch("/doctor-timings/multi", {
+      const response = await fetch(process.env.REACT_APP_BACKEND_URL+"/doctor-timings/multi", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
