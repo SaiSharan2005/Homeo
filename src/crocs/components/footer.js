@@ -205,7 +205,7 @@ Footer.defaultProps = {
   link5: 'Privacy Policy',
   link8: 'Copyright Notice',
   action1: '#subscribe',
-  content3: '&copy; 2023 Hospital Management Officer. All rights reserved.',
+  content3: '2023 Hospital Management Officer. All rights reserved.',
   link4: 'Terms of Service',
   logoSrc: 'https://presentation-website-assets.teleporthq.io/logos/logo.png',
   cookiesLink: '/cookies-policy',
