@@ -148,58 +148,52 @@ import LoginStaff from "./staff/login";
 import img from "./images/doctorPatient.jpg";
 import {Link} from "react-router-dom";
 import PatientLogin from './patient/login';
-
-export default function Register(){
-    const [selectedOption, setSelectedOption] = useState('Option 2');
+export default function Register() {
+    const [selectedOption, setSelectedOption] = useState('Patient');
 
     const handleOptionChange = (option) => {
         setSelectedOption(option);
     };
+
     return (
-        <div className="h-screen bg-[#f0f4f7] w-full flex flex-col justify-center items-center relative">
-            {/* <div className="absolute top-5 left-10 z-10">
-                <Link to="/" className="flex items-center space-x-2">
-                    <img src="https://flowbite.com/docs/images/logo.svg" className="h-6 md:h-8" alt="Flowbite Logo" />
-                    <span className="self-center text-lg font-semibold text-gray-800 sm:text-2xl">Flowbite</span>
-                </Link>
-            </div> */}
+        <div className="min-h-screen bg-[#f0f4f7] flex flex-col justify-center items-center">
             <div className="flex flex-col-reverse lg:flex-row items-center justify-center w-full lg:w-5/6 bg-white lg:bg-[#eef8f6] lg:rounded-2xl shadow-lg overflow-hidden">
-                <div className="hidden md:block lg:w-1/2">
+                <div className="hidden lg:block lg:w-1/2">
                     <img className="h-full w-full object-cover" src={img} alt="Doctor and Patient" />
                 </div>
                 {/* Divider */}
                 <div className="hidden lg:block border-l border-[#2BA78F] h-full"></div>
                 {/* Form Section */}
-                <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 py-12 lg:py-0 lg:px-12 bg-white">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-6 pt-[100px]">Login Now</h1>
-                    <p className="text-lg mb-4">Select your role to login:</p>
-                    <div className="flex justify-start mb-6 space-x-4">
+                <div className="w-full lg:w-1/2 flex flex-col justify-center px-4 lg:px-12 py-8 lg:py-12 bg-white">
+                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-4 lg:mb-6 pt-4 lg:pt-0">Login Now</h1>
+                    <p className="text-md lg:text-lg mb-4">Select your role to login:</p>
+                    <div className="flex justify-center lg:justify-start mb-4 lg:mb-6 space-x-2 lg:space-x-4">
                         <button
-                            className={`py-2 px-6 rounded-full text-lg font-semibold transition-all duration-300 ${selectedOption === 'Option 1' ? 'bg-[#2BA78F] text-white shadow-lg' : 'bg-white text-[#2BA78F] border border-[#2BA78F]'}`}
-                            onClick={() => handleOptionChange('Option 1')}
+                            className={`py-2 px-4 lg:px-6 rounded-full text-sm lg:text-lg font-semibold transition-all duration-300 ${selectedOption === 'Doctor' ? 'bg-[#2BA78F] text-white shadow-lg' : 'bg-white text-[#2BA78F] border border-[#2BA78F]'}`}
+                            onClick={() => handleOptionChange('Doctor')}
                         >
                             Doctor
                         </button>
                         <button
-                            className={`py-2 px-6 rounded-full text-lg font-semibold transition-all duration-300 ${selectedOption === 'Option 2' ? 'bg-[#2BA78F] text-white shadow-lg' : 'bg-white text-[#2BA78F] border border-[#2BA78F]'}`}
-                            onClick={() => handleOptionChange('Option 2')}
+                            className={`py-2 px-4 lg:px-6 rounded-full text-sm lg:text-lg font-semibold transition-all duration-300 ${selectedOption === 'Patient' ? 'bg-[#2BA78F] text-white shadow-lg' : 'bg-white text-[#2BA78F] border border-[#2BA78F]'}`}
+                            onClick={() => handleOptionChange('Patient')}
                         >
                             Patient
                         </button>
                         <button
-                            className={`py-2 px-6 rounded-full text-lg font-semibold transition-all duration-300 ${selectedOption === 'Option 3' ? 'bg-[#2BA78F] text-white shadow-lg' : 'bg-white text-[#2BA78F] border border-[#2BA78F]'}`}
-                            onClick={() => handleOptionChange('Option 3')}
+                            className={`py-2 px-4 lg:px-6 rounded-full text-sm lg:text-lg font-semibold transition-all duration-300 ${selectedOption === 'Staff' ? 'bg-[#2BA78F] text-white shadow-lg' : 'bg-white text-[#2BA78F] border border-[#2BA78F]'}`}
+                            onClick={() => handleOptionChange('Staff')}
                         >
                             Staff
                         </button>
                     </div>
-                    <div className="p-6 bg-gray-50 rounded-lg shadow-md">
-                        {selectedOption === 'Option 1' && <DoctorLogin />}
-                        {selectedOption === 'Option 2' && <PatientLogin />}
-                        {selectedOption === 'Option 3' && <LoginStaff />}
+                    <div className="p-4 lg:p-6 bg-gray-50 rounded-lg shadow-md">
+                        {selectedOption === 'Doctor' && <DoctorLogin />}
+                        {selectedOption === 'Patient' && <PatientLogin />}
+                        {selectedOption === 'Staff' && <LoginStaff />}
                     </div>
-                    <div className="mt-4 text-right">
-                        <p className="pb-[50px] text-gray-700">Don't have an account? <Link to="/register" className="text-[#2BA78F] font-semibold underline">Register</Link></p>
+                    <div className="mt-4 lg:mt-6 text-center lg:text-right">
+                        <p className="pb-4 lg:pb-6 text-gray-700">Don't have an account? <Link to="/register" className="text-[#2BA78F] font-semibold underline">Register</Link></p>
                     </div>
                 </div>
             </div>
