@@ -18,7 +18,7 @@ const UpdateAppointment = () => {
     const fetchAppointmentData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/bookingAppointments/byId/${AppointmentId}`,
+          process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/byId/${AppointmentId}`,
           {
             method: "GET",
             headers: {
