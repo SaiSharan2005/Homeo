@@ -151,7 +151,7 @@ import React from "react";
 import { useState, useRef, useEffect } from "react";
 import image from "./images/image.jpg";
 import { Link } from "react-router-dom";
-import AdBanner from "./patient/Adv";
+import AdBanner from ".pages/patient/Adv";
 const custom_shadow = {
   boxShadow: "1px 1px 100px rgba(36, 139, 119, 0.5)",
 };
