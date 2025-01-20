@@ -45,8 +45,8 @@ export default function PatientSignUp(){
               
               const responseData = await response.json();
               localStorage.setItem("Token",responseData.token);
+              console.log('Patient registered successfully:', responseData);
               navigate("/patient/details",{state:{data:responseData}})
-              console.log('Doctor registered successfully:', responseData);
               // Handle success, maybe redirect or show a success message
               return {
                 "status":"success",

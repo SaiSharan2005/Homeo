@@ -274,7 +274,7 @@ const DoctorSearch = () => {
                         )}{" "}
                       </div>
                     </div>
-                    <Link to={`/BookAppoinment/${doctor.userId}`}>
+                    <Link to={`/BookAppoinment/${doctor.id}`}>
                       <button className="bg-[#AADCD2] text-gray-700 px-3 py-1 rounded-full text-sm">
                         Book now
                       </button>

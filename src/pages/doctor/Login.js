@@ -23,7 +23,7 @@ export default function DoctorLogin() {
 
 
   const registerDoctor = async () => {
-    const url = process.env.REACT_APP_BACKEND_URL+'/doctor/login';
+    const url = process.env.REACT_APP_BACKEND_URL+'/auth/login';
     const data = {
       // doctorName: credentials.name,
       phoneNumber: credentials.phoneNumber,

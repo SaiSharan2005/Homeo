@@ -296,9 +296,8 @@ const DoctorScheduleCreation = () => {
 
   const CreateSchedule = async () => {
     try {
-      const doctorData = await fetchDoctorById(localStorage.getItem("doctorId"));
       const data = schedules.map((slot) => ({
-        doctorId: doctorData,
+        // doctorId: doctorData,
         startTime: slot,
         endTime: addMinutesToTime(slot, parseInt(timeGap.split(" ")[0])),
         inUse: true,
@@ -308,14 +307,18 @@ const DoctorScheduleCreation = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem("Token")}` // Replace `token` with your actual token variable
+
         },
-        body: JSON.stringify(doctorData),
+        // body: JSON.stringify(doctorData),
       });
 
       const response = await fetch(process.env.REACT_APP_BACKEND_URL+"/doctor-timings/multi", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem("Token")}` // Replace `token` with your actual token variable
+
         },
         body: JSON.stringify(data),
       });
