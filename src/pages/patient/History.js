@@ -13,7 +13,14 @@ export default function PatientHistory() {
     const fetchData = async () => {
       const response = await fetch(
         process.env.REACT_APP_BACKEND_URL +
-          `/bookingAppointments/patient/${localStorage.getItem("userId")}`
+          `/bookingAppointments/patient/my-appointments`,
+          {
+            method: "GET", // Specify the method explicitly
+            headers: {
+              "Content-Type": "application/json", // Ensures the backend knows the data format
+              Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
+            },
+          }
       );
       const data = await response.json();
       setAppointments(data);
@@ -24,7 +31,7 @@ export default function PatientHistory() {
   // Filter appointments based on the active tab
   const filteredAppointments = appointments.filter((appointment) => {
     if (activeTab === "all") return true;
-    if (activeTab === "upcoming") return appointment.status === "upcoming";
+    if (activeTab === "upcoming") return appointment.status === "Upcoming";
     if (activeTab === "completed") return appointment.status === "completed";
     if (activeTab === "canceled")
       return appointment.status === "cancel" || appointment.status === "missed";

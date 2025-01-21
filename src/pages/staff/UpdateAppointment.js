@@ -18,7 +18,7 @@ const UpdateAppointment = () => {
     const fetchAppointmentData = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/bookingAppointments/byId/${AppointmentId}`,
+          process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/byId/${AppointmentId}`,
           {
             method: "GET",
             headers: {
@@ -28,11 +28,11 @@ const UpdateAppointment = () => {
         );
         const AppointmentDetails = await response.json();
         setBookingData(AppointmentDetails);
-        setDoctor(AppointmentDetails.doctorId);
+        setDoctor(AppointmentDetails.doctor);
         setScheduleId(AppointmentDetails.scheduleId?.scheduleId);
-        setPatient(AppointmentDetails.patientId);
+        setPatient(AppointmentDetails.patient);
         setIsLoading(false);
-        fetchSchedule(AppointmentDetails.doctorId.doctorId);
+        fetchSchedule(AppointmentDetails.doctor.id);
       } catch (error) {
         console.error("Failed to fetch appointment data:", error);
         setIsLoading(false);
@@ -62,12 +62,14 @@ const UpdateAppointment = () => {
     }
 
     // Update the booking data with selected schedule and reason
-    bookingData.scheduleId = selectedSchedule;
+    bookingData.doctorId= bookingData.doctor.id;
+    bookingData.patientId= bookingData.patient.id
+    bookingData.scheduleId = selectedSchedule.scheduleId;
     bookingData.updateReason = updateReason; // Assigning update reason
 
     try {
       const response = await fetch(
-        `http://localhost:8080/bookingAppointments/${AppointmentId}`,
+        process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/${AppointmentId}`,
         {
           method: "PUT",
           headers: {
@@ -112,7 +114,7 @@ const UpdateAppointment = () => {
   
     try {
       const response = await fetch(
-        `http://localhost:8080/appointmentHistory/add`,
+        process.env.REACT_APP_BACKEND_URL+`/appointmentHistory/add`,
         {
           method: "POST",
           headers: {
@@ -157,8 +159,8 @@ const UpdateAppointment = () => {
         <main className="w-full max-w-3xl mt-8 p-4 bg-white shadow-md rounded-md">
           <div className="flex justify-between">
             <div className="patient">
-              <h1 className="text-2xl font-bold">{patient.patientName}</h1>
-              <p className="">Patient Id : {patient.patientId}</p>
+              <h1 className="text-2xl font-bold">{patient.username}</h1>
+              <p className="">Patient Id : {patient.userId}</p>
               {doctor.doctorDetails && (
                 <>
                   <p className="">Phone Number : {patient.phoneNumber}</p>

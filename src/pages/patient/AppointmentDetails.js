@@ -82,16 +82,16 @@ const AppointmentDetails = () => {
     <PatientNavbar/>
     <div className="min-h-screen flex flex-col items-center justify-center bg-white">
       <div className="bg-white p-16 rounded-lg shadow-lg w-[80%] text-center">
-        <h1 className="text-3xl font-semibold mb-8">Thanks for booking with Dr. {appointmentData.doctorId.doctorName}!</h1>
+        <h1 className="text-3xl font-semibold mb-8">Thanks for booking with Dr. {appointmentData.doctor.username}!</h1>
         <div className="flex flex-col items-center mb-8">
           <img 
             src={image} 
-            alt={appointmentData.doctorId.doctorName} 
+            alt={appointmentData.doctor.username} 
             className="w-40 h-40 rounded-full object-cover mb-4"
             />
           <div className="text-gray-700">
-            <div className="text-xl font-medium">{`Dr. ${appointmentData.doctorId.doctorName}`}</div>
-            <div className="text-md text-gray-500">{appointmentData.doctorId.specialization}</div>
+            <div className="text-xl font-medium">{`Dr. ${appointmentData.doctor.username}`}</div>
+            <div className="text-md text-gray-500">{appointmentData.doctor.doctorDetails.specialization}</div>
           </div>
         </div>
         <div className="bg-gray-100 p-6 rounded-lg mb-8">

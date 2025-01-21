@@ -67,25 +67,25 @@ const PatientSearch = () => {
               {patients.map((patient) => (
                 <tr key={patient.id} className="hover:bg-gray-100">
                   <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                    {patient.patientName}
+                    {patient.username}
                   </td>
                   <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                    {patient.patientId}
+                    {patient.userId}
                   </td>
                   <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                    {patient.patientDetails ? patient.patientDetails.city : "N/A"}
+                    {patient.patientDetails ? patient.patientDetails.city : "-"}
                   </td>
                   <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                    {patient.patientDetails ? patient.patientDetails.age : "N/A"}
+                    {patient.patientDetails ? patient.patientDetails.age : "-"}
                   </td>
                   <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                    {patient.patientDetails ? patient.patientDetails.gender : "N/A"}
+                    {patient.patientDetails ? patient.patientDetails.gender : "-"}
                   </td>
                   <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                    {patient.patientDetails ? patient.patientDetails.address : "N/A"}
+                    {patient.patientDetails ? patient.patientDetails.address : "-"}
                   </td>
                   <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                    {patient.patientDetails ? patient.patientDetails.pincode : "N/A"}
+                    {patient.patientDetails ? patient.patientDetails.pincode : "-"}
                   </td>
                 </tr>
               ))}

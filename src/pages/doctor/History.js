@@ -11,7 +11,14 @@ export default function DoctorHistory() {
   useEffect(() => {
     const fetchData = async () => {
       const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/doctor/${localStorage.getItem("userId")}`
+        process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/doctor/my-appointments`, {
+          method: "GET",
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
+
+          },
+        }
       );
       const data = await response.json();
       setAppointments(data);

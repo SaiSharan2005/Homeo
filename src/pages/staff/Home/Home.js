@@ -185,7 +185,7 @@ const StaffHomePage = () => {
               {upcomingAppointments.map((appointment, index) => (
                 <li key={index} className="text-gray-700 flex items-center">
                   <span className="material-icons mr-3">schedule</span>
-                  {appointment.patientId.patientName} with {appointment.doctorId.doctorName} at {appointment.scheduleId.slot.startTime}
+                  {appointment.patient.username} with {appointment.doctor.username} at {appointment.scheduleId.slot.startTime}
                 </li>
               ))}
             </ul>

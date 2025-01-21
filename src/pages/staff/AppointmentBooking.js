@@ -275,16 +275,16 @@ const AppointmentBooking = () => {
     fetchDoctorData();
   }, [doctorId]);
 
-  const getPatientDetail = async (patientId) => {
-    try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_URL+`/patient/${patientId}`);
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Failed to fetch patient data:", error);
-      return null;
-    }
-  };
+  // const getPatientDetail = async (patientId) => {
+  //   try {
+  //     const response = await fetch(process.env.REACT_APP_BACKEND_URL+`/patient/${patientId}`);
+  //     const data = await response.json();
+  //     return data;
+  //   } catch (error) {
+  //     console.error("Failed to fetch patient data:", error);
+  //     return null;
+  //   }
+  // };
 
   useEffect(() => {
     // Fetch the schedules based on doctorId
@@ -308,16 +308,18 @@ const AppointmentBooking = () => {
       return;
     }
 
-    const patientDetail = await getPatientDetail(localStorage.getItem("patientId"));
-    if (!patientDetail) {
-      console.error("Failed to fetch patient detail");
-      return;
-    }
+    // const patientDetail = await getPatientDetail(localStorage.getItem("patientId"));
+    // if (!patientDetail) {
+    //   console.error("Failed to fetch patient detail");
+    //   return;
+    // }
 
     const data = {
-      doctorId: doctor,
-      patientId: patientDetail,
-      scheduleId: selectedSchedule,
+      doctorId: doctor.id,
+      // patientId: patientDetail,
+      scheduleId: selectedSchedule.scheduleId,
+      status: "Upcoming"
+
       // token: "klajlgk", // Ensure to replace this with an actual token or logic to generate one
     };
 
@@ -325,7 +327,9 @@ const AppointmentBooking = () => {
       const response = await fetch(process.env.REACT_APP_BACKEND_URL+"/bookingAppointments", {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
+
         },
         body: JSON.stringify(data),
       });

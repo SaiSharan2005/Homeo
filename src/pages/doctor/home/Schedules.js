@@ -8,7 +8,13 @@ export default function Schedules({ date }) {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/doctor/${localStorage.getItem("userId")}`
+          process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/doctor/my-appointments`,
+          {
+            method: "GET", // Specify the method explicitly
+            headers: {
+              'Content-Type': 'application/json', // Ensures the backend knows the data format
+              'Authorization': `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
+            },}
         );
         const data = await response.json();
 
@@ -76,7 +82,7 @@ export default function Schedules({ date }) {
                   className={`flex justify-between items-center py-2 px-4 border-t border-gray-200 ${getStatusClass(appointment)}`}
                 >
                   <span>{appointment.scheduleId.startTime} - {appointment.scheduleId.endTime}</span>
-                  <span>{appointment.patientId.patientName}</span>
+                  <span>{appointment.patient.username}</span>
                 </div>
               ))
             )}

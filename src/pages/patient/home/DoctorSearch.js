@@ -143,7 +143,7 @@ const DoctorSearch = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await fetch(process.env.REACT_APP_BACKEND_URL+"/doctor/all");
+        const response = await fetch(process.env.REACT_APP_BACKEND_URL+"/doctor/availableDoctors");
   
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

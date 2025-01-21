@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import Schedules from "./Schedules";
@@ -35,22 +34,58 @@ export default function DoctorHome() {
   const [appointments, setAppointments] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/doctor/${localStorage.getItem("userId")}`
-      );
-      const data = await response.json();
-      setAppointments(data);
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/doctor/my-appointments`,
+          {
+            method: "GET", // Specify the method explicitly
+            headers: {
+              "Content-Type": "application/json", // Ensures the backend knows the data format
+              Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
+            },
+          }
+        );
+
+        if (!response.ok) {
+          // Handle HTTP errors
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setAppointments(data); // Update state with the fetched data
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
     };
+
+    // Call the fetchData function once when the component mounts
     fetchData();
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once
 
   useEffect(() => {
     const fetchDoctorData = async () => {
       try {
-        const doctor = await fetchDoctorById(localStorage.getItem("doctorId"));
+        const doctor = await fetch(
+          process.env.REACT_APP_BACKEND_URL + `/doctor/me`,
+          {
+            method: "GET", // Specify the method explicitly
+            headers: {
+              "Content-Type": "application/json", // Ensures the backend knows the data format
+              Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
+            },
+          }
+        );
         setDoctorData(doctor);
         const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL+`/schedule/doctor/${doctor.doctorId}/date/${formatDate(selectedDate)}`
+          process.env.REACT_APP_BACKEND_URL +
+            `/schedule/doctor/date/${formatDate(selectedDate)}`,
+          {
+            method: "GET", // Specify the method explicitly
+            headers: {
+              "Content-Type": "application/json", // Ensures the backend knows the data format
+              Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
+            },
+          }
         );
         const data = await response.json();
         setSchedules(Array.isArray(data) ? data : []);
@@ -75,13 +110,14 @@ export default function DoctorHome() {
   const createSchedule = async () => {
     try {
       const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL+`/create-appointment-slots/date/${formatDate(selectedDate)}`,
+        process.env.REACT_APP_BACKEND_URL +
+          `/create-appointment-slots/date/${formatDate(selectedDate)}`,
         {
           method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
           },
-          body: JSON.stringify(doctorData),
         }
       );
       if (response.ok) {
@@ -104,10 +140,15 @@ export default function DoctorHome() {
       <div className="bg-white flex-grow">
         <main className="flex flex-col justify-center items-center h-full py-10 md:py-20 px-4 md:px-0">
           <div className="bg-white p-8 rounded-lg shadow-md flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-8 max-w-full md:max-w-[70vw]">
-            <img src={image} alt="Health" className="rounded-lg w-full md:w-1/2" />
+            <img
+              src={image}
+              alt="Health"
+              className="rounded-lg w-full md:w-1/2"
+            />
             <div>
+              {JSON.stringify(doctorData)}
               <h1 className="text-4xl md:text-4xl font-bold mb-4 text-center md:text-left">
-                Welcome Dr.{doctorData?.doctorName},
+                Welcome Dr.{doctorData?.username},
               </h1>
               <h1 className="text-2xl md:text-4xl font-bold mb-4 text-center md:text-left">
                 Welcome to Your MediHealth Dashboard
@@ -115,7 +156,10 @@ export default function DoctorHome() {
               <p className="text-lg mb-6 text-center md:text-left">
                 Manage your appointments and schedules with ease.
               </p>
-              <button onClick={() => navigate("/doctor/history")} className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
+              <button
+                onClick={() => navigate("/doctor/history")}
+                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
+              >
                 Check Today's Schedule
               </button>
             </div>
@@ -187,8 +231,8 @@ export default function DoctorHome() {
           ) : (
             <>
               <p className="font-semibold text-2xl my-4">
-                Not yet Created the Schedule. Click the button below to generate the
-                schedule.
+                Not yet Created the Schedule. Click the button below to generate
+                the schedule.
               </p>
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded mt-4 mx-auto"

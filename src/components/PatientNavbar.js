@@ -82,7 +82,7 @@ export default function PatientNavbar() {
                         <div className="absolute right-0 mt-2 w-48 bg-teal-100 rounded-lg shadow-lg py-2 z-50">
                             <button
                                 className={`block px-4 py-2 text-teal-800`}
-                                onClick={() => handleOptionChange('Profile')}
+                                onClick={() => navigator("/patient/profile")}
                             >Profile</button>
                             <a href="#help" className="block px-4 py-2 text-teal-800">Help Center</a>
                             <a href="#support" className="block px-4 py-2 text-teal-800">Customer Support</a>

@@ -29,10 +29,20 @@ const DoctorProfile = () => {
   useEffect(() => {
     const fetchDoctorData = async () => {
       try {
-        const doctorId = localStorage.getItem("doctorId");
-        const data = await fetchDoctorById(doctorId);
-        setDoctor(data);
-        setDoctorDetails(data.doctorDetails || {});
+        const doctor = await fetch(
+          process.env.REACT_APP_BACKEND_URL + `/doctor/me`,
+          {
+            method: "GET", // Specify the method explicitly
+            headers: {
+              "Content-Type": "application/json", // Ensures the backend knows the data format
+              Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
+            },
+          }
+        );        
+        const res =await doctor.json()
+        console.log(res)
+        setDoctor(res);
+        setDoctorDetails(res.doctorDetails || {});
       } catch (error) {
         console.error("Error fetching doctor data:", error);
       }
@@ -45,7 +55,14 @@ const DoctorProfile = () => {
     const fetchAppointments = async () => {
       try {
         const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/doctor/${localStorage.getItem("userId")}`
+          process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/doctor/my-appointments`,
+          {
+            method: "GET", // Specify the method explicitly
+            headers: {
+              "Content-Type": "application/json", // Ensures the backend knows the data format
+              Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
+            },
+          }
         );
         const data = await response.json();
         setAppointments(data);
@@ -87,12 +104,13 @@ const DoctorProfile = () => {
           <div className="mt-4 bg-white shadow-md rounded-lg p-6 relative">
             <div className="flex items-center space-x-4">
               <img
-                src="https://via.placeholder.com/150"
+                src= {`https://picsum.photos/seed/${doctor.id}/200/200`}
                 alt="Profile"
                 className="w-24 h-24 rounded-full"
               />
               <div>
-                <h2 className="text-xl font-bold">{doctor.doctorName}</h2>
+                {/* {JSON.stringify(doctorDetails)} */}
+                <h2 className="text-xl font-bold">{doctor.username}</h2>
                 <p className="text-gray-600">
                   {doctorDetails.specialization}
                 </p>
@@ -229,7 +247,7 @@ const DoctorProfile = () => {
                     appointments.map((appointment) => (
                       <div key={appointment.bookingId}>
                         <h4 className="text-lg font-medium">
-                          Appointment with {appointment.patientId.patientName}
+                          Appointment with {appointment.patient.username}
                         </h4>
                         <p className="text-gray-500">
                           Date: {appointment.scheduleId.date}

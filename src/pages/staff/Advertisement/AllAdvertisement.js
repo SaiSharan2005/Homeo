@@ -4,13 +4,12 @@ import { Link } from 'react-router-dom';
 
 export default function ShowAdvertisements() {
     const [ads, setAds] = useState([]);
-    const [selectedAd, setSelectedAd] = useState(null); // Ensure this is declared
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchAds = async () => {
             try {
-                const response = await fetch(process.env.REACT_APP_BACKEND_URL+'/ads');
+                const response = await fetch(process.env.REACT_APP_BACKEND_URL + '/ads');
                 if (!response.ok) {
                     throw new Error(`Error: ${response.statusText}`);
                 }
@@ -25,7 +24,7 @@ export default function ShowAdvertisements() {
 
     const handleDeleteAd = async (id) => {
         try {
-            const response = await fetch(process.env.REACT_APP_BACKEND_URL+`/ads/${id}`, { method: 'DELETE' });
+            const response = await fetch(process.env.REACT_APP_BACKEND_URL + `/ads/${id}`, { method: 'DELETE' });
             if (!response.ok) {
                 throw new Error(`Error: ${response.statusText}`);
             }
@@ -38,7 +37,7 @@ export default function ShowAdvertisements() {
     const handleToggleStatus = async (id, currentStatus) => {
         const newStatus = !currentStatus;
         try {
-            const response = await fetch(process.env.REACT_APP_BACKEND_URL+`/ads/${id}/status?isActive=${newStatus}`, { method: 'GET' });
+            const response = await fetch(process.env.REACT_APP_BACKEND_URL + `/ads/${id}/status?isActive=${newStatus}`, { method: 'GET' });
             if (!response.ok) {
                 throw new Error(`Error: ${response.statusText}`);
             }
@@ -62,8 +61,8 @@ export default function ShowAdvertisements() {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Description</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Image</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Target Page</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">End Date</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Created At</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -83,6 +82,9 @@ export default function ShowAdvertisements() {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{ad.targetPage}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {ad.endDate ? new Date(ad.endDate).toLocaleDateString() : "No End Date"}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {ad.isActive ? (
                                             <span
                                                 onClick={() => handleToggleStatus(ad.id, ad.isActive)}
@@ -99,10 +101,9 @@ export default function ShowAdvertisements() {
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(ad.createdAt).toLocaleDateString()}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <Link to={`/staff/update-adv/${ad.id}`}>
-                                            <button onClick={() => setSelectedAd(ad)} className="text-yellow-600 hover:text-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                                            <button className="text-yellow-600 hover:text-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500">
                                                 Edit
                                             </button>
                                         </Link>

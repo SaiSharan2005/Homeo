@@ -33,7 +33,7 @@ import DoctorSearch from "./pages/patient/home/DoctorSearch";
 import StaffDoctorSearch from "./pages/staff/Search/Doctor-Search";
 import GetAllAppointment from "./pages/staff/GetAllAppointment";
 import UpdateAppointment from "./pages/staff/UpdateAppointment";
-// import PatientProfile from "./pages/patient/home/PatientProfile";
+import PatientProfile from "./pages/patient/home/PatientProfile";
 import Schedules from "./pages/doctor/home/Schedules";
 // import StaffHome from "./pages/staff/Home/Home";
 // import UploadForm from "./pages/staff/Adv";
@@ -57,6 +57,7 @@ import AppointmentActivitySearch from "./pages/staff/activity/Appointment-Activi
 import AdvertisementActivitySearch from "./pages/staff/activity/Advertisement-Activity";
 // import Home from "./base";
 import Mainhome from "./crocs/views/home"
+import BookSlot from "./pages/staff/AppointmentBookingByAdmin";
 
 export default function App(){
   return (
@@ -78,6 +79,7 @@ export default function App(){
           <Route exact path="/patient/signup" element={<PatientSignUp />} />
           <Route exact path="/patient/home" element={<PatientHome />} />
           <Route path="/doctorSearch" element={<DoctorSearch/>}/>
+          <Route path = "/patient/profile" element= {<PatientProfile/>} />
           <Route path = "/token/:tokenId/" element= {<AppointmentDetails/>}/>
           <Route path="/patient/details" element = {<PatientDetails/>}/>
           <Route path = "/patient/history" element = {<PatientHistory/>}/>
@@ -90,6 +92,7 @@ export default function App(){
           <Route path = "/BookAppoinment/:doctorId" element={<AppointmentBooking/>}/>
           <Route path = "/UpdateAppoinment/:AppointmentId" element={<UpdateAppointment/>}/>
           <Route path = "/doctor-token/:tokenId" element={<CompleteSlot/>}/>
+
 
           {/* Staff Screens and Components */}
           <Route exact path="/staff/signup" element={<StaffSignUp />} />
@@ -107,6 +110,9 @@ export default function App(){
           <Route path = "/staff/patient-activity" element={<PatientActivitySearch/>}/>
           <Route path = "/staff/appointment-activity" element={<AppointmentActivitySearch/>}/>
           <Route path = "/staff/advertisement-activity" element={<AdvertisementActivitySearch/>}/>
+          <Route path = "/BookSlot" element={<BookSlot/>}/>
+
+          
           
           
 
