@@ -9,22 +9,25 @@ const CompleteSlot = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [isCancel , setIsCancel] = useState(false)
+  const [isCancel, setIsCancel] = useState(false);
+  const [prescriptionFile, setPrescriptionFile] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
       try {
-        const response = await fetch(process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/token/${tokenId}`);
+        const response = await fetch(
+          process.env.REACT_APP_BACKEND_URL + `/bookingAppointments/token/${tokenId}`
+        );
         if (!response.ok) {
           throw new Error('Failed to fetch appointment data');
         }
         const data = await response.json();
         setAppointmentData(data);
-        if(data.status == "completed"){
-            setIsCompleted(true)
-        }else if(data.status == "cancel"){
-            setIsCancel(true)
-
+        if (data.status === "completed") {
+          setIsCompleted(true);
+        } else if (data.status === "cancel") {
+          setIsCancel(true);
         }
       } catch (error) {
         console.error('Error fetching appointment data:', error);
@@ -40,7 +43,7 @@ const CompleteSlot = () => {
   const handleAppointmentCompleted = async () => {
     try {
       const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/completed-appointment/${tokenId}`,
+        process.env.REACT_APP_BACKEND_URL + `/bookingAppointments/completed-appointment/${tokenId}`,
         {
           method: 'POST',
           headers: {
@@ -60,6 +63,36 @@ const CompleteSlot = () => {
     }
   };
 
+  const handlePrescriptionUpload = async () => {
+    if (!prescriptionFile) {
+      setUploadError('Please select a file to upload.');
+      return;
+    }
+    setUploadError(null);
+    try {
+      const formData = new FormData();
+      formData.append('file', prescriptionFile);
+      
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + `/bookingAppointments/${appointmentData.bookingId}/prescription`,
+        {
+          method: 'PUT',
+          body: formData,
+        }
+      );
+      if (!response.ok) {
+        throw new Error('Failed to upload prescription image');
+      }
+      const updatedData = await response.json();
+      setAppointmentData(updatedData);
+      // Optionally, clear the file input state after successful upload
+      setPrescriptionFile(null);
+    } catch (error) {
+      console.error('Error uploading prescription:', error);
+      setUploadError('Failed to upload prescription image. Please try again.');
+    }
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -72,64 +105,103 @@ const CompleteSlot = () => {
     return <div>Error: Appointment data is not available</div>;
   }
 
-  const doctorProfilePic =  image; // Assuming `profilePicUrl` is the key for the profile picture URL.
+  // Use the fallback image as profile pic (or use a field from the response if available)
+  const profilePic = image;
 
   return (
     <>
       <PatientNavbar />
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
         <div className="bg-white p-16 rounded-lg shadow-lg w-[80%] text-center">
-          {/* <h1 className="text-3xl font-semibold mb-8">
-            Thanks for booking with Dr. {appointmentData.doctorId.doctorName}!
-          </h1> */}
+          <h1 className="text-3xl font-semibold mb-8">
+            Thanks for booking with Dr. {appointmentData.doctor.username}!
+          </h1>
 
-          <div className=" gap-8 mb-8">
+          <div className="gap-8 mb-8">
             <div className="bg-gray-100 p-6 rounded-lg">
               <h2 className="text-xl font-semibold mb-4">Patient Details</h2>
-               <img 
-                src={doctorProfilePic} 
-                alt={`Dr. ${appointmentData.doctorId.doctorName}`} 
-                className="w-40 h-40 rounded-full object-cover mb-4 m-auto" 
+              <img
+                src={profilePic}
+                alt={`Patient ${appointmentData.patient.username}`}
+                className="w-40 h-40 rounded-full object-cover mb-4 m-auto"
               />
-              <p><strong>Name:</strong> {appointmentData.patientId.patientName}</p>
-              <p><strong>Patient ID:</strong> {appointmentData.patientId.patientId}</p>
-              <p><strong>Phone:</strong> {appointmentData.patientId.phoneNumber}</p>
-              <p><strong>Email:</strong> {appointmentData.patientId.email}</p>
+              <p>
+                <strong>Name:</strong> {appointmentData.patient.username}
+              </p>
+              <p>
+                <strong>Patient ID:</strong>{' '}
+                {appointmentData.patient.patientDetails ? appointmentData.patient.patientDetails.id : 'N/A'}
+              </p>
+              <p>
+                <strong>Phone:</strong> {appointmentData.patient.phoneNumber}
+              </p>
+              <p>
+                <strong>Email:</strong> {appointmentData.patient.email}
+              </p>
             </div>
-
-            {/* <div className="bg-gray-100 p-6 rounded-lg ">
-              <h2 className="text-xl font-semibold mb-4">Doctor Details</h2>
-              <img 
-                src={doctorProfilePic} 
-                alt={`Dr. ${appointmentData.doctorId.doctorName}`} 
-                className="w-40 h-40 rounded-full object-cover mb-4 m-auto" 
-              />
-              <p><strong>Name:</strong> {appointmentData.doctorId.doctorName}</p>
-              <p><strong>Specialization:</strong> {appointmentData.doctorId.doctorDetails.specialization}</p>
-              <p><strong>Consultation Fee:</strong> ${appointmentData.doctorId.doctorDetails.consultationFee}</p>
-              <p><strong>Contact:</strong> {appointmentData.doctorId.phoneNumber}</p>
-            </div> */}
           </div>
 
           <div className="bg-gray-100 p-6 rounded-lg mb-8">
             <h2 className="text-xl font-semibold mb-4">Appointment Details</h2>
-            <p><strong>Token:</strong> {appointmentData.token}</p>
-            <p><strong>Date:</strong> {appointmentData.scheduleId.date}</p>
-            <p><strong>Time:</strong> {appointmentData.scheduleId.startTime} - {appointmentData.scheduleId.endTime}</p>
-            <p><strong>Status:</strong> {appointmentData.status}</p>
+            <p>
+              <strong>Token:</strong> {appointmentData.token}
+            </p>
+            <p>
+              <strong>Date:</strong> {appointmentData.scheduleId.date}
+            </p>
+            <p>
+              <strong>Time:</strong> {appointmentData.scheduleId.startTime} - {appointmentData.scheduleId.endTime}
+            </p>
+            <p>
+              <strong>Status:</strong> {appointmentData.status}
+            </p>
+          </div>
+
+          {/* Prescription image section */}
+          {appointmentData.prescriptionImageUrl ? (
+            <div className="flex flex-col items-center mb-8">
+              <h2 className="text-xl font-semibold mb-4">Prescription</h2>
+              <img
+                src={appointmentData.prescriptionImageUrl}
+                alt="Prescription"
+                className="w-40 h-40 object-cover mb-4 border rounded-lg"
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center mb-8">
+              <h2 className="text-xl font-semibold mb-4">No Prescription Uploaded</h2>
+            </div>
+          )}
+
+          {/* Doctor Upload Section */}
+          <div className="flex flex-col items-center mb-8 border p-4 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">Upload Prescription (Doctor Only)</h2>
+            <input
+              type="file"
+              onChange={(e) => setPrescriptionFile(e.target.files[0])}
+              className="mb-4"
+            />
+            {uploadError && <div className="text-red-500 mb-2">{uploadError}</div>}
+            <button
+              onClick={handlePrescriptionUpload}
+              className="bg-blue-500 text-white py-2 px-4 rounded"
+            >
+              Upload Prescription
+            </button>
           </div>
 
           <button
             onClick={handleAppointmentCompleted}
             className={`${
               isCompleted ? 'bg-green-500' : 'bg-blue-500'
-            }   ${
-                isCancel ? 'bg-red-500' : 'bg-blue-500'
-              }    text-white py-3 px-6 rounded-lg mb-8`}
-            disabled={isCompleted||isCancel}
+            } ${isCancel ? 'bg-red-500' : 'bg-blue-500'} text-white py-3 px-6 rounded-lg mb-8`}
+            disabled={isCompleted || isCancel}
           >
-            {isCancel?'Appointment Cancled':`${isCompleted  ? 'Appointment Completed' : 'Mark Appointment as Completed'}`}
-            
+            {isCancel
+              ? 'Appointment Cancelled'
+              : isCompleted
+              ? 'Appointment Completed'
+              : 'Mark Appointment as Completed'}
           </button>
 
           {error && <div className="text-red-500">{error}</div>}

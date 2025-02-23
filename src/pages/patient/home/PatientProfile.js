@@ -1,16 +1,4 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-
-const patient = {
-  name: "Megan Santos",
-  dateOfBirth: "02-21-1965",
-  gender: "Female",
-  address: "820 Oral Lake Road, Sacramento, California, United States",
-  phoneNumber: "123-456-7890",
-  email: "megan.santos@example.com",
-  medicalHistory: "General checkups, dental cleaning",
-  activeStatus: "Active",
-};
+import React, { useState, useEffect } from "react";
 
 const PencilIcon = ({ onClick }) => (
   <svg
@@ -30,56 +18,201 @@ const PencilIcon = ({ onClick }) => (
   </svg>
 );
 
-const UpcomingAppointment = () => (
-  <div className="mt-6">
-    <h3 className="text-lg font-semibold mb-3">Upcoming Appointments</h3>
-    <div className="flex items-center space-x-4 mb-3">
-      <div>
-        <p className="text-gray-600">Monday, June 30, 2024</p>
-        <p className="text-lg font-semibold">10:00 AM - General Checkup</p>
-        <p className="text-gray-500">Dr. Smith</p>
-      </div>
+// Component to display fetched appointment data in a card layout.
+const PatientAppointments = ({ appointments }) => {
+  return (
+    <div className="mt-8">
+      <h3 className="text-2xl font-bold mb-4">Upcoming Appointments</h3>
+      {appointments.length === 0 ? (
+        <p className="text-gray-600">No upcoming appointments.</p>
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {appointments.map((appointment) => (
+            <div
+              key={appointment.bookingId}
+              className="bg-white shadow-lg rounded-lg p-4 hover:shadow-xl transition-shadow duration-300"
+            >
+              <div className="mb-3">
+                <p className="text-gray-500 text-sm">
+                  {new Date(appointment.appointmenDate).toLocaleDateString()}
+                </p>
+                <h4 className="text-xl font-semibold">
+                  {appointment.scheduleId && appointment.scheduleId.startTime
+                    ? appointment.scheduleId.startTime
+                    : "Time N/A"}
+                  {" - "}
+                  {appointment.scheduleId && appointment.scheduleId.endTime
+                    ? appointment.scheduleId.endTime
+                    : "Time N/A"}
+                </h4>
+              </div>
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center mr-3">
+                  <span className="text-xl text-gray-500">
+                    {appointment.doctor.username.charAt(0)}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-gray-800 font-medium">
+                    {appointment.doctor.username}
+                  </p>
+                  <p className="text-gray-500 text-sm">{appointment.status}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
-    <div className="flex items-center space-x-4">
-      <div>
-        <p className="text-gray-600">Wednesday, July 2, 2024</p>
-        <p className="text-lg font-semibold">2:30 PM - Dental Cleaning</p>
-        <p className="text-gray-500">Dr. Johnson</p>
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 
 const PatientProfile = () => {
+  const [patient, setPatient] = useState(null);
+  const [editedPatient, setEditedPatient] = useState(null);
+  const [appointments, setAppointments] = useState([]);
   const [isEditingGeneral, setIsEditingGeneral] = useState(false);
   const [isEditingContact, setIsEditingContact] = useState(false);
 
-  const [editedPatient, setEditedPatient] = useState({ ...patient });
+  // Fetch patient data
+  useEffect(() => {
+    const fetchPatient = async () => {
+      try {
+        const response = await fetch(
+          process.env.REACT_APP_BACKEND_URL + "/patient/me",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("Token")}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch patient details");
+        }
+        const data = await response.json();
+        setPatient(data);
+        setEditedPatient(data);
+      } catch (error) {
+        console.error("Error fetching patient:", error);
+      }
+    };
+    fetchPatient();
+  }, []);
 
+  // Fetch appointment data for the authenticated patient
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await fetch(
+          process.env.REACT_APP_BACKEND_URL +
+            "/bookingAppointments/patient/my-appointments",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("Token")}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch appointments");
+        }
+        const data = await response.json();
+        setAppointments(data);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
+    };
+    fetchAppointments();
+  }, []);
+
+  // Handle input changes for editing profile info (supports nested patientDetails)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEditedPatient({ ...editedPatient, [name]: value });
+    if (name.includes("patientDetails.")) {
+      const key = name.split(".")[1];
+      setEditedPatient({
+        ...editedPatient,
+        patientDetails: {
+          ...editedPatient.patientDetails,
+          [key]: value,
+        },
+      });
+    } else {
+      setEditedPatient({
+        ...editedPatient,
+        [name]: value,
+      });
+    }
   };
 
-  const handleGeneralFormSubmit = (e) => {
+  // Submit updated general information (username, gender, age)
+  const handleGeneralFormSubmit = async (e) => {
     e.preventDefault();
-    console.log("Updated General Information:", {
-      name: editedPatient.name,
-      gender: editedPatient.gender,
-      dateOfBirth: editedPatient.dateOfBirth,
-    });
-    setIsEditingGeneral(false);
+    try {
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/patient/updateMyProfile",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("Token")}`,
+          },
+          body: JSON.stringify({
+            username: editedPatient.username,
+            gender: editedPatient.patientDetails.gender,
+            age: editedPatient.patientDetails.age,
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update general information");
+      }
+      const updatedData = await response.json();
+      setPatient(updatedData);
+      setEditedPatient(updatedData);
+      setIsEditingGeneral(false);
+    } catch (error) {
+      console.error("Error updating general info:", error);
+    }
   };
 
-  const handleContactFormSubmit = (e) => {
+  // Submit updated contact information (address, phoneNumber, email)
+  const handleContactFormSubmit = async (e) => {
     e.preventDefault();
-    console.log("Updated Contact Information:", {
-      address: editedPatient.address,
-      phoneNumber: editedPatient.phoneNumber,
-      email: editedPatient.email,
-    });
-    setIsEditingContact(false);
+    try {
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/patient/updateMyProfile",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("Token")}`,
+          },
+          body: JSON.stringify({
+            address: editedPatient.patientDetails.address,
+            phoneNumber: editedPatient.phoneNumber,
+            email: editedPatient.email,
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update contact information");
+      }
+      const updatedData = await response.json();
+      setPatient(updatedData);
+      setEditedPatient(updatedData);
+      setIsEditingContact(false);
+    } catch (error) {
+      console.error("Error updating contact info:", error);
+    }
   };
+
+  if (!patient || !editedPatient) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#E3F9F5]">
@@ -87,42 +220,45 @@ const PatientProfile = () => {
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Patient Details</h1>
         </div>
-        <div className="mt-4 bg-white shadow-md rounded-lg p-6 relative">
+        <div className="mt-6 bg-white shadow-lg rounded-lg p-6">
+          {/* Profile Header */}
           <div className="flex items-center space-x-4">
             <img
               src="https://via.placeholder.com/150"
-              alt="Profile"
+              // alt="Profile"
               className="w-24 h-24 rounded-full"
             />
             <div>
-              <h2 className="text-xl font-bold">{patient.name}</h2>
+              <h2 className="text-2xl font-bold">{patient.username}</h2>
               <p className="text-gray-600">
-                {patient.gender} | {patient.dateOfBirth}
+                {patient.patientDetails.gender} | Age:{" "}
+                {patient.patientDetails.age}
               </p>
-              <p className="text-green-600">{patient.activeStatus}</p>
             </div>
           </div>
-          <div className="mt-4 flex flex-col lg:flex-row gap-4">
-            <div className="flex-1 bg-[#F7FAFC] p-4 rounded-lg shadow-md relative">
-              <h3 className="flex justify-between items-center font-bold">
-                General Information
+
+          {/* Profile Edit Sections */}
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
+            {/* General Information Section */}
+            <div className="bg-gray-50 p-4 rounded-lg shadow">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-bold">General Information</h3>
                 <PencilIcon onClick={() => setIsEditingGeneral(true)} />
-              </h3>
-              <hr className="my-2" />
+              </div>
               {isEditingGeneral ? (
                 <form onSubmit={handleGeneralFormSubmit}>
-                  <div className="flex flex-col space-y-2">
+                  <div className="space-y-3">
                     <div className="flex justify-between">
-                      <label htmlFor="name" className="font-semibold">
+                      <label htmlFor="username" className="font-semibold">
                         Name:
                       </label>
                       <input
                         type="text"
-                        id="name"
-                        name="name"
-                        value={editedPatient.name}
+                        id="username"
+                        name="username"
+                        value={editedPatient.username || ""}
                         onChange={handleInputChange}
-                        className="border-gray-300 border p-2 rounded-md w-2/3"
+                        className="border rounded-md p-2 w-2/3"
                       />
                     </div>
                     <div className="flex justify-between">
@@ -132,29 +268,29 @@ const PatientProfile = () => {
                       <input
                         type="text"
                         id="gender"
-                        name="gender"
-                        value={editedPatient.gender}
+                        name="patientDetails.gender"
+                        value={editedPatient.patientDetails.gender || ""}
                         onChange={handleInputChange}
-                        className="border-gray-300 border p-2 rounded-md w-2/3"
+                        className="border rounded-md p-2 w-2/3"
                       />
                     </div>
                     <div className="flex justify-between">
-                      <label htmlFor="dateOfBirth" className="font-semibold">
-                        Date of Birth:
+                      <label htmlFor="age" className="font-semibold">
+                        Age:
                       </label>
                       <input
-                        type="text"
-                        id="dateOfBirth"
-                        name="dateOfBirth"
-                        value={editedPatient.dateOfBirth}
+                        type="number"
+                        id="age"
+                        name="patientDetails.age"
+                        value={editedPatient.patientDetails.age || ""}
                         onChange={handleInputChange}
-                        className="border-gray-300 border p-2 rounded-md w-2/3"
+                        className="border rounded-md p-2 w-2/3"
                       />
                     </div>
                     <div className="flex justify-end">
                       <button
                         type="submit"
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mt-4"
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
                       >
                         Save
                       </button>
@@ -162,31 +298,29 @@ const PatientProfile = () => {
                   </div>
                 </form>
               ) : (
-                <div className="flex flex-col space-y-2">
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Name:</span>
-                    <span>{patient.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Gender:</span>
-                    <span>{patient.gender}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Date of Birth:</span>
-                    <span>{patient.dateOfBirth}</span>
-                  </div>
+                <div className="space-y-2">
+                  <p>
+                    <span className="font-semibold">Name:</span> {patient.username}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Gender:</span> {patient.patientDetails.gender}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Age:</span> {patient.patientDetails.age}
+                  </p>
                 </div>
               )}
             </div>
-            <div className="flex-1 bg-[#F7FAFC] p-4 rounded-lg shadow-md relative">
-              <h3 className="flex justify-between items-center font-bold">
-                Contact Information
+
+            {/* Contact Information Section */}
+            <div className="bg-gray-50 p-4 rounded-lg shadow">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-lg font-bold">Contact Information</h3>
                 <PencilIcon onClick={() => setIsEditingContact(true)} />
-              </h3>
-              <hr className="my-2" />
+              </div>
               {isEditingContact ? (
                 <form onSubmit={handleContactFormSubmit}>
-                  <div className="flex flex-col space-y-2">
+                  <div className="space-y-3">
                     <div className="flex justify-between">
                       <label htmlFor="address" className="font-semibold">
                         Address:
@@ -194,10 +328,10 @@ const PatientProfile = () => {
                       <input
                         type="text"
                         id="address"
-                        name="address"
-                        value={editedPatient.address}
+                        name="patientDetails.address"
+                        value={editedPatient.patientDetails.address || ""}
                         onChange={handleInputChange}
-                        className="border-gray-300 border p-2 rounded-md w-2/3"
+                        className="border rounded-md p-2 w-2/3"
                       />
                     </div>
                     <div className="flex justify-between">
@@ -208,9 +342,9 @@ const PatientProfile = () => {
                         type="text"
                         id="phoneNumber"
                         name="phoneNumber"
-                        value={editedPatient.phoneNumber}
+                        value={editedPatient.phoneNumber || ""}
                         onChange={handleInputChange}
-                        className="border-gray-300 border p-2 rounded-md w-2/3"
+                        className="border rounded-md p-2 w-2/3"
                       />
                     </div>
                     <div className="flex justify-between">
@@ -221,15 +355,15 @@ const PatientProfile = () => {
                         type="email"
                         id="email"
                         name="email"
-                        value={editedPatient.email}
+                        value={editedPatient.email || ""}
                         onChange={handleInputChange}
-                        className="border-gray-300 border p-2 rounded-md w-2/3"
+                        className="border rounded-md p-2 w-2/3"
                       />
                     </div>
                     <div className="flex justify-end">
                       <button
                         type="submit"
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mt-4"
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
                       >
                         Save
                       </button>
@@ -237,24 +371,25 @@ const PatientProfile = () => {
                   </div>
                 </form>
               ) : (
-                <div className="flex flex-col space-y-2">
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Address:</span>
-                    <span>{patient.address}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Phone Number:</span>
-                    <span>{patient.phoneNumber}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-semibold">Email:</span>
-                    <span>{patient.email}</span>
-                  </div>
+                <div className="space-y-2">
+                  <p>
+                    <span className="font-semibold">Address:</span>{" "}
+                    {patient.patientDetails.address}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Phone Number:</span>{" "}
+                    {patient.phoneNumber}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Email:</span> {patient.email}
+                  </p>
                 </div>
               )}
             </div>
           </div>
-          <UpcomingAppointment />
+
+          {/* Render fetched appointment data */}
+          <PatientAppointments appointments={appointments} />
         </div>
       </main>
     </div>
