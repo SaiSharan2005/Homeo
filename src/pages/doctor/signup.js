@@ -29,7 +29,9 @@ export default function DoctorSignUp() {
       doctorName: credentials.name,
       phoneNumber: credentials.phoneNumber,
       email: credentials.email,
-      password: credentials.password
+      password: credentials.password,
+      roles:["DOCTOR"]
+
         };
   
     try {

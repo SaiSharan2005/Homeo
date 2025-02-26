@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+// import PatientNavbar from "../../components/PatientNavbar";
 
+// PencilIcon component
 const PencilIcon = ({ onClick }) => (
   <svg
     className="w-6 h-6 text-gray-700 hover:text-[#228672] cursor-pointer"
@@ -18,8 +21,14 @@ const PencilIcon = ({ onClick }) => (
   </svg>
 );
 
-// Component to display fetched appointment data in a card layout.
+// PatientAppointments component: displays appointments as clickable cards.
 const PatientAppointments = ({ appointments }) => {
+  const navigate = useNavigate();
+
+  const handleAppointmentClick = (token) => {
+    navigate(`/token/${token}`);
+  };
+
   return (
     <div className="mt-8">
       <h3 className="text-2xl font-bold mb-4">Upcoming Appointments</h3>
@@ -30,7 +39,8 @@ const PatientAppointments = ({ appointments }) => {
           {appointments.map((appointment) => (
             <div
               key={appointment.bookingId}
-              className="bg-white shadow-lg rounded-lg p-4 hover:shadow-xl transition-shadow duration-300"
+              className="bg-white shadow-lg rounded-lg p-4 hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+              onClick={() => handleAppointmentClick(appointment.token)}
             >
               <div className="mb-3">
                 <p className="text-gray-500 text-sm">
@@ -39,8 +49,8 @@ const PatientAppointments = ({ appointments }) => {
                 <h4 className="text-xl font-semibold">
                   {appointment.scheduleId && appointment.scheduleId.startTime
                     ? appointment.scheduleId.startTime
-                    : "Time N/A"}
-                  {" - "}
+                    : "Time N/A"}{" "}
+                  -{" "}
                   {appointment.scheduleId && appointment.scheduleId.endTime
                     ? appointment.scheduleId.endTime
                     : "Time N/A"}
@@ -67,6 +77,7 @@ const PatientAppointments = ({ appointments }) => {
   );
 };
 
+// PatientProfile component: displays patient info and renders PatientAppointments.
 const PatientProfile = () => {
   const [patient, setPatient] = useState(null);
   const [editedPatient, setEditedPatient] = useState(null);
@@ -225,14 +236,13 @@ const PatientProfile = () => {
           <div className="flex items-center space-x-4">
             <img
               src="https://via.placeholder.com/150"
-              // alt="Profile"
+              alt="Profile"
               className="w-24 h-24 rounded-full"
             />
             <div>
               <h2 className="text-2xl font-bold">{patient.username}</h2>
               <p className="text-gray-600">
-                {patient.patientDetails.gender} | Age:{" "}
-                {patient.patientDetails.age}
+                {patient.patientDetails.gender} | Age: {patient.patientDetails.age}
               </p>
             </div>
           </div>
@@ -373,12 +383,10 @@ const PatientProfile = () => {
               ) : (
                 <div className="space-y-2">
                   <p>
-                    <span className="font-semibold">Address:</span>{" "}
-                    {patient.patientDetails.address}
+                    <span className="font-semibold">Address:</span>{" "}{patient.patientDetails.address}
                   </p>
                   <p>
-                    <span className="font-semibold">Phone Number:</span>{" "}
-                    {patient.phoneNumber}
+                    <span className="font-semibold">Phone Number:</span>{" "}{patient.phoneNumber}
                   </p>
                   <p>
                     <span className="font-semibold">Email:</span> {patient.email}
@@ -388,7 +396,7 @@ const PatientProfile = () => {
             </div>
           </div>
 
-          {/* Render fetched appointment data */}
+          {/* Render fetched appointment data as clickable cards */}
           <PatientAppointments appointments={appointments} />
         </div>
       </main>

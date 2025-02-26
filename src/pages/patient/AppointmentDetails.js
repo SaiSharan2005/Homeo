@@ -7,6 +7,7 @@ const AppointmentDetails = () => {
   const { tokenId } = useParams();
   const [appointmentData, setAppointmentData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
@@ -16,9 +17,9 @@ const AppointmentDetails = () => {
         );
         const data = await response.json();
         setAppointmentData(data);
-        setIsLoading(false);
       } catch (error) {
         console.error('Failed to fetch appointment data:', error);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -33,6 +34,9 @@ const AppointmentDetails = () => {
   if (!appointmentData) {
     return <div>Error: Failed to fetch appointment details</div>;
   }
+
+  // Fallback value for specialization if doctorDetails is missing.
+  const specialization = appointmentData.doctor.doctorDetails?.specialization || "N/A";
 
   return (
     <>
@@ -52,23 +56,22 @@ const AppointmentDetails = () => {
               <div className="text-xl font-medium">
                 {`Dr. ${appointmentData.doctor.username}`}
               </div>
-              <div className="text-md text-gray-500">
-                {appointmentData.doctor.doctorDetails.specialization}
-              </div>
+              <div className="text-md text-gray-500">{specialization}</div>
             </div>
           </div>
           <div className="bg-gray-100 p-6 rounded-lg mb-8">
             <div className="text-gray-500 text-sm">Appointment token number</div>
             <div className="text-2xl font-semibold">{appointmentData.token}</div>
           </div>
-          {/* Prescription image section */}
+          {/* Prescription image section with modal trigger */}
           {appointmentData.prescriptionImageUrl && (
             <div className="flex flex-col items-center mb-8">
               <h2 className="text-xl font-semibold mb-4">Prescription</h2>
               <img
                 src={appointmentData.prescriptionImageUrl}
                 alt="Prescription"
-                className="w-40 h-40 object-cover mb-4 border rounded-lg"
+                className="w-40 h-40 object-cover mb-4 border rounded-lg cursor-pointer hover:scale-105 transition-transform duration-200"
+                onClick={() => setIsModalOpen(true)}
               />
             </div>
           )}
@@ -97,6 +100,25 @@ const AppointmentDetails = () => {
           </div>
         </div>
       </div>
+      
+      {/* Modal for larger prescription image */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+          <div className="bg-white p-4 rounded-lg shadow-xl relative w-[90%] h-[90%] flex flex-col">
+            <button 
+              onClick={() => setIsModalOpen(false)} 
+              className="absolute top-4 right-4 text-3xl font-bold text-gray-700 hover:text-gray-900"
+            >
+              &times;
+            </button>
+            <img 
+              src={appointmentData.prescriptionImageUrl}
+              alt="Prescription"
+              className="w-full h-full object-contain"
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };

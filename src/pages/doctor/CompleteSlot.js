@@ -12,6 +12,7 @@ const CompleteSlot = () => {
   const [isCancel, setIsCancel] = useState(false);
   const [prescriptionFile, setPrescriptionFile] = useState(null);
   const [uploadError, setUploadError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
@@ -85,7 +86,7 @@ const CompleteSlot = () => {
       }
       const updatedData = await response.json();
       setAppointmentData(updatedData);
-      // Optionally, clear the file input state after successful upload
+      // Optionally clear file input state
       setPrescriptionFile(null);
     } catch (error) {
       console.error('Error uploading prescription:', error);
@@ -157,14 +158,15 @@ const CompleteSlot = () => {
             </p>
           </div>
 
-          {/* Prescription image section */}
+          {/* Prescription image section with modal trigger */}
           {appointmentData.prescriptionImageUrl ? (
             <div className="flex flex-col items-center mb-8">
               <h2 className="text-xl font-semibold mb-4">Prescription</h2>
               <img
                 src={appointmentData.prescriptionImageUrl}
                 alt="Prescription"
-                className="w-40 h-40 object-cover mb-4 border rounded-lg"
+                className="w-40 h-40 object-cover mb-4 border rounded-lg cursor-pointer hover:scale-105 transition-transform duration-200"
+                onClick={() => setIsModalOpen(true)}
               />
             </div>
           ) : (
@@ -173,22 +175,24 @@ const CompleteSlot = () => {
             </div>
           )}
 
-          {/* Doctor Upload Section */}
-          <div className="flex flex-col items-center mb-8 border p-4 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Upload Prescription (Doctor Only)</h2>
-            <input
-              type="file"
-              onChange={(e) => setPrescriptionFile(e.target.files[0])}
-              className="mb-4"
-            />
-            {uploadError && <div className="text-red-500 mb-2">{uploadError}</div>}
-            <button
-              onClick={handlePrescriptionUpload}
-              className="bg-blue-500 text-white py-2 px-4 rounded"
-            >
-              Upload Prescription
-            </button>
-          </div>
+          {/* Conditionally show the upload option only when appointment is NOT completed */}
+          {!isCompleted && (
+            <div className="flex flex-col items-center mb-8 border p-4 rounded-lg">
+              <h2 className="text-xl font-semibold mb-4">Upload Prescription (Doctor Only)</h2>
+              <input
+                type="file"
+                onChange={(e) => setPrescriptionFile(e.target.files[0])}
+                className="mb-4"
+              />
+              {uploadError && <div className="text-red-500 mb-2">{uploadError}</div>}
+              <button
+                onClick={handlePrescriptionUpload}
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                Upload Prescription
+              </button>
+            </div>
+          )}
 
           <button
             onClick={handleAppointmentCompleted}
@@ -228,6 +232,25 @@ const CompleteSlot = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal for larger prescription image */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+          <div className="bg-white p-4 rounded-lg shadow-xl relative w-[90%] h-[90%] flex flex-col">
+            <button 
+              onClick={() => setIsModalOpen(false)} 
+              className="absolute top-4 right-4 text-3xl font-bold text-gray-700 hover:text-gray-900"
+            >
+              &times;
+            </button>
+            <img 
+              src={appointmentData.prescriptionImageUrl}
+              alt="Prescription"
+              className="w-full h-full object-contain"
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };
