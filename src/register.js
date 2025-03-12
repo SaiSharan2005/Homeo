@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import PatientSignUp from "./patient/signup";
-import DoctorSignUp from "./doctor/signup";
-import StaffSignUp from "./staff/signup";
+// import PatientSignUp from "./patient/signup";
+// import DoctorSignUp from "./doctor/signup";
+// import StaffSignUp from "./staff/signup";
 import img from "./images/doctorPatient.jpg";
 import { Link } from "react-router-dom";
+import DoctorSignUp from './pages/doctor/signup';
+import StaffSignUp from './pages/staff/signup';
+import PatientSignUp from './pages/patient/signup';
+
 
 export default function Register() {
     const [selectedOption, setSelectedOption] = useState('Option 2');
@@ -23,12 +27,12 @@ export default function Register() {
                     <hr className="w-1/6 border-t-4 border-[#2BA78F] mb-6"/>
                     <p className="text-lg text-[#10443d] mb-4">Who do you want to register as?</p>
                     <div className="flex space-x-4 mb-6">
-                        <button
+                        {/* <button
                             className={`py-2 px-4 rounded-full text-lg font-semibold focus:outline-none transition-colors ${selectedOption === 'Option 1' ? 'bg-[#2BA78F] text-white shadow-lg' : 'bg-white text-[#2BA78F] border border-[#2BA78F] hover:bg-[#e6f7f4]'}`}
                             onClick={() => handleOptionChange('Option 1')}
                         >
                             Doctor
-                        </button>
+                        </button> */}
                         <button
                             className={`py-2 px-4 rounded-full text-lg font-semibold focus:outline-none transition-colors ${selectedOption === 'Option 2' ? 'bg-[#2BA78F] text-white shadow-lg' : 'bg-white text-[#2BA78F] border border-[#2BA78F] hover:bg-[#e6f7f4]'}`}
                             onClick={() => handleOptionChange('Option 2')}

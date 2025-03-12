@@ -143,11 +143,11 @@
 // #2BA78F
 // #016B69
 import React, { useState } from 'react';
-import DoctorLogin from './doctor/Login';
-import LoginStaff from "./staff/login";
+import DoctorLogin from './pages/doctor/Login';
+import LoginStaff from "./pages/staff/login";
 import img from "./images/doctorPatient.jpg";
 import {Link} from "react-router-dom";
-import PatientLogin from './patient/login';
+import PatientLogin from './pages/patient/login';
 
 export default function Register(){
     const [selectedOption, setSelectedOption] = useState('Option 2');
