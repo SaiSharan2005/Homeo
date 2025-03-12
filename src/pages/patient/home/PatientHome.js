@@ -131,7 +131,7 @@ import React from "react";
 // import PatientNavbar from "../../../../components/PatientNavbar";
 import patientBackground from "../../../images/patientBackground.jpeg";
 import patientHome from "../../../images/patientHome.jpeg";
-import PatientNavbar from "../../../components/PatientNavbar";
+import PatientNavbar from "../../../components/navbar/PatientNavbar";
 const HomePage = () => {
   const testimonials = [
     {

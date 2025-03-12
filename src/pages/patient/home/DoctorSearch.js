@@ -114,7 +114,7 @@
 import React, { useState, useEffect } from "react";
 import image from "../../../images/image.jpg";
 import { Link } from "react-router-dom";
-import PatientNavbar from "../../../components/PatientNavbar";
+import PatientNavbar from "../../../components/navbar/PatientNavbar";
 import AdBanner from "../Adv"; // Assuming you have this component for displaying ads
 
 const specialties = [

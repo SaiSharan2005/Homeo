@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import profile1 from "../../images/doctorPatient.jpg";
-import DoctorNavbar from "../../components/DoctorNavbar";
+import DoctorNavbar from "../../components/navbar/DoctorNavbar";
 import { useNavigate } from "react-router-dom";
 
 export default function DoctorHistory() {

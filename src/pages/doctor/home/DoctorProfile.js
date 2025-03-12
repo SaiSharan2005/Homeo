@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import DoctorNavbar from "../../../components/DoctorNavbar";
+import DoctorNavbar from "../../../components/navbar/DoctorNavbar";
 import { fetchDoctorById } from "../../../utils/doctorService";
 
 const PencilIcon = ({ onClick }) => (

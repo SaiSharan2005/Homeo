@@ -238,7 +238,7 @@
 
 import React, { useState, useEffect } from "react";
 import { format, addMinutes, parse } from "date-fns";
-import DoctorNavbar from "../../components/DoctorNavbar";
+import DoctorNavbar from "../../components/navbar/DoctorNavbar";
 import { fetchDoctorById } from "../../utils/doctorService";
 
 const DoctorScheduleCreation = () => {

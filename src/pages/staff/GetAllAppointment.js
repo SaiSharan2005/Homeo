@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import AdminNavbar from "../../components/AdminNavbar"
+import AdminNavbar from "../../components/navbar/AdminNavbar"
 const GetAllAppointment = () => {
   const [appointments, setAppointments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AdminNavbar from "../../../components/AdminNavbar";
+import AdminNavbar from "../../../components/navbar/AdminNavbar";
 
 const DoctorSearch = () => {
   const [keyword, setKeyword] = useState("");

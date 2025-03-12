@@ -246,7 +246,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import PatientNavbar from "../../components/PatientNavbar";
+import PatientNavbar from "../../components/navbar/PatientNavbar";
 
 const AppointmentBooking = () => {
   const { doctorId } = useParams();
