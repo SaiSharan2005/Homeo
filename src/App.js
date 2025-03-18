@@ -58,7 +58,7 @@ import Mainhome from "./crocs/views/home";
 import BookSlot from "./pages/staff/AppointmentBookingByAdmin";
 import InventoryPage from "./pages/inventory/InventoryPage";
 import CreatePrescriptionPage from "./pages/prescription/CreatePrescriptionPage";
-
+import AuthContainer from "./pages/auth/AuthContainer"
 export default function App() {
   return (
     <>
@@ -68,7 +68,9 @@ export default function App() {
             {/* Landing Page Screens and Components */}
             <Route exact path="/" element={<Mainhome />} />
             <Route exact path="/register" element={<Register />} />
-            <Route exact path="/login" element={<Login />} />
+            <Route exact path="/login" element={  <AuthContainer activeForm={"login"} />} />
+          
+
             <Route path="/pages/doctor/details" element={<DoctorDetails />} />
             <Route path="/AllAppointment" element={<GetAllAppointment />} />
             <Route
