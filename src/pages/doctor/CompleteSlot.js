@@ -1,24 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import PatientNavbar from '../../components/PatientNavbar';
+import PatientNavbar from '../../components/navbar/PatientNavbar';
+import PrescriptionForm from '../../components/prescription/PrescriptionForm';
+import PrescriptionReport from '../../components/prescription/PrescriptionDetails';
 import image from '../../images/image.jpg';
+import DoctorNavbar from '../../components/navbar/DoctorNavbar';
 
 const CompleteSlot = () => {
   const { tokenId } = useParams();
   const [appointmentData, setAppointmentData] = useState(null);
+  const [createdPrescription, setCreatedPrescription] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isCancel, setIsCancel] = useState(false);
-  const [prescriptionFile, setPrescriptionFile] = useState(null);
-  const [uploadError, setUploadError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showPrescriptionForm, setShowPrescriptionForm] = useState(false);
 
   useEffect(() => {
     const fetchAppointmentData = async () => {
       try {
         const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL + `/bookingAppointments/token/${tokenId}`
+          `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/token/${tokenId}`
         );
         if (!response.ok) {
           throw new Error('Failed to fetch appointment data');
@@ -30,11 +33,29 @@ const CompleteSlot = () => {
         } else if (data.status === "cancel") {
           setIsCancel(true);
         }
+        // Fetch prescription if bookingId exists
+        if (data.bookingId) {
+          fetchPrescriptionByBooking(data.bookingId);
+        }
       } catch (error) {
         console.error('Error fetching appointment data:', error);
         setError(error.message);
       } finally {
         setIsLoading(false);
+      }
+    };
+
+    const fetchPrescriptionByBooking = async (bookingId) => {
+      try {
+        const resp = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/prescriptions/booking/${bookingId}`
+        );
+        if (resp.ok) {
+          const prescriptionData = await resp.json();
+          setCreatedPrescription(prescriptionData);
+        }
+      } catch (err) {
+        console.error('No existing prescription found for this booking', err);
       }
     };
 
@@ -44,12 +65,10 @@ const CompleteSlot = () => {
   const handleAppointmentCompleted = async () => {
     try {
       const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL + `/bookingAppointments/completed-appointment/${tokenId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/completed-appointment/${tokenId}`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' }
         }
       );
       if (!response.ok) {
@@ -64,186 +83,127 @@ const CompleteSlot = () => {
     }
   };
 
-  const handlePrescriptionUpload = async () => {
-    if (!prescriptionFile) {
-      setUploadError('Please select a file to upload.');
-      return;
-    }
-    setUploadError(null);
-    try {
-      const formData = new FormData();
-      formData.append('file', prescriptionFile);
-      
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL + `/bookingAppointments/${appointmentData.bookingId}/prescription`,
-        {
-          method: 'PUT',
-          body: formData,
-        }
-      );
-      if (!response.ok) {
-        throw new Error('Failed to upload prescription image');
-      }
-      const updatedData = await response.json();
-      setAppointmentData(updatedData);
-      // Optionally clear file input state
-      setPrescriptionFile(null);
-    } catch (error) {
-      console.error('Error uploading prescription:', error);
-      setUploadError('Failed to upload prescription image. Please try again.');
-    }
-  };
-
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-xl">Loading...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="text-red-600 text-center mt-8">
+        Error: {error}
+      </div>
+    );
   }
 
   if (!appointmentData) {
-    return <div>Error: Appointment data is not available</div>;
+    return (
+      <div className="text-center mt-8">
+        Error: Appointment data is not available
+      </div>
+    );
   }
-
-  // Use the fallback image as profile pic (or use a field from the response if available)
-  const profilePic = image;
 
   return (
     <>
-      <PatientNavbar />
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
-        <div className="bg-white p-16 rounded-lg shadow-lg w-[80%] text-center">
-          <h1 className="text-3xl font-semibold mb-8">
-            Thanks for booking with Dr. {appointmentData.doctor.username}!
-          </h1>
+      <DoctorNavbar />
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-xl p-8">
+          {/* Report Header */}
+          <div className="flex justify-between items-center border-b pb-4 mb-6">
+            <h1 className="text-3xl font-bold text-gray-800">Appointment Report</h1>
+            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow">
+              Print Report
+            </button>
+          </div>
 
-          <div className="gap-8 mb-8">
+          {/* Patient & Appointment Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Patient Details Card */}
             <div className="bg-gray-100 p-6 rounded-lg">
-              <h2 className="text-xl font-semibold mb-4">Patient Details</h2>
+              <h2 className="text-xl font-semibold text-gray-700 mb-2">Patient Details</h2>
               <img
-                src={profilePic}
+                src={image}
                 alt={`Patient ${appointmentData.patient.username}`}
-                className="w-40 h-40 rounded-full object-cover mb-4 m-auto"
+                className="w-24 h-24 rounded-full object-cover mb-4 mx-auto"
               />
+              <p><span className="font-medium">Name:</span> {appointmentData.patient.username}</p>
               <p>
-                <strong>Name:</strong> {appointmentData.patient.username}
-              </p>
-              <p>
-                <strong>Patient ID:</strong>{' '}
+                <span className="font-medium">ID:</span>{' '}
                 {appointmentData.patient.patientDetails ? appointmentData.patient.patientDetails.id : 'N/A'}
               </p>
+              <p><span className="font-medium">Phone:</span> {appointmentData.patient.phoneNumber}</p>
+              <p><span className="font-medium">Email:</span> {appointmentData.patient.email}</p>
+            </div>
+            {/* Appointment Details Card */}
+            <div className="bg-gray-100 p-6 rounded-lg">
+              <h2 className="text-xl font-semibold text-gray-700 mb-2">Appointment Details</h2>
+              <p><span className="font-medium">Token:</span> {appointmentData.token}</p>
+              <p><span className="font-medium">Date:</span> {appointmentData.scheduleId.date}</p>
               <p>
-                <strong>Phone:</strong> {appointmentData.patient.phoneNumber}
+                <span className="font-medium">Time:</span> {appointmentData.scheduleId.startTime} - {appointmentData.scheduleId.endTime}
               </p>
-              <p>
-                <strong>Email:</strong> {appointmentData.patient.email}
-              </p>
+              <p><span className="font-medium">Status:</span> {appointmentData.status}</p>
             </div>
           </div>
 
-          <div className="bg-gray-100 p-6 rounded-lg mb-8">
-            <h2 className="text-xl font-semibold mb-4">Appointment Details</h2>
-            <p>
-              <strong>Token:</strong> {appointmentData.token}
-            </p>
-            <p>
-              <strong>Date:</strong> {appointmentData.scheduleId.date}
-            </p>
-            <p>
-              <strong>Time:</strong> {appointmentData.scheduleId.startTime} - {appointmentData.scheduleId.endTime}
-            </p>
-            <p>
-              <strong>Status:</strong> {appointmentData.status}
-            </p>
+          {/* Appointment Completion Button */}
+          <div className="flex justify-center mb-8">
+            <button
+              onClick={handleAppointmentCompleted}
+              className={`px-6 py-3 rounded-lg font-medium text-white ${
+                isCompleted ? 'bg-green-500' : isCancel ? 'bg-red-500' : 'bg-blue-500'
+              }`}
+              disabled={isCompleted || isCancel}
+            >
+              {isCancel ? 'Appointment Cancelled' : isCompleted ? 'Appointment Completed' : 'Mark Appointment as Completed'}
+            </button>
           </div>
 
-          {/* Prescription image section with modal trigger */}
-          {appointmentData.prescriptionImageUrl ? (
-            <div className="flex flex-col items-center mb-8">
-              <h2 className="text-xl font-semibold mb-4">Prescription</h2>
-              <img
-                src={appointmentData.prescriptionImageUrl}
-                alt="Prescription"
-                className="w-40 h-40 object-cover mb-4 border rounded-lg cursor-pointer hover:scale-105 transition-transform duration-200"
-                onClick={() => setIsModalOpen(true)}
-              />
-            </div>
+          {/* Prescription Report or Prescription Form */}
+          {createdPrescription ? (
+            <PrescriptionReport prescription={createdPrescription} />
           ) : (
-            <div className="flex flex-col items-center mb-8">
-              <h2 className="text-xl font-semibold mb-4">No Prescription Uploaded</h2>
-            </div>
-          )}
-
-          {/* Conditionally show the upload option only when appointment is NOT completed */}
-          {!isCompleted && (
-            <div className="flex flex-col items-center mb-8 border p-4 rounded-lg">
-              <h2 className="text-xl font-semibold mb-4">Upload Prescription (Doctor Only)</h2>
-              <input
-                type="file"
-                onChange={(e) => setPrescriptionFile(e.target.files[0])}
-                className="mb-4"
-              />
-              {uploadError && <div className="text-red-500 mb-2">{uploadError}</div>}
+            <div className="flex justify-center">
               <button
-                onClick={handlePrescriptionUpload}
-                className="bg-blue-500 text-white py-2 px-4 rounded"
+                onClick={() => setShowPrescriptionForm(true)}
+                className="bg-purple-500 hover:bg-purple-600 text-white py-3 px-6 rounded-lg"
               >
-                Upload Prescription
+                Add Prescription
               </button>
             </div>
           )}
-
-          <button
-            onClick={handleAppointmentCompleted}
-            className={`${
-              isCompleted ? 'bg-green-500' : 'bg-blue-500'
-            } ${isCancel ? 'bg-red-500' : 'bg-blue-500'} text-white py-3 px-6 rounded-lg mb-8`}
-            disabled={isCompleted || isCancel}
-          >
-            {isCancel
-              ? 'Appointment Cancelled'
-              : isCompleted
-              ? 'Appointment Completed'
-              : 'Mark Appointment as Completed'}
-          </button>
-
-          {error && <div className="text-red-500">{error}</div>}
-
-          <div className="text-left">
-            <div className="mb-4">
-              <strong>Need help?</strong>
-              <p className="text-gray-500 text-sm">
-                Have questions? You can always reach out to our support team.
-              </p>
-            </div>
-            <div className="mb-4">
-              <strong>Reminder</strong>
-              <p className="text-gray-500 text-sm">
-                We'll send you a reminder email 24 hours before your appointment.
-              </p>
-            </div>
-            <div>
-              <strong>Manage your appointment</strong>
-              <p className="text-gray-500 text-sm">
-                You can manage your appointment or cancel it from your account.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Modal for larger prescription image */}
+      {/* Prescription Form Modal */}
+      {showPrescriptionForm && (
+        <PrescriptionForm
+          onClose={() => setShowPrescriptionForm(false)}
+          onPrescriptionCreated={(prescription) => {
+            console.log('Prescription created:', prescription);
+            setCreatedPrescription(prescription);
+          }}
+          doctorId={appointmentData.doctor.id}
+          patientId={appointmentData.patient.id}
+          bookingAppointmentId={appointmentData.bookingId}
+        />
+      )}
+
+      {/* Prescription Image Modal (if needed) */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
           <div className="bg-white p-4 rounded-lg shadow-xl relative w-[90%] h-[90%] flex flex-col">
-            <button 
-              onClick={() => setIsModalOpen(false)} 
+            <button
+              onClick={() => setIsModalOpen(false)}
               className="absolute top-4 right-4 text-3xl font-bold text-gray-700 hover:text-gray-900"
             >
               &times;
             </button>
-            <img 
+            <img
               src={appointmentData.prescriptionImageUrl}
               alt="Prescription"
               className="w-full h-full object-contain"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AdminNavbar from "../../../components/AdminNavbar";
+import AdminNavbar from "../../../components/navbar/AdminNavbar";
 import { Link } from 'react-router-dom';
 
 export default function ShowAdvertisements() {

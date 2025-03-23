@@ -1,18 +1,10 @@
 import "./index.css";
-import './style.css'
-
-
-// import React, { useState, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  // Link
-} from "react-router-dom";
+import "./style.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Landing Page imports
-import Register from './register';
-import Login from './login';
+import Register from "./register";
+import Login from "./login";
 import DoctorDetails from "./pages/doctor/Details";
 
 // Doctor imports
@@ -20,7 +12,7 @@ import DoctorSignUp from "./pages/doctor/signup";
 import DoctorHome from "./pages/doctor/home/DoctorHome";
 import DoctorScheduleCreation from "./pages/doctor/DoctorScheduleCreation";
 import DoctorProfile from "./pages/doctor/home/DoctorProfile";
-import DoctorHistory from "./pages/doctor/History"
+import DoctorHistory from "./pages/doctor/History";
 // Patient imports
 import PatientSignUp from "./pages/patient/signup";
 import PatientHome from "./pages/patient/home/PatientHome";
@@ -55,69 +47,121 @@ import DoctorActivitySearch from "./pages/staff/activity/Doctor-Activity";
 import PatientActivitySearch from "./pages/staff/activity/Patient-Activity";
 import AppointmentActivitySearch from "./pages/staff/activity/Appointment-Activity";
 import AdvertisementActivitySearch from "./pages/staff/activity/Advertisement-Activity";
+import InventoryItemList from "./pages/inventory/InventoryItemList";
+import InventoryItemDetail from "./pages/inventory/InventoryItemDetail";
+
+import PurchaseOrderCreate from "./pages/inventory/productOrder/PurchaseOrderCreate";
+import PurchaseOrderList from "./pages/inventory/productOrder/PurchaseOrderList";
+
 // import Home from "./base";
-import Mainhome from "./crocs/views/home"
+import Mainhome from "./crocs/views/home";
 import BookSlot from "./pages/staff/AppointmentBookingByAdmin";
-
-export default function App(){
+import InventoryPage from "./pages/inventory/InventoryPage";
+import CreatePrescriptionPage from "./pages/prescription/CreatePrescriptionPage";
+import AuthContainer from "./pages/auth/AuthContainer"
+export default function App() {
   return (
-    <Router>
-      <div>
-        <Routes>
-          {/* Landing Page Screens and Components */}
-          <Route exact path="/" element={<Mainhome />} />
-          <Route exact path="/register" element={<Register />} />
-          <Route exact path="/login" element={<Login />} />
-          <Route path= "/pages/doctor/details" element={<DoctorDetails/>}/>
-          <Route path="/AllAppointment" element={<GetAllAppointment/>}/>
-          <Route path = "/doctorSchedule/Create" element= {<DoctorScheduleCreation/>} />
-          <Route path = "/doctor/profile" element= {<DoctorProfile/>} />
-          <Route path = "/doctor/schedule" element={<Schedules/>}/>
-          <Route path = "/doctor/history" element={<DoctorHistory/>}/>
-
-          {/* Patient Screens and Components */}
-          <Route exact path="/patient/signup" element={<PatientSignUp />} />
-          <Route exact path="/patient/home" element={<PatientHome />} />
-          <Route path="/doctorSearch" element={<DoctorSearch/>}/>
-          <Route path = "/patient/profile" element= {<PatientProfile/>} />
-          <Route path = "/token/:tokenId/" element= {<AppointmentDetails/>}/>
-          <Route path="/patient/details" element = {<PatientDetails/>}/>
-          <Route path = "/patient/history" element = {<PatientHistory/>}/>
-          <Route path = "/patient/adv" element = {<PatientPage/>}/>
+    <>
+      <Router>
+        <div>
+          <Routes>
+            {/* Landing Page Screens and Components */}
+            <Route exact path="/" element={<Mainhome />} />
+            <Route exact path="/register" element={<Register />} />
+            <Route exact path="/login" element={  <AuthContainer activeForm={"login"} />} />
           
 
-          {/* Doctor Screens and Components */}
-          <Route exact path="/doctor/signup" element={<DoctorSignUp />} />
-          <Route exact path="/doctor/home" element={<DoctorHome />} />
-          <Route path = "/BookAppoinment/:doctorId" element={<AppointmentBooking/>}/>
-          <Route path = "/UpdateAppoinment/:AppointmentId" element={<UpdateAppointment/>}/>
-          <Route path = "/doctor-token/:tokenId" element={<CompleteSlot/>}/>
+            <Route path="/pages/doctor/details" element={<DoctorDetails />} />
+            <Route path="/AllAppointment" element={<GetAllAppointment />} />
+            <Route
+              path="/doctorSchedule/Create"
+              element={<DoctorScheduleCreation />}
+            />
+            <Route path="/doctor/profile" element={<DoctorProfile />} />
+            <Route path="/doctor/schedule" element={<Schedules />} />
+            <Route path="/doctor/history" element={<DoctorHistory />} />
 
+            {/* Patient Screens and Components */}
+            <Route exact path="/patient/signup" element={<PatientSignUp />} />
+            <Route exact path="/patient/home" element={<PatientHome />} />
+            <Route path="/doctorSearch" element={<DoctorSearch />} />
+            <Route path="/patient/profile" element={<PatientProfile />} />
+            <Route path="/token/:tokenId/" element={<AppointmentDetails />} />
+            <Route path="/patient/details" element={<PatientDetails />} />
+            <Route path="/patient/history" element={<PatientHistory />} />
+            <Route path="/patient/adv" element={<PatientPage />} />
 
-          {/* Staff Screens and Components */}
-          <Route exact path="/staff/signup" element={<StaffSignUp />} />
-          <Route exact path="/staff/home" element={<StaffHomePage />} />
-          {/* <Route path = "/adv" element={<UploadForm/>}/> */}
-          <Route path = "/adv/management" element={<AdvertisementManager/>}/>
-          <Route path = "/staff/create-adv" element={<CreateAdvertisement/>}/>
-          <Route path = "/staff/update-adv/:id" element={<UpdateAdvertisement/>}/>
-          <Route path = "/staff/all-adv" element={<ShowAdvertisements/>}/>
-          <Route path = "/staff/doctor-search" element={<StaffDoctorSearch/>}/>
-          <Route path = "/staff/patient-search" element={<PatientSearch/>}/>
-          <Route path = "staff/GetAllAppointment" element={<GetAllAppointment/>}/>
-          <Route path = "/staff/all-activity" element={<ActivitySearch/>}/>
-          <Route path = "/staff/doctor-activity" element={<DoctorActivitySearch/>}/>
-          <Route path = "/staff/patient-activity" element={<PatientActivitySearch/>}/>
-          <Route path = "/staff/appointment-activity" element={<AppointmentActivitySearch/>}/>
-          <Route path = "/staff/advertisement-activity" element={<AdvertisementActivitySearch/>}/>
-          <Route path = "/BookSlot" element={<BookSlot/>}/>
+            {/* Doctor Screens and Components */}
+            <Route exact path="/doctor/signup" element={<DoctorSignUp />} />
+            <Route exact path="/doctor/home" element={<DoctorHome />} />
+            <Route
+              path="/BookAppoinment/:doctorId"
+              element={<AppointmentBooking />}
+            />
+            <Route
+              path="/UpdateAppoinment/:AppointmentId"
+              element={<UpdateAppointment />}
+            />
+            <Route path="/doctor-token/:tokenId" element={<CompleteSlot />} />
 
-          
-          
-          
+            {/* Staff Screens and Components */}
+            <Route exact path="/staff/signup" element={<StaffSignUp />} />
+            <Route exact path="/staff/home" element={<StaffHomePage />} />
+            {/* <Route path = "/adv" element={<UploadForm/>}/> */}
+            <Route path="/adv/management" element={<AdvertisementManager />} />
+            <Route path="/staff/create-adv" element={<CreateAdvertisement />} />
+            <Route
+              path="/staff/update-adv/:id"
+              element={<UpdateAdvertisement />}
+            />
+            <Route path="/staff/all-adv" element={<ShowAdvertisements />} />
+            <Route
+              path="/staff/doctor-search"
+              element={<StaffDoctorSearch />}
+            />
+            <Route path="/staff/patient-search" element={<PatientSearch />} />
+            <Route
+              path="staff/GetAllAppointment"
+              element={<GetAllAppointment />}
+            />
+            <Route path="/staff/all-activity" element={<ActivitySearch />} />
+            <Route
+              path="/staff/doctor-activity"
+              element={<DoctorActivitySearch />}
+            />
+            <Route
+              path="/staff/patient-activity"
+              element={<PatientActivitySearch />}
+            />
+            <Route
+              path="/staff/appointment-activity"
+              element={<AppointmentActivitySearch />}
+            />
+            <Route
+              path="/staff/advertisement-activity"
+              element={<AdvertisementActivitySearch />}
+            />
+            <Route path="/BookSlot" element={<BookSlot />} />
 
-        </Routes>
-      </div>
-    </Router>
+            <Route path="/inventory-items/create" element={<InventoryPage />} />
+            <Route path="/inventory-items" element={<InventoryItemList />} />
+            <Route
+              path="/inventory-items/:id"
+              element={<InventoryItemDetail />}
+            />
+            <Route path="/purchase-orders" element={<PurchaseOrderList />} />
+            <Route
+              path="/purchase-orders/create"
+              element={<PurchaseOrderCreate />}
+            />
+
+            <Route
+              path="/prescription/create"
+              element={<CreatePrescriptionPage />}
+            />
+          </Routes>
+        </div>
+      </Router>
+    </>
   );
 }

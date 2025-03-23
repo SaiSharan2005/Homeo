@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AdminNavbar from "../../../components/AdminNavbar";
+import AdminNavbar from "../../../components/navbar/AdminNavbar";
 
 export default function CreateAdvertisement() {
   const [title, setTitle] = useState("");

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AdminNavBar from "../../../components/AdminNavbar"
+import AdminNavBar from "../../../components/navbar/AdminNavbar"
 
 const DoctorActivitySearch = () => {
   const [keyword, setKeyword] = useState("");
