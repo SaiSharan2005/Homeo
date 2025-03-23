@@ -45,7 +45,7 @@ function AuthContainer({ activeForm }) {
           - 40% width on medium+ screens (md:w-2/5)
           - Pinned to the left with a left margin of 5% (md:ml-[5%])
         */}
-        <div className="w-full md:w-2/5 md:ml-[5%] p-6 bg-white rounded shadow-lg z-10">
+        <div className="w-full md:w-2/5 md:ml-[5%] p-6 bg-white rounded-xl shadow-lg z-10">
           {RenderedComponent}
         </div>
       </div>

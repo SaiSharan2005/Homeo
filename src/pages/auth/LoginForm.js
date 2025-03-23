@@ -1,5 +1,5 @@
 import React from 'react';
-import { MdEmail, MdLock } from "react-icons/md";
+import { MdPhone, MdLock } from "react-icons/md";
 
 function LoginForm() {
   const handleSubmit = (e) => {
@@ -11,17 +11,17 @@ function LoginForm() {
     <div className="min-h-[500px] flex flex-col justify-center p-8 bg-white rounded-2xl max-w-2xl mx-auto">
       <h2 className="mb-8 text-3xl font-bold text-center text-gray-800">Login</h2>
       <form className="space-y-8" onSubmit={handleSubmit}>
-        {/* Email Field */}
+        {/* Phone Number Field */}
         <div>
-          <label htmlFor="email" className="block mb-2 text-sm font-semibold text-gray-700">
-            Email ID
+          <label htmlFor="phone" className="block mb-2 text-sm font-semibold text-gray-700">
+            Phone Number
           </label>
           <div className="relative">
-            <MdEmail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
+            <MdPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
             <input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
+              id="phone"
+              type="tel"
+              placeholder="Enter your phone number"
               required
               className="w-full px-4 pl-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
             />
