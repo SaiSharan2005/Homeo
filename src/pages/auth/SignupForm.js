@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { MdPerson, MdPhone, MdEmail, MdLock } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 
-export default function PatientSignUp() {
+export default function SignUpForm({ rolesFromParams }) {
   const navigate = useNavigate();
   const [credentials, setCredentials] = useState({
     name: "",
@@ -11,9 +11,12 @@ export default function PatientSignUp() {
     password: ""
   });
 
+  // Use roles from props, defaulting to ["PATIENT"] if not provided
+  const roles = rolesFromParams || ["PATIENT"];
+
   const onChange = (event) => {
     const { name, value } = event.target;
-    setCredentials((prev) => ({
+    setCredentials(prev => ({
       ...prev,
       [name]: value,
     }));
@@ -26,7 +29,7 @@ export default function PatientSignUp() {
       phoneNumber: credentials.number,
       email: credentials.email,
       password: credentials.password,
-      roles: ["PATIENT"],
+      roles: roles, // now using roles from props
     };
 
     try {
@@ -44,7 +47,13 @@ export default function PatientSignUp() {
       const responseData = await response.json();
       localStorage.setItem("Token", responseData.token);
       console.log('Patient registered successfully:', responseData);
-      navigate("/patient/details", { state: { data: responseData } });
+
+      // Navigate to respective details page based on role
+      if (roles.includes("PATIENT")) {
+        navigate("/patient/details", { state: { data: responseData } });
+      } else if (roles.includes("DOCTOR")) {
+        navigate("/doctor/details", { state: { data: responseData } });
+      }
     } catch (error) {
       console.error('Error registering patient:', error.message);
       // Optionally, display an alert or error message to the user

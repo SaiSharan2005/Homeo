@@ -1,23 +1,28 @@
-import React from 'react';
-import LoginForm from './LoginForm';
+import React from "react";
+import LoginForm from "./LoginForm";
 // Import or define additional form components as needed
 
 import loginBg from "../../images/login-bg.jpg";
-import PatientSignUp from '../patient/signup';
-import PatientDetails from '../patient/Details';
+import SignUpForm from "./SignupForm";
+import PatientDetails from "../patient/Details";
+import DoctorDetails from "../doctor/Details";
 
 function AuthContainer({ activeForm }) {
   let RenderedComponent;
 
   // Decide which component to render based on 'activeForm'
-  if (activeForm === 'login') {
+  if (activeForm === "login") {
     RenderedComponent = <LoginForm />;
-    } else if (activeForm === 'signup') {
-      RenderedComponent = <PatientSignUp />;
-    } else if (activeForm === 'patient-details') {
-      RenderedComponent = <PatientDetails />;
-    // } else if (activeForm === 'doctor') {
-    //   RenderedComponent = <DoctorDetailsForm />;
+  } else if (activeForm === "patient-signup") {
+    RenderedComponent = <SignUpForm rolesFromParams={["PATIENT"]} />;
+  } else if (activeForm === "doctor-signup") {
+    RenderedComponent = <SignUpForm rolesFromParams={["DOCTOR"]} />;
+  } else if (activeForm === "admin-signup") {
+    RenderedComponent = <SignUpForm rolesFromParams={["ADMIN"]} />;
+  } else if (activeForm === "patient-details") {
+    RenderedComponent = <PatientDetails />;
+  } else if (activeForm === "doctor-details") {
+    RenderedComponent = <DoctorDetails />;
   } else {
     // Fallback if no form matches
     RenderedComponent = (

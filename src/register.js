@@ -6,7 +6,7 @@ import img from "./images/doctorPatient.jpg";
 import { Link } from "react-router-dom";
 import DoctorSignUp from './pages/doctor/signup';
 import StaffSignUp from './pages/staff/signup';
-import PatientSignUp from './pages/patient/signup';
+import PatientSignUp from './pages/auth/SignupForm';
 
 
 export default function Register() {

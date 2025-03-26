@@ -1,127 +1,163 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import img from '../../images/doctorPatient.jpg'; // Importing the image
+import { useNavigate } from "react-router-dom";
+import { MdCake, MdTransgender, MdHome, MdLocationCity, MdLocalPostOffice } from 'react-icons/md';
 
 export default function PatientDetails() {
-    const location = useLocation();
-    const navigate = useNavigate();
-    // const { data } = location.state || {};
-    const [formData, setFormData] = useState({
-        age: '',
-        gender: '',
-        address: '',
-        city: '',
-        pincode: ''
-    });
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    age: '',
+    gender: '',
+    address: '',
+    city: '',
+    pincode: ''
+  });
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-    };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        // formData["patientId"] = data.patientId
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // If needed, you can attach additional data (e.g., patientId from location state)
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/patient/CreateProfile`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem("Token")}`
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      if (response.ok) {
+        console.log('Patient details saved successfully!');
+        navigate("/login");
+      } else {
+        console.error('Failed to save patient details');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
-        try {
-            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/patient/CreateProfile`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem("Token")}`
-                },
-                body: JSON.stringify(formData)
-            });
-            
-            if (response.ok) {
-                console.log('Patient details saved successfully!');
-                navigate("/login")
-            } else {
-                console.error('Failed to save patient details');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    };
-
-    return (
-        <div className="max-h-[90vh] overflow-auto bg-[#eef8f6] w-full flex justify-center items-center relative">
-            <div className="flex flex-col-reverse lg:flex-row items-center justify-center h-full w-full lg:w-5/6 lg:bg-[#aadcd2] lg:rounded-[2rem] md:mt-8 lg:mt-0 lg:shadow-2xl overflow-hidden">
-                <div className="hidden md:block h-1/2 lg:h-[60vh] w-full lg:h-full lg:w-5/12">
-                    <img className="h-full w-full object-cover" src={img} alt="Doctor and Patient" />
-                </div>
-                {/* Divider */}
-                <div className="hidden lg:block border-s border-[#2BA78F] h-full"></div>
-                {/* Form Section */}
-                <div className="h-full md:h-[60vh] w-3/4 lg:w-7/12 lg:h-full lg:w-1/2 flex flex-col justify-center md:p-4 lg:p-6 gap-y-2">
-                    <form
-                        className="w-full flex flex-col justify-center items-center gap-y-2 py-2"
-                        onSubmit={handleSubmit}
-                    >
-                        <div className="w-full flex flex-row flex-wrap justify-center gap-2 lg:gap-x-3">
-                            <input
-                                id="ageInput"
-                                type="number"
-                                name="age"
-                                className="w-11/24 md:w-5/12 px-3 py-2 mb-1 text-md border rounded-xl"
-                                placeholder="Enter Age"
-                                value={formData.age}
-                                onChange={handleInputChange}
-                                required
-                            />
-                            <input
-                                id="genderInput"
-                                type="text"
-                                name="gender"
-                                className="w-11/24 md:w-5/12 px-3 py-2 mb-1 text-md border rounded-xl"
-                                placeholder="Enter Gender"
-                                value={formData.gender}
-                                onChange={handleInputChange}
-                                required
-                            />
-                            <input
-                                id="addressInput"
-                                type="text"
-                                name="address"
-                                className="w-11/24 md:w-5/12 px-3 py-2 mb-1 text-md border rounded-xl"
-                                placeholder="Enter Address"
-                                value={formData.address}
-                                onChange={handleInputChange}
-                                required
-                            />
-                            <input
-                                id="cityInput"
-                                type="text"
-                                name="city"
-                                className="w-11/24 md:w-5/12 px-3 py-2 mb-1 text-md border rounded-xl"
-                                placeholder="Enter City"
-                                value={formData.city}
-                                onChange={handleInputChange}
-                                required
-                            />
-                            <input
-                                id="pincodeInput"
-                                type="text"
-                                name="pincode"
-                                className="w-11/24 md:w-5/12 px-3 py-2 mb-1 text-md border rounded-xl"
-                                placeholder="Enter Pincode"
-                                value={formData.pincode}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="inline font-semibold py-2 px-4 text-lg bg-[#228672] text-white rounded-full hover:bg-[#1a6456] focus:outline-none"
-                        >
-                            Submit
-                        </button>
-                    </form>
-                </div>
+  return (
+    <div className="min-h-[400px] flex flex-col justify-center p-6 bg-white rounded-2xl max-w-2xl mx-auto">
+      <h2 className="mb-4 text-3xl font-bold text-center text-gray-800">Patient Details</h2>
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        {/* Age Field */}
+        <div className="flex flex-col">
+          <label htmlFor="age" className="mb-1 text-sm font-medium text-gray-700">Age</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MdCake className="h-5 w-5 text-gray-400" />
             </div>
+            <input
+              id="age"
+              name="age"
+              type="number"
+              placeholder="Enter Age"
+              value={formData.age}
+              onChange={handleInputChange}
+              required
+              className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+            />
+          </div>
         </div>
-    );
+        {/* Gender Field */}
+        <div className="flex flex-col">
+          <label htmlFor="gender" className="mb-1 text-sm font-medium text-gray-700">Gender</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MdTransgender className="h-5 w-5 text-gray-400" />
+            </div>
+            <select
+              id="gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleInputChange}
+              required
+              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+            >
+              <option value="" disabled>Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        {/* Address Field */}
+        <div className="flex flex-col">
+          <label htmlFor="address" className="mb-1 text-sm font-medium text-gray-700">Address</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MdHome className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              id="address"
+              name="address"
+              type="text"
+              placeholder="Enter Address"
+              value={formData.address}
+              onChange={handleInputChange}
+              required
+              className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+            />
+          </div>
+        </div>
+        {/* City Field */}
+        <div className="flex flex-col">
+          <label htmlFor="city" className="mb-1 text-sm font-medium text-gray-700">City</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MdLocationCity className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              id="city"
+              name="city"
+              type="text"
+              placeholder="Enter City"
+              value={formData.city}
+              onChange={handleInputChange}
+              required
+              className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+            />
+          </div>
+        </div>
+        {/* Pincode Field */}
+        <div className="flex flex-col">
+          <label htmlFor="pincode" className="mb-1 text-sm font-medium text-gray-700">Pincode</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MdLocalPostOffice className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              id="pincode"
+              name="pincode"
+              type="text"
+              placeholder="Enter Pincode"
+              value={formData.pincode}
+              onChange={handleInputChange}
+              required
+              className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+            />
+          </div>
+        </div>
+        <button
+          type="submit"
+          className="w-full py-2 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition transform hover:scale-105"
+        >
+          Submit
+        </button>
+      </form>
+      <div className="mt-4 text-sm text-center text-gray-600">
+        <a href="#" className="font-medium text-green-600 hover:underline">
+          Need help?
+        </a>
+      </div>
+    </div>
+  );
 }
