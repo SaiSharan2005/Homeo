@@ -1,5 +1,6 @@
 import React from 'react';
 import { MdPhone, MdLock } from "react-icons/md";
+import { Link } from 'react-router-dom';
 
 function LoginForm() {
   const handleSubmit = (e) => {
@@ -64,9 +65,9 @@ function LoginForm() {
       {/* Footer Links */}
       <div className="mt-10 text-sm text-center text-gray-600">
         If you don't have an account,{' '}
-        <a href="#" className="font-medium text-green-600 hover:underline">
+        <Link to="/patient/signup" className="font-medium text-green-600 hover:underline">
           Register here
-        </a>
+        </Link>
       </div>
       <div className="mt-4 text-sm text-center text-gray-600">
         <a href="#" className="font-medium text-green-600 hover:underline">

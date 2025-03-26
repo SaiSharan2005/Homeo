@@ -3,6 +3,8 @@ import LoginForm from './LoginForm';
 // Import or define additional form components as needed
 
 import loginBg from "../../images/login-bg.jpg";
+import PatientSignUp from '../patient/signup';
+import PatientDetails from '../patient/Details';
 
 function AuthContainer({ activeForm }) {
   let RenderedComponent;
@@ -10,10 +12,10 @@ function AuthContainer({ activeForm }) {
   // Decide which component to render based on 'activeForm'
   if (activeForm === 'login') {
     RenderedComponent = <LoginForm />;
-    // } else if (activeForm === 'signup') {
-    //   RenderedComponent = <SignupForm />;
-    // } else if (activeForm === 'patient') {
-    //   RenderedComponent = <PatientDetailsForm />;
+    } else if (activeForm === 'signup') {
+      RenderedComponent = <PatientSignUp />;
+    } else if (activeForm === 'patient-details') {
+      RenderedComponent = <PatientDetails />;
     // } else if (activeForm === 'doctor') {
     //   RenderedComponent = <DoctorDetailsForm />;
   } else {

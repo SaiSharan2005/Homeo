@@ -67,7 +67,7 @@ export default function App() {
           <Routes>
             {/* Landing Page Screens and Components */}
             <Route exact path="/" element={<Mainhome />} />
-            <Route exact path="/register" element={<Register />} />
+            {/* <Route exact path="/register" element={<Register />} /> */}
             <Route exact path="/login" element={  <AuthContainer activeForm={"login"} />} />
           
 
@@ -82,12 +82,17 @@ export default function App() {
             <Route path="/doctor/history" element={<DoctorHistory />} />
 
             {/* Patient Screens and Components */}
-            <Route exact path="/patient/signup" element={<PatientSignUp />} />
+            {/* <Route exact path="/patient/signup" element={<PatientSignUp />} />             */}
+            <Route exact path="/patient/signup" element={  <AuthContainer activeForm={"signup"} />} />
+
             <Route exact path="/patient/home" element={<PatientHome />} />
             <Route path="/doctorSearch" element={<DoctorSearch />} />
             <Route path="/patient/profile" element={<PatientProfile />} />
             <Route path="/token/:tokenId/" element={<AppointmentDetails />} />
-            <Route path="/patient/details" element={<PatientDetails />} />
+            {/* <Route path="/patient/details" element={<PatientDetails />} /> */}
+            <Route exact path="/patient/details" element={  <AuthContainer activeForm={"patient-details"} />} />
+
+            
             <Route path="/patient/history" element={<PatientHistory />} />
             <Route path="/patient/adv" element={<PatientPage />} />
 

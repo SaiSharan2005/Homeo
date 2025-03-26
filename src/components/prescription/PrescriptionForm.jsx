@@ -289,7 +289,7 @@ const PrescriptionForm = ({
                   />
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-right"> 
                 <button
                   type="button"
                   onClick={() => removePrescriptionItem(index)}

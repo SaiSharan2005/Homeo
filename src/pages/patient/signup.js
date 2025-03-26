@@ -1,122 +1,167 @@
 import React, { useState } from 'react';
+import { MdPerson, MdPhone, MdEmail, MdLock } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 
-export default function PatientSignUp(){
-  const navigate = useNavigate()
-    const [credentials, setcredentials] = useState({
-        name: "",
-        number: "",
-        email:"",
-        password:"",
-      });
+export default function PatientSignUp() {
+  const navigate = useNavigate();
+  const [credentials, setCredentials] = useState({
+    name: "",
+    number: "",
+    email: "",
+    password: ""
+  });
 
-    const onChange = (event) => {
-        if (event.target) {
-            setcredentials({
-              ...credentials,
-              [event.target.name]: event.target.value,
-            });
-          }
-        };
-        const registerPatient = async () => {
-            const url = process.env.REACT_APP_BACKEND_URL+'/auth/register';
-            const data = {
-              username: credentials.name,
-              phoneNumber: credentials.number,
-              email: credentials.email,
-              password: credentials.password,
-              roles:["PATIENT"]
+  const onChange = (event) => {
+    const { name, value } = event.target;
+    setCredentials((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-            };
-          
-            try {
-              const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-              });
-              
-              if (!response.ok) {
-                const errorMessage = await response.text();
-                throw new Error(errorMessage);
-              }
-              
-              const responseData = await response.json();
-              localStorage.setItem("Token",responseData.token);
-              console.log('Patient registered successfully:', responseData);
-              navigate("/patient/details",{state:{data:responseData}})
-              // Handle success, maybe redirect or show a success message
-              return {
-                "status":"success",
-                "message":"Registered Succesfully "
-        
-              } 
-               } catch (error) {
-              console.error('Error registering doctor:', error.message);
-              // Handle error, show an error message or log the error
-            }
-          };
-          
-    const handleSubmit = (event) => {
-      event.preventDefault();
-      console.log('Form submitted with:', credentials);
-
-      registerPatient()
+  const registerPatient = async () => {
+    const url = process.env.REACT_APP_BACKEND_URL + '/auth/register';
+    const data = {
+      username: credentials.name,
+      phoneNumber: credentials.number,
+      email: credentials.email,
+      password: credentials.password,
+      roles: ["PATIENT"],
     };
 
-    return (
-        <form class="w-full flex flex-col justify-center items-center gap-y-6 py-3 lg:py-8" onSubmit={handleSubmit}>
-            <div class="w-full flex flex-row flex-wrap justify-center gap-4 lg:gap-x-8">
-                {/* <input style={input} type="text" id="microid" className="form-control m-3" name="gst_number" value={credentials.gst_number} onChange={onChange} /> */}
-                <input
-                    id="nameInput"
-                    type="text"
-                    name="name"
-                    className="w-11/24 md:w-5/12 px-4 py-3 mb-4 text-md border rounded-xl"
-                    placeholder="Enter your name"
-                    value={credentials.name}
-                    onChange={onChange}
-                    required
-                />
-                <input
-                    id="numberInput"
-                    type="number"
-                    name="number"
-                    className="w-11/24 md:w-5/12 px-4 py-3 mb-4 text-md border rounded-xl"
-                    placeholder="+91 Enter you number"
-                    value={credentials.number}
-                    onChange={onChange}
-                    required
-                />
-                <input
-                    id="emailInput"
-                    type="email"
-                    name="email"
-                    className="w-11/24 md:w-5/12 px-4 py-3 mb-4 text-md border rounded-xl"
-                    placeholder="Enter your email"
-                    value={credentials.email}
-                    onChange={onChange}
-                    required
-                />
-                <input
-                    id="passwordInput"
-                    type="text"
-                    name="password"
-                    className="w-11/24 md:w-5/12 px-4 py-3 mb-4 text-md border rounded-xl"
-                    placeholder="Enter the password"
-                    value={credentials.password}
-                    onChange={onChange}
-                    required
-                />
-            </div>
-            <button
-                type="submit"
-                className="inline font-semibold py-3 px-6 text-lg bg-[#228672] text-white rounded-full hover:bg-[#1a6456] focus:outline-none"
-            >
-                Submit
-            </button>
-        </form>
-    );
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(errorMessage);
+      }
+
+      const responseData = await response.json();
+      localStorage.setItem("Token", responseData.token);
+      console.log('Patient registered successfully:', responseData);
+      navigate("/patient/details", { state: { data: responseData } });
+    } catch (error) {
+      console.error('Error registering patient:', error.message);
+      // Optionally, display an alert or error message to the user
+    }
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log('Form submitted with:', credentials);
+    registerPatient();
+  };
+
+  return (
+    <div className="min-h-[400px] flex flex-col justify-center p-6 bg-white rounded-2xl max-w-2xl mx-auto">
+      <h2 className="mb-4 text-3xl font-bold text-center text-gray-800">Sign Up</h2>
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        {/* Name Field */}
+        <div>
+          <label htmlFor="name" className="block mb-1 text-sm font-semibold text-gray-700">
+            Name
+          </label>
+          <div className="relative">
+            <MdPerson className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
+            <input
+              id="name"
+              name="name"
+              type="text"
+              placeholder="Enter your name"
+              required
+              value={credentials.name}
+              onChange={onChange}
+              className="w-full px-3 pl-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+            />
+          </div>
+        </div>
+
+        {/* Phone Number Field */}
+        <div>
+          <label htmlFor="number" className="block mb-1 text-sm font-semibold text-gray-700">
+            Phone Number
+          </label>
+          <div className="relative">
+            <MdPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
+            <input
+              id="number"
+              name="number"
+              type="tel"
+              placeholder="Enter your phone number"
+              required
+              value={credentials.number}
+              onChange={onChange}
+              className="w-full px-3 pl-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+            />
+          </div>
+        </div>
+
+        {/* Email Field */}
+        <div>
+          <label htmlFor="email" className="block mb-1 text-sm font-semibold text-gray-700">
+            Email
+          </label>
+          <div className="relative">
+            <MdEmail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              required
+              value={credentials.email}
+              onChange={onChange}
+              className="w-full px-3 pl-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+            />
+          </div>
+        </div>
+
+        {/* Password Field */}
+        <div>
+          <label htmlFor="password" className="block mb-1 text-sm font-semibold text-gray-700">
+            Password
+          </label>
+          <div className="relative">
+            <MdLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              required
+              value={credentials.password}
+              onChange={onChange}
+              className="w-full px-3 pl-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+            />
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className="w-full py-2 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition transform hover:scale-105"
+        >
+          SIGN UP
+        </button>
+      </form>
+
+      {/* Footer Links */}
+      <div className="mt-4 text-sm text-center text-gray-600">
+        Already have an account?{' '}
+        <a href="#" className="font-medium text-green-600 hover:underline">
+          Login here
+        </a>
+      </div>
+      <div className="mt-2 text-sm text-center text-gray-600">
+        <a href="#" className="font-medium text-green-600 hover:underline">
+          Need help?
+        </a>
+      </div>
+    </div>
+  );
 }

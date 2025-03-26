@@ -1,3 +1,4 @@
+import { node } from 'prop-types';
 import React, { useState, useEffect } from 'react';
 
 const InventoryItemAndRecordForm = () => {
@@ -90,9 +91,10 @@ const InventoryItemAndRecordForm = () => {
       });
     } catch (err) {
       console.error('Error creating inventory item:', err);
+      
       setError('Failed to create inventory item.');
-    }
-  };
+    } 
+  }; 
 
   // Handle change for record quantity
   const handleRecordQuantityChange = (e) => {
