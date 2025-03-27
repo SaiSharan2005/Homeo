@@ -59,6 +59,7 @@ import AuthContainer from "./pages/auth/AuthContainer";
 import ProvoHealDashboard from "./utils/Test";
 import DoctorLayout from "./components/Layouts/DoctorLayout";
 import DoctorDashboard from "./pages/doctor/home/DoctorOverview";
+import { ToastContainer } from "react-toastify";
 
 
 export default function App() {
@@ -131,6 +132,17 @@ export default function App() {
 
         <Route path="/test" element={<ProvoHealDashboard />} />
       </Routes>
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false} 
+        newestOnTop={false} 
+        closeOnClick 
+        rtl={false} 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover 
+      />
     </Router>
   );
 }

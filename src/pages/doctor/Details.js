@@ -10,6 +10,7 @@ import {
   MdMedicalServices, 
   MdMonetizationOn 
 } from 'react-icons/md';
+import { addDoctorProfile } from '../../services/doctor/doctor_api'; // Adjust the path as needed
 
 export default function DoctorDetails() {
   const location = useLocation();
@@ -28,7 +29,7 @@ export default function DoctorDetails() {
   });
   
   useEffect(() => {
-    // Use data if needed
+    // Optionally, use data if needed
   }, [data]);
   
   const handleInputChange = (e) => {
@@ -42,16 +43,10 @@ export default function DoctorDetails() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Attach doctorId from location data
-    formData["doctorId"] = data.id;
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_URL + '/doctor/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      
-      if (response.ok) {
-        console.log('Doctor details saved successfully!');
+      const responseData = await addDoctorProfile(formData);
+      if (responseData) {
+        console.log('Doctor details saved successfully!', responseData);
       } else {
         console.error('Failed to save doctor details');
       }

@@ -1,23 +1,20 @@
-import {getData,postData,putData,deleteData} from "../api.js";
+import { getData, postData, putData, deleteData } from "../api.js";
 
 export const Login = async (data) => {
-    const response = await postData("/auth/login",data);
-    if(response.ok){
-        const responseData = response.json();
-        localStorage.setItem("Token", responseData.token);
-        console.log(responseData);
-        }
+  const responseData = await postData("/auth/login", data);
+  // Save the token from the parsed JSON
+  localStorage.setItem("Token", responseData.token);
+  console.log(responseData);
   return true;
 };
 
 export const Signup = async (data) => {
-  const response = await postData("/auth/register", data);
-  if (response.ok) {
-    const responseData = await response.json();
+  // postData already returns the parsed response (JSON or text)
+  const responseData = await postData("/auth/register", data);
+  if (responseData && responseData.token) {
     localStorage.setItem("Token", responseData.token);
     console.log(responseData);
-    return true;
+    return responseData;
   }
-  const errorMessage = await response.text();
-  throw new Error(errorMessage);
+  throw new Error("Signup failed: no token received");
 };

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { MdPerson, MdPhone, MdEmail, MdLock } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
+import { Signup } from "../../services/patient/patient_api";
 
-import {Signup } from "../../services/patient/patient_api"
 export default function SignUpForm({ rolesFromParams }) {
   const navigate = useNavigate();
   const [credentials, setCredentials] = useState({
@@ -18,14 +18,61 @@ export default function SignUpForm({ rolesFromParams }) {
 
   const onChange = (event) => {
     const { name, value } = event.target;
+    // When updating the name field, do not allow spaces
+    if (name === "name" && value.includes(" ")) {
+      setError("Spaces are not allowed in the username.");
+      return;
+    } else {
+      setError(null);
+    }
     setCredentials(prev => ({
       ...prev,
       [name]: value,
     }));
   };
 
+  // Prevent space key for the username field
+  const handleNameKeyDown = (event) => {
+    if (event.key === " ") {
+      event.preventDefault();
+      setError("Spaces are not allowed in the username.");
+    }
+  };
+
+  // Prevent pasting text with spaces into the username field
+  const handleNamePaste = (event) => {
+    const pasteData = event.clipboardData.getData("text");
+    if (pasteData.includes(" ")) {
+      event.preventDefault();
+      setError("Spaces are not allowed in the username.");
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Validate username (already prevented spaces during typing/paste)
+    if (/\s/.test(credentials.name)) {
+      setError("Username should not contain spaces.");
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if (!emailRegex.test(credentials.email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    // Validate phone number: exactly 10 digits
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(credentials.number)) {
+      setError("Phone number must be exactly 10 digits.");
+      return;
+    }
+
+    setError(null); // clear errors if all validations pass
+
     const data = {
       username: credentials.name,
       phoneNumber: credentials.number,
@@ -36,17 +83,20 @@ export default function SignUpForm({ rolesFromParams }) {
 
     try {
       const responseData = await Signup(data);
-      localStorage.setItem("Token", responseData.token);
-      console.log('Patient registered successfully:', responseData);
 
       // Navigate to the respective details page based on role
       if (roles.includes("PATIENT")) {
+        localStorage.setItem("ROLE", "PATIENT");
         navigate("/patient/details", { state: { data: responseData } });
       } else if (roles.includes("DOCTOR")) {
+        localStorage.setItem("ROLE", "DOCTOR");
         navigate("/doctor/details", { state: { data: responseData } });
+      } else if (roles.includes("ADMIN")) {
+        localStorage.setItem("ROLE", "ADMIN");
+        navigate("/admin/home", { state: { data: responseData } });
       }
     } catch (error) {
-      console.error('Error registering patient:', error.message);
+      console.error('Error registering user:', error.message);
       setError(error.message);
     }
   };
@@ -71,6 +121,8 @@ export default function SignUpForm({ rolesFromParams }) {
               required
               value={credentials.name}
               onChange={onChange}
+              onKeyDown={handleNameKeyDown}
+              onPaste={handleNamePaste}
               className="w-full px-3 pl-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
             />
           </div>
