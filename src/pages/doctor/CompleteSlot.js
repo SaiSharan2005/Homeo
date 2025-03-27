@@ -109,7 +109,7 @@ const CompleteSlot = () => {
 
   return (
     <>
-      <DoctorNavbar />
+      {/* <DoctorNavbar /> */}
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-xl p-8">
           {/* Report Header */}

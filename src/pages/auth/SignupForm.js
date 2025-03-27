@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MdPerson, MdPhone, MdEmail, MdLock } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 
+import {Signup } from "../../services/patient/patient_api"
 export default function SignUpForm({ rolesFromParams }) {
   const navigate = useNavigate();
   const [credentials, setCredentials] = useState({
@@ -10,6 +11,7 @@ export default function SignUpForm({ rolesFromParams }) {
     email: "",
     password: ""
   });
+  const [error, setError] = useState(null);
 
   // Use roles from props, defaulting to ["PATIENT"] if not provided
   const roles = rolesFromParams || ["PATIENT"];
@@ -22,33 +24,22 @@ export default function SignUpForm({ rolesFromParams }) {
     }));
   };
 
-  const registerPatient = async () => {
-    const url = process.env.REACT_APP_BACKEND_URL + '/auth/register';
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     const data = {
       username: credentials.name,
       phoneNumber: credentials.number,
       email: credentials.email,
       password: credentials.password,
-      roles: roles, // now using roles from props
+      roles: roles, // using roles from props
     };
 
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(errorMessage);
-      }
-
-      const responseData = await response.json();
+      const responseData = await Signup(data);
       localStorage.setItem("Token", responseData.token);
       console.log('Patient registered successfully:', responseData);
 
-      // Navigate to respective details page based on role
+      // Navigate to the respective details page based on role
       if (roles.includes("PATIENT")) {
         navigate("/patient/details", { state: { data: responseData } });
       } else if (roles.includes("DOCTOR")) {
@@ -56,19 +47,14 @@ export default function SignUpForm({ rolesFromParams }) {
       }
     } catch (error) {
       console.error('Error registering patient:', error.message);
-      // Optionally, display an alert or error message to the user
+      setError(error.message);
     }
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log('Form submitted with:', credentials);
-    registerPatient();
   };
 
   return (
     <div className="min-h-[400px] flex flex-col justify-center p-6 bg-white rounded-2xl max-w-2xl mx-auto">
       <h2 className="mb-4 text-3xl font-bold text-center text-gray-800">Sign Up</h2>
+      {error && <p className="mb-4 text-center text-red-500">{error}</p>}
       <form className="space-y-4" onSubmit={handleSubmit}>
         {/* Name Field */}
         <div>

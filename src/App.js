@@ -56,6 +56,10 @@ import CreatePrescriptionPage from "./pages/prescription/CreatePrescriptionPage"
 
 // Auth Container
 import AuthContainer from "./pages/auth/AuthContainer";
+import ProvoHealDashboard from "./utils/Test";
+import DoctorLayout from "./components/Layouts/DoctorLayout";
+import DoctorDashboard from "./pages/doctor/home/DoctorOverview";
+
 
 export default function App() {
   return (
@@ -68,12 +72,24 @@ export default function App() {
         {/* Doctor Routes */}
         <Route path="/doctor/signup" element={<AuthContainer activeForm={"doctor-signup"}  />} />
         <Route path="/doctor/details" element={<AuthContainer activeForm={"doctor-details"} />} />
-        <Route path="/doctor/home" element={<DoctorHome />} />
+        {/* <Route path="/doctor/home" element={<DoctorHome />} />
         <Route path="/doctorSchedule/Create" element={<DoctorScheduleCreation />} />
         <Route path="/doctor/profile" element={<DoctorProfile />} />
         <Route path="/doctor/schedule" element={<DoctorDetails />} />
         <Route path="/doctor/history" element={<DoctorHistory />} />
-        <Route path="/doctor-token/:tokenId" element={<CompleteSlot />} />
+        <Route path="/doctor-token/:tokenId" element={<CompleteSlot />} /> */}
+        {/* Doctor Routes with shared layout */}
+        <Route path="/doctor" element={<DoctorLayout />}>
+          <Route path="home" element={<DoctorDashboard />} />
+          <Route path="profile" element={<DoctorProfile />} />
+          <Route path="details" element={<DoctorDetails />} />
+          <Route path="schedule" element={<DoctorScheduleCreation />} />
+          <Route path="appointment" element={<DoctorHistory />} />
+          <Route path="token/:tokenId" element={<CompleteSlot />} />
+        </Route>
+
+        {/* Other routes */}
+      {/* </Routes> */}
 
         {/* Patient Routes */}
         <Route path="/patient/signup" element={<AuthContainer activeForm={"patient-signup"}  />} />
@@ -110,6 +126,10 @@ export default function App() {
         <Route path="/purchase-orders" element={<PurchaseOrderList />} />
         <Route path="/purchase-orders/create" element={<PurchaseOrderCreate />} />
         <Route path="/prescription/create" element={<CreatePrescriptionPage />} />
+
+
+
+        <Route path="/test" element={<ProvoHealDashboard />} />
       </Routes>
     </Router>
   );

@@ -95,7 +95,7 @@ const DoctorProfile = () => {
 
   return (
     <>
-      <DoctorNavbar />
+      {/* <DoctorNavbar /> */}
       <div className="min-h-[90vh] flex flex-col bg-[#E3F9F5]">
         <main className="flex-1 bg-[#F7FAFC] p-8">
           <div className="flex justify-between items-center">
