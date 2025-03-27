@@ -23,7 +23,7 @@ export default function LoginStaff() {
 
 
   const registerDoctor = async () => {
-    const url = process.env.REACT_APP_BACKEND_URL+'/staff/login';
+    const url = process.env.REACT_APP_BACKEND_URL+'/auth/login';
     const data = {
       // doctorName: credentials.name,
       phoneNumber: credentials.phoneNumber,

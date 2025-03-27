@@ -5,7 +5,7 @@ import image from "../../../images/image.jpg";
 import serviceImage1 from "../../../images/doctorPatient.jpg";
 import serviceImage2 from "../../../images/doctorPatient.jpg";
 import serviceImage3 from "../../../images/doctorPatient.jpg";
-import DoctorNavbar from "../../../components/DoctorNavbar";
+import DoctorNavbar from "../../../components/navbar/DoctorNavbar";
 import { fetchDoctorById } from "../../../utils/doctorService";
 import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
@@ -134,8 +134,8 @@ export default function DoctorHome() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <DoctorNavbar />
+    <div className="">
+      {/* <DoctorNavbar /> */}
 
       <div className="bg-white flex-grow">
         <main className="flex flex-col justify-center items-center h-full py-10 md:py-20 px-4 md:px-0">

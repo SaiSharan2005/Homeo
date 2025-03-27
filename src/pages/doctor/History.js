@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import profile1 from "../../images/doctorPatient.jpg";
-import DoctorNavbar from "../../components/DoctorNavbar";
+import DoctorNavbar from "../../components/navbar/DoctorNavbar";
 import { useNavigate } from "react-router-dom";
 
 export default function DoctorHistory() {
@@ -55,7 +55,7 @@ export default function DoctorHistory() {
 
   return (
     <>
-      <DoctorNavbar />
+      {/* <DoctorNavbar /> */}
       <div className="max-w-4xl mx-auto mt-8 p-4">
         <div className="flex space-x-4 mb-8">
           <button

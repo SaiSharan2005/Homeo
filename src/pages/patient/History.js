@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import profile1 from "../../images/doctorPatient.jpg";
-import PatientNavbar from "../../components/PatientNavbar";
+import PatientNavbar from "../../components/navbar/PatientNavbar";
 import { useNavigate } from "react-router-dom";
 import AdBanner from "./Adv";
 

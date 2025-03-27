@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, ResponsiveContainer } from 'recharts';
-import AdminNavbar from "../../../components/AdminNavbar"
+import AdminNavbar from "../../../components/navbar/AdminNavbar"
 // Function to generate the last N days
 function getLastNDays(date, n) {
     const dates = [];

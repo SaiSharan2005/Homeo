@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AdminNavBar from "../../../components/AdminNavbar"
+import AdminNavBar from "../../../components/navbar/AdminNavbar"
 const ActivitySearch = () => {
   const [keyword, setKeyword] = useState("");
   const [activityLogs, setActivityLogs] = useState([]);
@@ -8,7 +8,7 @@ const ActivitySearch = () => {
   // Fetch activity logs from the API
   const fetchActivityLogs = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_URL+"/api/activity-log");
+      const response = await fetch(process.env.REACT_APP_BACKEND_URL+"/activity-log");
       const data = await response.json();
       setActivityLogs(data);
     } catch (error) {
