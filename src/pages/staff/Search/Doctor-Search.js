@@ -70,7 +70,7 @@ const DoctorSearch = () => {
 
   return (
     <>
-      <AdminNavbar />
+      {/* <AdminNavbar /> */}
       <div className="container mx-auto p-6">
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-2xl font-bold mb-4">Search Doctors</h2>

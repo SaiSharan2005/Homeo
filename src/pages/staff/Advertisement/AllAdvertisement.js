@@ -49,7 +49,7 @@ export default function ShowAdvertisements() {
 
     return (
         <>
-            <AdminNavbar />
+            {/* <AdminNavbar /> */}
             <div className="max-w-6xl mx-auto p-8">
                 <h1 className="text-4xl font-semibold mb-8 text-center text-gray-900">Manage Advertisements</h1>
                 {error && <p className="text-red-600 text-center mb-4">{error}</p>}

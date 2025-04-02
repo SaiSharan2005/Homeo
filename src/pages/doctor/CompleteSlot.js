@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import PatientNavbar from '../../components/navbar/PatientNavbar';
 import PrescriptionForm from '../../components/prescription/PrescriptionForm';
 import PrescriptionReport from '../../components/prescription/PrescriptionDetails';
 import image from '../../images/image.jpg';
-import DoctorNavbar from '../../components/navbar/DoctorNavbar';
 
 const CompleteSlot = () => {
   const { tokenId } = useParams();

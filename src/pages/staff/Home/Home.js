@@ -114,7 +114,7 @@ const StaffHomePage = () => {
   ];
 
   return (<>
-      <AdminNavbar/>
+      {/* <AdminNavbar/> */}
     <div className="min-h-screen bg-[#FAFAFA] p-6">
       <div className="max-w-7xl mx-auto bg-white p-8 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold mb-8">Staff Dashboard</h1>

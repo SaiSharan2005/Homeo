@@ -10,11 +10,25 @@ const PrescriptionForm = ({
   // Prescription-level state
   const [prescriptionNumber, setPrescriptionNumber] = useState('');
   const [generalInstructions, setGeneralInstructions] = useState('');
-  // Each prescription item now contains a searchTerm and selectedMedicine details.
+  // Each prescription item now contains a searchTerm, selectedMedicine details, and quantity.
   const [prescriptionItems, setPrescriptionItems] = useState([]);
 
   // Available inventory items fetched from backend
   const [availableItems, setAvailableItems] = useState([]);
+  const frequencyOptions = [
+    "Before Breakfast",
+    "Before Lunch",
+    "Before Dinner",
+    "Before Lunch and Before Dinner",
+    "After Breakfast",
+    "After Lunch",
+    "After Dinner",
+    "After Lunch and After Dinner",
+    "Morning",
+    "Night",
+    "Every 8 Hours",
+    "Every 12 Hours"
+  ];
 
   // Fetch available inventory items for search functionality
   useEffect(() => {
@@ -35,7 +49,7 @@ const PrescriptionForm = ({
     fetchInventoryItems();
   }, []);
 
-  // Add a new empty prescription item with local search state
+  // Add a new empty prescription item with local search state and quantity field.
   const addPrescriptionItem = () => {
     setPrescriptionItems(prev => [
       ...prev,
@@ -46,7 +60,8 @@ const PrescriptionForm = ({
         dosage: '',
         frequency: '',
         duration: '',
-        additionalInstructions: ''
+        additionalInstructions: '',
+        quantity: '' // new quantity field
       }
     ]);
   };
@@ -69,7 +84,8 @@ const PrescriptionForm = ({
     });
   };
 
-  // Handle form submission: first create prescription then add items one by one using the dedicated route
+  // Handle form submission: first create prescription then add items one by one using the dedicated route.
+  // After adding the items, we calculate the total amount.
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Create the prescription payload without items first
@@ -104,7 +120,8 @@ const PrescriptionForm = ({
           dosage: item.dosage,
           frequency: item.frequency,
           duration: item.duration,
-          additionalInstructions: item.additionalInstructions
+          additionalInstructions: item.additionalInstructions,
+          quantity: item.quantity // include quantity in payload
         };
 
         const itemResponse = await fetch(
@@ -120,7 +137,17 @@ const PrescriptionForm = ({
         }
       }
 
-      // Optionally, re-fetch the complete prescription with all items.
+      // Calculate total amount: sum of (sellingPrice * quantity) for each item.
+      const totalAmount = prescriptionItems.reduce((acc, item) => {
+        const price = item.selectedMedicine ? parseFloat(item.selectedMedicine.sellingPrice) : 0;
+        const qty = parseFloat(item.quantity) || 0;
+        return acc + price * qty;
+      }, 0);
+
+      // Optionally, pass the totalAmount back to the parent or display it.
+      alert(`Prescription created successfully. Total Amount: ₹${totalAmount.toFixed(2)}`);
+      
+      // Call the callback with the created prescription
       onPrescriptionCreated(createdPrescription);
       onClose();
     } catch (error) {
@@ -229,7 +256,7 @@ const PrescriptionForm = ({
                   </>
                 )}
               </div>
-              {/* Dosage, Frequency, Duration, Additional Instructions */}
+              {/* Dosage, Frequency, Duration, Additional Instructions, and Quantity */}
               <div className="mb-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -246,18 +273,18 @@ const PrescriptionForm = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Frequency
-                  </label>
-                  <input
-                    type="text"
+                  <label className="block text-sm font-medium text-gray-700">Frequency</label>
+                  <select
                     value={item.frequency}
-                    onChange={(e) =>
-                      updatePrescriptionItem(index, 'frequency', e.target.value)
-                    }
-                    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    onChange={(e) => updatePrescriptionItem(index, 'frequency', e.target.value)}
+                    className="w-full border p-2 rounded-lg"
                     required
-                  />
+                  >
+                    <option value="">Select Frequency</option>
+                    {frequencyOptions.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div className="mb-3 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -288,6 +315,20 @@ const PrescriptionForm = ({
                     rows="2"
                   />
                 </div>
+              </div>
+              {/* Quantity field */}
+              <div className="mb-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Quantity
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={item.quantity}
+                  onChange={(e) => updatePrescriptionItem(index, 'quantity', e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  required
+                />
               </div>
               <div className="text-right"> 
                 <button

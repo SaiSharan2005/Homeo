@@ -29,7 +29,7 @@ import DoctorSearch from "./pages/patient/home/DoctorSearch";
 
 // Staff imports
 import StaffSignUp from "./pages/staff/signup";
-import StaffHomePage from "./pages/staff/Home/Home";
+import AdminHomePage from "./pages/staff/Home/Home";
 import AppointmentBooking from "./pages/staff/AppointmentBooking";
 import BookSlot from "./pages/staff/AppointmentBookingByAdmin";
 import StaffDoctorSearch from "./pages/staff/Search/Doctor-Search";
@@ -58,11 +58,14 @@ import CreatePrescriptionPage from "./pages/prescription/CreatePrescriptionPage"
 import AuthContainer from "./pages/auth/AuthContainer";
 import ProvoHealDashboard from "./utils/Test";
 import DoctorLayout from "./components/Layouts/DoctorLayout";
+import AdminLayout from "./components/Layouts/AdminLayout";
+import StaffLayout from "./components/Layouts/StaffLayout";
 import DoctorDashboard from "./pages/doctor/home/DoctorOverview";
 import { ToastContainer } from "react-toastify";
 import DoctorAppointmentsPage from "./components/appointment/Appointments";
 import SchedulePage from "./pages/doctor/Schedule";
-
+import PaymentList from "./pages/prescription/PaymentList";
+import PaymentDetails from "./pages/prescription/PaymentDetails";
 
 export default function App() {
   return (
@@ -70,11 +73,21 @@ export default function App() {
       <Routes>
         {/* Landing Page */}
         <Route exact path="/" element={<Mainhome />} />
-        <Route exact path="/login" element={<AuthContainer activeForm={"login"} />} />
+        <Route
+          exact
+          path="/login"
+          element={<AuthContainer activeForm={"login"} />}
+        />
 
         {/* Doctor Routes */}
-        <Route path="/doctor/signup" element={<AuthContainer activeForm={"doctor-signup"}  />} />
-        <Route path="/doctor/details" element={<AuthContainer activeForm={"doctor-details"} />} />
+        <Route
+          path="/doctor/signup"
+          element={<AuthContainer activeForm={"doctor-signup"} />}
+        />
+        <Route
+          path="/doctor/details"
+          element={<AuthContainer activeForm={"doctor-details"} />}
+        />
         {/* <Route path="/doctor/home" element={<DoctorHome />} />
         <Route path="/doctorSchedule/Create" element={<DoctorScheduleCreation />} />
         <Route path="/doctor/profile" element={<DoctorProfile />} />
@@ -88,19 +101,38 @@ export default function App() {
           <Route path="details" element={<DoctorDetails />} />
           <Route path="create-schedule" element={<DoctorScheduleCreation />} />
           <Route path="appointment" element={<DoctorAppointmentsPage />} />
-          {/* <Route path="patients" element={<PatientsPage />} /> */}
           <Route path="token/:tokenId" element={<CompleteSlot />} />
           <Route path="schedule" element={<SchedulePage />} />
-          
-
         </Route>
-        <Route path = "/BookAppoinment/:doctorId" element={<AppointmentBooking/>}/>
+        <Route
+          path="/BookAppoinment/:doctorId"
+          element={<AppointmentBooking />}
+        />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="home" element={<AdminHomePage />} />
+          <Route path="appointment" element={<GetAllAppointment />} />
+          <Route path="doctor-search" element={<StaffDoctorSearch />} />
+          <Route path="patient-search" element={<PatientSearch />} />
+          <Route path="advertisement" element={<ShowAdvertisements />} />
+          <Route path="inventory/create" element={<InventoryPage />} />
+          <Route path="inventory" element={<InventoryItemList />} />
+        </Route>
+        <Route path="/staff" element={<StaffLayout />}>
+          <Route path="payments" element={<PaymentList />} />
+          <Route path="payment/:id" element={<PaymentDetails />} />
+        </Route>
 
         {/* Other routes */}
-      {/* </Routes> */}
+        {/* </Routes> */}
         {/* Patient Routes */}
-        <Route path="/patient/signup" element={<AuthContainer activeForm={"patient-signup"}  />} />
-        <Route path="/patient/details" element={<AuthContainer activeForm={"patient-details"} />} />
+        <Route
+          path="/patient/signup"
+          element={<AuthContainer activeForm={"patient-signup"} />}
+        />
+        <Route
+          path="/patient/details"
+          element={<AuthContainer activeForm={"patient-details"} />}
+        />
         <Route path="/patient/home" element={<PatientHome />} />
         <Route path="/patient/profile" element={<PatientProfile />} />
         <Route path="/patient/history" element={<PatientHistory />} />
@@ -108,47 +140,69 @@ export default function App() {
         <Route path="/doctorSearch" element={<DoctorSearch />} />
         <Route path="/token/:tokenId/" element={<AppointmentDetails />} />
 
-
         {/* Staff Routes */}
-        <Route path="/staff/signup" element={<AuthContainer activeForm={"admin-signup"} />} />
-        <Route path="/staff/home" element={<StaffHomePage />} />
+
+        <Route
+          path="/staff/signup"
+          element={<AuthContainer activeForm={"admin-signup"} />}
+        />
+        {/* <Route path="home" element={<StaffHomePage />} /> */}
         <Route path="/adv/management" element={<AdvertisementManager />} />
         <Route path="/staff/create-adv" element={<CreateAdvertisement />} />
         <Route path="/staff/update-adv/:id" element={<UpdateAdvertisement />} />
         <Route path="/staff/all-adv" element={<ShowAdvertisements />} />
-        <Route path="/staff/doctor-search" element={<StaffDoctorSearch />} />
-        <Route path="/staff/patient-search" element={<PatientSearch />} />
-        <Route path="staff/GetAllAppointment" element={<GetAllAppointment />} />
+        {/* <Route path="/staff/doctor-search" element={<StaffDoctorSearch />} />
+        <Route path="/staff/patient-search" element={<PatientSearch />} /> */}
+        {/* <Route path="staff/GetAllAppointment" element={<GetAllAppointment />} /> */}
         <Route path="/staff/all-activity" element={<ActivitySearch />} />
-        <Route path="/staff/doctor-activity" element={<DoctorActivitySearch />} />
-        <Route path="/staff/patient-activity" element={<PatientActivitySearch />} />
-        <Route path="/staff/appointment-activity" element={<AppointmentActivitySearch />} />
-        <Route path="/staff/advertisement-activity" element={<AdvertisementActivitySearch />} />
+        <Route
+          path="/staff/doctor-activity"
+          element={<DoctorActivitySearch />}
+        />
+        <Route
+          path="/staff/patient-activity"
+          element={<PatientActivitySearch />}
+        />
+        <Route
+          path="/staff/appointment-activity"
+          element={<AppointmentActivitySearch />}
+        />
+        <Route
+          path="/staff/advertisement-activity"
+          element={<AdvertisementActivitySearch />}
+        />
         <Route path="/BookSlot" element={<BookSlot />} />
-        <Route path="/staff/appointment-booking" element={<AppointmentBooking />} />
+        <Route
+          path="/staff/appointment-booking"
+          element={<AppointmentBooking />}
+        />
 
         {/* Inventory & Prescription Routes */}
         <Route path="/inventory-items/create" element={<InventoryPage />} />
         <Route path="/inventory-items" element={<InventoryItemList />} />
         <Route path="/inventory-items/:id" element={<InventoryItemDetail />} />
         <Route path="/purchase-orders" element={<PurchaseOrderList />} />
-        <Route path="/purchase-orders/create" element={<PurchaseOrderCreate />} />
-        <Route path="/prescription/create" element={<CreatePrescriptionPage />} />
-
-
+        <Route
+          path="/purchase-orders/create"
+          element={<PurchaseOrderCreate />}
+        />
+        <Route
+          path="/prescription/create"
+          element={<CreatePrescriptionPage />}
+        />
 
         {/* <Route path="/test" element={<ProvoHealDashboard />} /> */}
       </Routes>
-      <ToastContainer 
-        position="top-right" 
-        autoClose={3000} 
-        hideProgressBar={false} 
-        newestOnTop={false} 
-        closeOnClick 
-        rtl={false} 
-        pauseOnFocusLoss 
-        draggable 
-        pauseOnHover 
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
       />
     </Router>
   );

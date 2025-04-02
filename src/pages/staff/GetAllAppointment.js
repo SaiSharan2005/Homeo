@@ -115,7 +115,7 @@ const GetAllAppointment = () => {
 
   return (
     <div>
-    <AdminNavbar/>
+    {/* <AdminNavbar/> */}
 
     <div className="p-6 max-w-[80vw] mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Upcoming Appointments</h1>
