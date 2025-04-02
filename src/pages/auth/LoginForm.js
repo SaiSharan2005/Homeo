@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { MdPhone, MdLock } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
-// Import the login service function (adjust the path accordingly)
+// Import the login service and aboutMe fetching service
 import { Login as loginService } from "../../services/patient/patient_api.js";
+import { fetchAboutMe } from "../../services/other/other.js";
 
 function LoginForm() {
   const navigate = useNavigate();
@@ -12,16 +13,38 @@ function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Prepare the data payload from form fields
-    const data = { phone, password };
+    const data = { phoneNumber: phone, password: password };
 
     try {
-      // Call the login function passing the data
       const success = await loginService(data);
-      if (success) {
-        // Navigate to dashboard or any other route on success
-        navigate("/dashboard");
+      const aboutMe = await fetchAboutMe();
+      if (success && aboutMe && aboutMe.roles && aboutMe.roles.length > 0) {
+        // Assume the first role is the primary one
+        const role = aboutMe.roles[0].name.toUpperCase();
+        const name = aboutMe.username;
+        localStorage.setItem("USERNAME",name);
+        // Navigate based on role
+        switch (role) {
+          case "DOCTOR":
+            localStorage.setItem("ROLE", "DOCTOR");
+            navigate("/doctor/home");
+            break;
+          case "PATIENT":
+            localStorage.setItem("ROLE", "PATIENT");
+            navigate("/patient/home");
+            break;
+          case "ADMIN":
+            localStorage.setItem("ROLE", "ADMIN");
+
+            navigate("/admin/home");
+            break;
+          case "STAFF":
+            localStorage.setItem("ROLE", "STAFF");
+            navigate("/staff/home");
+            break;
+          default:
+            navigate("/dashboard");
+        }
       } else {
         setError("Login failed. Please try again.");
       }

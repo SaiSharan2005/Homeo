@@ -40,5 +40,11 @@ export const createDoctorTimings = async (data) => {
 // NEW: Add doctor profile
 export const addDoctorProfile = async (formData) => {
   // This function calls your endpoint to add/update the doctor's profile
-  return await postData('/doctor/addProfile', formData);
+  return await postData(`/doctor/addProfile/${formData.username}`, formData);
 };
+
+
+export const createDoctor = async (doctorData) => {
+  return await postData('/doctor/register', doctorData);
+};
+

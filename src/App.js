@@ -60,6 +60,8 @@ import ProvoHealDashboard from "./utils/Test";
 import DoctorLayout from "./components/Layouts/DoctorLayout";
 import DoctorDashboard from "./pages/doctor/home/DoctorOverview";
 import { ToastContainer } from "react-toastify";
+import DoctorAppointmentsPage from "./components/appointment/Appointments";
+import SchedulePage from "./pages/doctor/Schedule";
 
 
 export default function App() {
@@ -84,14 +86,18 @@ export default function App() {
           <Route path="home" element={<DoctorDashboard />} />
           <Route path="profile" element={<DoctorProfile />} />
           <Route path="details" element={<DoctorDetails />} />
-          <Route path="schedule" element={<DoctorScheduleCreation />} />
-          <Route path="appointment" element={<DoctorHistory />} />
+          <Route path="create-schedule" element={<DoctorScheduleCreation />} />
+          <Route path="appointment" element={<DoctorAppointmentsPage />} />
+          {/* <Route path="patients" element={<PatientsPage />} /> */}
           <Route path="token/:tokenId" element={<CompleteSlot />} />
+          <Route path="schedule" element={<SchedulePage />} />
+          
+
         </Route>
+        <Route path = "/BookAppoinment/:doctorId" element={<AppointmentBooking/>}/>
 
         {/* Other routes */}
       {/* </Routes> */}
-
         {/* Patient Routes */}
         <Route path="/patient/signup" element={<AuthContainer activeForm={"patient-signup"}  />} />
         <Route path="/patient/details" element={<AuthContainer activeForm={"patient-details"} />} />
@@ -101,6 +107,7 @@ export default function App() {
         <Route path="/patient/adv" element={<PatientPage />} />
         <Route path="/doctorSearch" element={<DoctorSearch />} />
         <Route path="/token/:tokenId/" element={<AppointmentDetails />} />
+
 
         {/* Staff Routes */}
         <Route path="/staff/signup" element={<AuthContainer activeForm={"admin-signup"} />} />
@@ -130,7 +137,7 @@ export default function App() {
 
 
 
-        <Route path="/test" element={<ProvoHealDashboard />} />
+        {/* <Route path="/test" element={<ProvoHealDashboard />} /> */}
       </Routes>
       <ToastContainer 
         position="top-right" 

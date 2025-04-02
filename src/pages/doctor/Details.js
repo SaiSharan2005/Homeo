@@ -10,14 +10,15 @@ import {
   MdMedicalServices, 
   MdMonetizationOn 
 } from 'react-icons/md';
-import { addDoctorProfile } from '../../services/doctor/doctor_api'; // Adjust the path as needed
+import { addDoctorProfile } from '../../services/doctor/doctor_api'; // API function to add/update doctor profile
 
 export default function DoctorDetails() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { data } = location.state || {};
-  
+  const { data } = location.state || {}; // data from signup response (if needed)
+
   const [formData, setFormData] = useState({
+    username: "", // We'll assume that we forward username from signup
     age: '',
     gender: '',
     address: '',
@@ -27,11 +28,15 @@ export default function DoctorDetails() {
     specialization: '',
     remuneration: ''
   });
-  
+
   useEffect(() => {
-    // Optionally, use data if needed
+    console.log(data)
+    // Prepopulate username from the signup response if available
+    if (data && data.username) {
+      setFormData(prev => ({ ...prev, username: data.username }));
+    }
   }, [data]);
-  
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -39,28 +44,27 @@ export default function DoctorDetails() {
       [name]: value
     }));
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Attach doctorId from location data
     try {
       const responseData = await addDoctorProfile(formData);
       if (responseData) {
         console.log('Doctor details saved successfully!', responseData);
+        // Forward to a home or login page after profile creation
+        navigate("/login");
       } else {
         console.error('Failed to save doctor details');
       }
-      navigate("/login");
     } catch (error) {
       console.error('Error:', error);
     }
   };
-  
+
   return (
     <div className="min-h-[400px] flex flex-col justify-center p-6 bg-white rounded-2xl max-w-2xl mx-auto">
       <h2 className="mb-4 text-3xl font-bold text-center text-gray-800">Doctor Details</h2>
       <form className="space-y-4" onSubmit={handleSubmit}>
-        {/* Two columns layout for input fields */}
         <div className="flex flex-wrap -mx-2">
           {/* Age Field */}
           <div className="w-full sm:w-1/2 px-2 mb-4">

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { MdPerson, MdPhone, MdEmail, MdLock } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
-import { Signup } from "../../services/patient/patient_api";
+import { Signup } from "../../services/patient/patient_api"; // Your signup API function
+// Note: createDoctor is imported if needed but here we forward based on role
+// import { createDoctor } from '../../services/doctor/doctor_api';
 
 export default function SignUpForm({ rolesFromParams }) {
   const navigate = useNavigate();
@@ -71,26 +73,26 @@ export default function SignUpForm({ rolesFromParams }) {
       return;
     }
 
-    setError(null); // clear errors if all validations pass
+    setError(null); // Clear errors if validations pass
 
     const data = {
       username: credentials.name,
       phoneNumber: credentials.number,
       email: credentials.email,
       password: credentials.password,
-      roles: roles, // using roles from props
+      roles: roles, // Using roles from props
     };
 
     try {
       const responseData = await Signup(data);
-
       // Navigate to the respective details page based on role
-      if (roles.includes("PATIENT")) {
+      if (roles.includes("DOCTOR")) {
+        localStorage.setItem("ROLE", "DOCTOR");
+        // Forward to doctor details page with responseData (which contains user data)
+        navigate("/doctor/details", { state: { data: {username:data.username} } });
+      } else if (roles.includes("PATIENT")) {
         localStorage.setItem("ROLE", "PATIENT");
         navigate("/patient/details", { state: { data: responseData } });
-      } else if (roles.includes("DOCTOR")) {
-        localStorage.setItem("ROLE", "DOCTOR");
-        navigate("/doctor/details", { state: { data: responseData } });
       } else if (roles.includes("ADMIN")) {
         localStorage.setItem("ROLE", "ADMIN");
         navigate("/admin/home", { state: { data: responseData } });

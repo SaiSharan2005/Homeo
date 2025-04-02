@@ -1,0 +1,13 @@
+things to do 
+Backend
+AddDoctor Route (AddAdmin , AddPatient)
+AddProfile for user route 
+
+
+
+
+
+Frontend 
+After Update of AddDoctor Route fix the addDoctor in Frontend(AddAdmin, AddPatient)
+Let the User Add Profile 
+

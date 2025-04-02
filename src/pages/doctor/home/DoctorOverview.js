@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Users,
   CalendarCheck,
@@ -14,6 +14,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import Schedule from "../../../components/appointment/DoctorScheduleComponenet";
 
 // Sample data for the Visitors Statistics chart
 const visitorsData = [
@@ -32,7 +33,7 @@ const DashboardMain = () => {
 
   return (
     <div className="relative w-full min-h-screen bg-gray-50">
-      {/* Curved background at the top */}
+      {/* Curved background at the top (optional) */}
       {/* <div className="absolute top-0 left-0 right-0 h-64 bg-blue-100 overflow-hidden">
         <svg
           className="absolute bottom-0 w-full h-full"
@@ -112,7 +113,12 @@ const DashboardMain = () => {
             <p className="text-xs text-red-500">-3.8% from last month</p>
           </div>
         </div>
-      {/* </div> */}
+
+        {/* Insert the Schedule component here */}
+        <div className="mb-6">
+          <Schedule />
+        </div>
+
         {/* Visitors Statistics (Full-width) */}
         <div className="bg-white shadow-sm rounded-xl p-5 mb-6">
           <div className="flex items-center justify-between mb-4">
