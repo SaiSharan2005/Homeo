@@ -1,5 +1,5 @@
 // DoctorLayout.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 // import DoctorNavbar from './DoctorNavbar';
 import { Search, Bell, User } from 'lucide-react';
@@ -8,6 +8,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 const DoctorLayout = () => {
   const [activeMenu, setActiveMenu] = useState('overview');
+  
 
   return (
     <div className="flex h-screen bg-gray-50">

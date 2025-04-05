@@ -25,9 +25,9 @@ const DoctorNavbar = ({ activeMenu, setActiveMenu }) => {
 {/* Logo */}
       <div className="relative z-10 p-6 flex items-center">
         <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mr-2">
-          <span className="text-white font-bold">P</span>
+          <span className="text-white font-bold">H</span>
         </div>
-        <h1 className="text-xl font-bold text-gray-800">ProvoHeal</h1>
+        <h1 className="text-xl font-bold text-gray-800">Healthify</h1>
       </div>
 
       {/* Navigation Menu */}
