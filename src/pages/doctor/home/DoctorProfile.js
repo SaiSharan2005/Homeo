@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from "react";
-import {
-  FaPhone,
-  FaEnvelope,
-  FaMapMarkerAlt,
-  FaBriefcase,
-  FaCalendarAlt,
-  FaClock,
-  FaStethoscope,
-  FaMobileAlt
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { 
+  FaPhone, 
+  FaEnvelope, 
+  FaMapMarkerAlt, 
+  FaBriefcase, 
+  FaCalendarAlt, 
+  FaClock, 
+  FaStethoscope, 
+  FaMobileAlt 
 } from "react-icons/fa";
+import AppointmentsPage from "../../../components/appointment/Appointments";
 
 // Pencil icon for edit mode
 const PencilIcon = ({ onClick }) => (
@@ -29,13 +31,20 @@ const PencilIcon = ({ onClick }) => (
   </svg>
 );
 
-const DoctorProfile = () => {
+// Helper to format time (removes seconds)
+const formatTime = (timeString) => (timeString ? timeString.substring(0, 5) : "");
+
+const DoctorProfile = ({ appointments: appointmentsProp }) => {
   const [doctor, setDoctor] = useState(null);
   const [doctorDetails, setDoctorDetails] = useState({});
   const [appointments, setAppointments] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Fetch doctor data
+  // Get doctorId from route parameters (if provided)
+  const { doctorId } = useParams();
+  const navigate = useNavigate();
+
+  // Fetch logged-in doctor data (profile always comes from /doctor/me)
   useEffect(() => {
     const fetchDoctorData = async () => {
       try {
@@ -59,29 +68,40 @@ const DoctorProfile = () => {
     fetchDoctorData();
   }, []);
 
-  // Fetch appointments data
+  // Single useEffect to handle appointments:
+  // If appointmentsProp is passed, use it;
+  // Otherwise, fetch appointments using the appropriate route.
   useEffect(() => {
-    const fetchAppointments = async () => {
+    const loadAppointments = async () => {
       try {
-        const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL +
-            `/bookingAppointments/doctor/my-appointments`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("Token")}`,
-            },
-          }
-        );
+        let url;
+        if (doctorId) {
+          // Use the provided doctorId from the route.
+          url = `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/doctor/${doctorId}`;
+        } else {
+          // Otherwise, use the logged-in doctor's appointments route.
+          url = `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/doctor/my-appointments`;
+        }
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("Token")}`,
+          },
+        });
         const data = await response.json();
         setAppointments(data);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
     };
-    fetchAppointments();
-  }, []);
+
+    if (appointmentsProp && appointmentsProp.length > 0) {
+      setAppointments(appointmentsProp);
+    } else {
+      loadAppointments();
+    }
+  }, [appointmentsProp, doctorId]);
 
   const toggleEditMode = () => {
     setIsEditing(!isEditing);
@@ -167,7 +187,6 @@ const DoctorProfile = () => {
           <div className="bg-white shadow-sm rounded-lg p-6">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold">Practice Experience</h3>
-              {/* Optionally add a "See More" link here */}
             </div>
             {/* Experience 1 */}
             <div className="border-b border-gray-200 pb-4 mb-4">
@@ -329,6 +348,8 @@ const DoctorProfile = () => {
           </div>
 
           {/* Upcoming Appointments Card */}
+          {/* If a doctorId is passed in the route, the backend route for that doctor is used. */}
+          {/* Upcoming Appointments Card */}
           <div className="bg-white shadow-sm rounded-lg p-6">
             <h3 className="font-bold text-lg mb-3">Upcoming Appointments</h3>
             <hr className="my-2" />
@@ -345,7 +366,8 @@ const DoctorProfile = () => {
                     </p>
                     <p className="text-gray-500 flex items-center">
                       <FaClock className="mr-1 text-green-600" />
-                      Time: {appointment.scheduleId.startTime} - {appointment.scheduleId.endTime}
+                      Time: {formatTime(appointment.scheduleId.startTime)} -{" "}
+                      {formatTime(appointment.scheduleId.endTime)}
                     </p>
                   </div>
                 ))
@@ -354,6 +376,7 @@ const DoctorProfile = () => {
               )}
             </div>
           </div>
+
 
           {/* Medical Actions Card */}
           <div className="bg-white shadow-sm rounded-lg p-6">

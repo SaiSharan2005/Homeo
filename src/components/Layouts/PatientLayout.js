@@ -9,12 +9,9 @@ const PatientLayout = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar Navbar */}
       <PatientNavbar activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
       
-      {/* Main Content Area */}
       <div className="flex-grow bg-gray-50 p-6 overflow-y-auto">
-        {/* Top Header */}
         <header className="flex justify-between items-center mb-6">
           <div className="relative flex-grow max-w-md mr-4">
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-1">

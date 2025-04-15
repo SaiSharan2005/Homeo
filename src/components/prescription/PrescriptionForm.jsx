@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { FaTimes, FaPlus, FaSearch } from 'react-icons/fa';
 
 const PrescriptionForm = ({ 
   onClose, 
   onPrescriptionCreated, 
   doctorId, 
   patientId, 
-  bookingAppointmentId // or pass booking appointment data if needed
+  bookingAppointmentId 
 }) => {
   // Prescription-level state
   const [prescriptionNumber, setPrescriptionNumber] = useState('');
   const [generalInstructions, setGeneralInstructions] = useState('');
-  // Each prescription item now contains a searchTerm, selectedMedicine details, and quantity.
+  // Each prescription item now contains searchTerm, selectedMedicine details, and quantity.
   const [prescriptionItems, setPrescriptionItems] = useState([]);
 
   // Available inventory items fetched from backend
@@ -61,7 +62,7 @@ const PrescriptionForm = ({
         frequency: '',
         duration: '',
         additionalInstructions: '',
-        quantity: '' // new quantity field
+        quantity: ''
       }
     ]);
   };
@@ -84,22 +85,19 @@ const PrescriptionForm = ({
     });
   };
 
-  // Handle form submission: first create prescription then add items one by one using the dedicated route.
-  // After adding the items, we calculate the total amount.
+  // Handle form submission: create the prescription and add items.
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Create the prescription payload without items first
     const prescriptionDto = {
       prescriptionNumber,
-      doctorId,  // from props
-      patientId, // from props
-      bookingAppointmentId, // from props, if provided
+      doctorId,
+      patientId,
+      bookingAppointmentId,
       generalInstructions,
       prescriptionItems: [] // Items will be added separately
     };
 
     try {
-      // Create the prescription
       const response = await fetch(
         process.env.REACT_APP_BACKEND_URL + '/prescriptions',
         {
@@ -113,7 +111,7 @@ const PrescriptionForm = ({
       }
       const createdPrescription = await response.json();
 
-      // Now add each prescription item using the separate endpoint
+      // Add each prescription item using the separate endpoint
       for (const item of prescriptionItems) {
         const itemPayload = {
           inventoryItemId: item.inventoryItemId,
@@ -121,7 +119,7 @@ const PrescriptionForm = ({
           frequency: item.frequency,
           duration: item.duration,
           additionalInstructions: item.additionalInstructions,
-          quantity: item.quantity // include quantity in payload
+          quantity: item.quantity
         };
 
         const itemResponse = await fetch(
@@ -137,17 +135,13 @@ const PrescriptionForm = ({
         }
       }
 
-      // Calculate total amount: sum of (sellingPrice * quantity) for each item.
       const totalAmount = prescriptionItems.reduce((acc, item) => {
         const price = item.selectedMedicine ? parseFloat(item.selectedMedicine.sellingPrice) : 0;
         const qty = parseFloat(item.quantity) || 0;
         return acc + price * qty;
       }, 0);
 
-      // Optionally, pass the totalAmount back to the parent or display it.
       alert(`Prescription created successfully. Total Amount: ₹${totalAmount.toFixed(2)}`);
-      
-      // Call the callback with the created prescription
       onPrescriptionCreated(createdPrescription);
       onClose();
     } catch (error) {
@@ -157,212 +151,217 @@ const PrescriptionForm = ({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-[70%] max-h-[80vh] overflow-y-auto transform transition-all">
-        <div className="flex justify-between items-center border-b pb-4 mb-6 sticky top-0 bg-white z-10">
-          <h2 className="text-2xl font-bold text-gray-800">Add Prescription</h2>
-          <button onClick={onClose} className="text-gray-600 hover:text-gray-800 text-3xl">
-            &times;
-          </button>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto transform transition-all">
+        <div className="sticky top-0 z-20">
+          <div className="flex justify-between items-center p-5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-t-xl">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <FaPlus /> Add Prescription
+            </h2>
+            <button 
+              onClick={onClose} 
+              className="text-white text-3xl hover:text-gray-200 transition-colors"
+            >
+              <FaTimes />
+            </button>
+          </div>
         </div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Prescription Number */}
-          <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Prescription Number
             </label>
             <input
               type="text"
               value={prescriptionNumber}
               onChange={(e) => setPrescriptionNumber(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
               required
             />
           </div>
           {/* General Instructions */}
-          <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               General Instructions
             </label>
             <textarea
               value={generalInstructions}
               onChange={(e) => setGeneralInstructions(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
               rows="3"
             />
           </div>
           {/* Prescription Items */}
-          <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-4">
-            Prescription Items
-          </h3>
-          {prescriptionItems.map((item, index) => (
-            <div key={index} className="mb-6 border p-4 rounded-lg shadow-sm">
-              {/* Medicine search and selection */}
-              <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Medicine
-                </label>
-                {item.selectedMedicine ? (
-                  <div className="p-2 border rounded bg-gray-100 flex justify-between items-center">
-                    <div>
-                      <p className="font-bold">{item.selectedMedicine.name}</p>
-                      <p className="text-sm text-gray-600">Unit: {item.selectedMedicine.unit}</p>
-                      <p className="text-sm text-gray-600">{item.selectedMedicine.description}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        updatePrescriptionItem(index, 'selectedMedicine', null);
-                        updatePrescriptionItem(index, 'inventoryItemId', null);
-                        updatePrescriptionItem(index, 'searchTerm', '');
-                      }}
-                      className="text-blue-500 hover:underline"
-                    >
-                      Change
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <input
-                      type="text"
-                      placeholder="Search medicine by name..."
-                      value={item.searchTerm || ''}
-                      onChange={(e) => updatePrescriptionItem(index, 'searchTerm', e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    {item.searchTerm && (
-                      <ul className="border border-gray-300 mt-2 max-h-40 overflow-y-auto rounded-lg bg-white shadow-lg">
-                        {availableItems
-                          .filter(invItem =>
-                            invItem.name.toLowerCase().includes(item.searchTerm.toLowerCase())
-                          )
-                          .map(invItem => (
-                            <li
-                              key={invItem.id}
-                              onClick={() => {
-                                updatePrescriptionItem(index, 'inventoryItemId', invItem.id);
-                                updatePrescriptionItem(index, 'selectedMedicine', invItem);
-                                updatePrescriptionItem(index, 'searchTerm', invItem.name);
-                              }}
-                              className="p-2 hover:bg-blue-100 cursor-pointer"
-                            >
-                              <div className="font-bold">{invItem.name}</div>
-                              <div className="text-sm text-gray-600">Unit: {invItem.unit}</div>
-                              <div className="text-sm text-gray-600">{invItem.description}</div>
-                            </li>
-                          ))}
-                      </ul>
-                    )}
-                  </>
-                )}
-              </div>
-              {/* Dosage, Frequency, Duration, Additional Instructions, and Quantity */}
-              <div className="mb-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Dosage
-                  </label>
-                  <input
-                    type="text"
-                    value={item.dosage}
-                    onChange={(e) =>
-                      updatePrescriptionItem(index, 'dosage', e.target.value)
-                    }
-                    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Frequency</label>
-                  <select
-                    value={item.frequency}
-                    onChange={(e) => updatePrescriptionItem(index, 'frequency', e.target.value)}
-                    className="w-full border p-2 rounded-lg"
-                    required
-                  >
-                    <option value="">Select Frequency</option>
-                    {frequencyOptions.map(option => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="mb-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Duration
-                  </label>
-                  <input
-                    type="text"
-                    value={item.duration}
-                    onChange={(e) =>
-                      updatePrescriptionItem(index, 'duration', e.target.value)
-                    }
-                    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Additional Instructions
-                  </label>
-                  <textarea
-                    value={item.additionalInstructions}
-                    onChange={(e) =>
-                      updatePrescriptionItem(index, 'additionalInstructions', e.target.value)
-                    }
-                    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    rows="2"
-                  />
-                </div>
-              </div>
-              {/* Quantity field */}
-              <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Quantity
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={item.quantity}
-                  onChange={(e) => updatePrescriptionItem(index, 'quantity', e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  required
-                />
-              </div>
-              <div className="text-right"> 
+          <div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Prescription Items</h3>
+            {prescriptionItems.map((item, index) => (
+              <div key={index} className="relative mb-6 p-5 border rounded-xl shadow-sm bg-gray-50 hover:shadow-lg transition-shadow">
+                {/* Remove Icon */}
                 <button
                   type="button"
                   onClick={() => removePrescriptionItem(index)}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                  className="absolute top-2 right-2 text-gray-500 hover:text-red-500 transition-colors"
                 >
-                  Remove Item
+                  <FaTimes />
                 </button>
+                {/* Medicine search and selection */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                    <FaSearch /> Medicine
+                  </label>
+                  {item.selectedMedicine ? (
+                    <div className="p-3 border rounded bg-white flex justify-between items-center">
+                      <div>
+                        <p className="font-bold text-gray-800">{item.selectedMedicine.name}</p>
+                        <p className="text-sm text-gray-500">Unit: {item.selectedMedicine.unit}</p>
+                        <p className="text-sm text-gray-500">{item.selectedMedicine.description}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updatePrescriptionItem(index, 'selectedMedicine', null);
+                          updatePrescriptionItem(index, 'inventoryItemId', null);
+                          updatePrescriptionItem(index, 'searchTerm', '');
+                        }}
+                        className="text-blue-500 hover:underline transition-colors"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Search medicine by name..."
+                        value={item.searchTerm || ''}
+                        onChange={(e) => updatePrescriptionItem(index, 'searchTerm', e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+                      />
+                      {item.searchTerm && (
+                        <ul className="mt-2 border border-gray-300 rounded-lg bg-white shadow-lg max-h-48 overflow-y-auto">
+                          {availableItems
+                            .filter(invItem =>
+                              invItem.name.toLowerCase().includes(item.searchTerm.toLowerCase())
+                            )
+                            .map(invItem => (
+                              <li
+                                key={invItem.id}
+                                onClick={() => {
+                                  updatePrescriptionItem(index, 'inventoryItemId', invItem.id);
+                                  updatePrescriptionItem(index, 'selectedMedicine', invItem);
+                                  updatePrescriptionItem(index, 'searchTerm', invItem.name);
+                                }}
+                                className="p-3 hover:bg-blue-100 cursor-pointer transition-colors"
+                              >
+                                <div className="font-bold text-gray-800">{invItem.name}</div>
+                                <div className="text-sm text-gray-500">Unit: {invItem.unit}</div>
+                                <div className="text-sm text-gray-500">{invItem.description}</div>
+                              </li>
+                            ))}
+                        </ul>
+                      )}
+                    </>
+                  )}
+                </div>
+                {/* Dosage, Frequency, Duration, Additional Instructions, and Quantity */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Dosage
+                    </label>
+                    <input
+                      type="text"
+                      value={item.dosage}
+                      onChange={(e) =>
+                        updatePrescriptionItem(index, 'dosage', e.target.value)
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Frequency
+                    </label>
+                    <select
+                      value={item.frequency}
+                      onChange={(e) => updatePrescriptionItem(index, 'frequency', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+                      required
+                    >
+                      <option value="">Select Frequency</option>
+                      {frequencyOptions.map(option => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Duration
+                    </label>
+                    <input
+                      type="text"
+                      value={item.duration}
+                      onChange={(e) =>
+                        updatePrescriptionItem(index, 'duration', e.target.value)
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Additional Instructions
+                    </label>
+                    <textarea
+                      value={item.additionalInstructions}
+                      onChange={(e) =>
+                        updatePrescriptionItem(index, 'additionalInstructions', e.target.value)
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+                      rows="2"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Quantity
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => updatePrescriptionItem(index, 'quantity', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
+            ))}
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={addPrescriptionItem}
+                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg transition-colors"
+              >
+                <FaPlus /> Add Prescription Item
+              </button>
             </div>
-          ))}
-          <div className="mb-6 text-right">
-            <button
-              type="button"
-              onClick={addPrescriptionItem}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
-            >
-              Add Prescription Item
-            </button>
           </div>
-          <div className="flex justify-end space-x-4">
+          <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              className="flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg transition-colors"
             >
-              Cancel
+              <FaTimes /> Cancel
             </button>
             <button
               type="submit"
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+              className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-lg transition-colors"
             >
-              Create Prescription
+              <FaPlus /> Create Prescription
             </button>
           </div>
         </form>

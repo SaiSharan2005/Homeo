@@ -1,47 +1,63 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchDoctorAppointments } from "../../services/doctor/doctor_api"; 
-// Adjust the import path if needed
+// You can import additional functions or define API endpoints for patient/admin here
 
-const DoctorAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
+const AppointmentsPage = ({ role, defaultStatusFilter = "All", appointments: appointmentsProp }) => {
   const [appointments, setAppointments] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState(defaultStatusFilter);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const loadAppointments = async () => {
-      try {
-        const data = await fetchDoctorAppointments();
-        setAppointments(data);
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
+  // Function to fetch appointments based on role
+  const loadAppointments = async () => {
+    try {
+      let data;
+      if (role === "doctor") {
+        data = await fetchDoctorAppointments();
+      } else if (role === "patient") {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/patient/my-appointments`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("Token")}`,
+            },
+          }
+        );
+        data = await response.json();
+      } else if (role === "admin") {
+        // Define your admin endpoint or fetching logic here
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/admin/appointments`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("AdminToken")}`,
+            },
+          }
+        );
+        data = await response.json();
       }
-    };
-
-    loadAppointments();
-  }, []);
-
-  // Helper function to display patient profile image or a placeholder
-  const renderPatientProfile = (patient) => {
-    if (patient?.imageUrl) {
-      return (
-        <img
-          src={patient.imageUrl}
-          alt={patient.username}
-          className="w-8 h-8 rounded-full object-cover mr-2"
-        />
-      );
+      setAppointments(data);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
     }
-    // If no imageUrl exists, display a placeholder with the first letter of the username
-    return (
-      <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-700 mr-2">
-        {patient?.username ? patient.username.charAt(0).toUpperCase() : "?"}
-      </div>
-    );
   };
 
-  // Helper function to format appointment date in "01 jan 2005" format
+  // Single useEffect to use passed-in data or fetch it if not provided.
+  useEffect(() => {
+    if (appointmentsProp && appointmentsProp.length > 0) {
+      setAppointments(appointmentsProp);
+    } else {
+      loadAppointments();
+      console.log(appointmentsProp)
+    }
+  }, [role, appointmentsProp]);
+
+  // Helper to format date as "dd mon yyyy"
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -53,36 +69,71 @@ const DoctorAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
     return `${day} ${monthAbbr} ${year}`;
   };
 
-  // Filter appointments based on search query (by patient name) and status filter
+  // Helper to format time by removing seconds
+  const formatTime = (timeString) => (timeString ? timeString.substring(0, 5) : "");
+
+  // Define filtered appointments based on search and status filters
   const filteredAppointments = appointments.filter((appt) => {
-    const patientName = appt.patient?.username || "";
+    let searchField = "";
     const status = appt.status || "";
-    const matchesName = patientName
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+
+    // Determine the search field based on role
+    if (role === "doctor") {
+      searchField = appt.patient?.username || "";
+    } else if (role === "patient") {
+      searchField = appt.doctor?.username || "";
+    } else if (role === "admin") {
+      searchField = `${appt.doctor?.username || ""} ${appt.patient?.username || ""}`;
+    }
+    const matchesName = searchField.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
       statusFilter === "All" ||
       status.toLowerCase() === statusFilter.toLowerCase();
     return matchesName && matchesStatus;
   });
 
-  // Function to format time strings to hour:min (removing seconds)
-  const formatTime = (timeString) => {
-    return timeString ? timeString.substring(0, 5) : "";
+  // Row click navigation, update routes based on role if necessary
+  const handleRowClick = (token) => {
+    if (role === "doctor") {
+      navigate(`/doctor/token/${token}`);
+    } else if (role === "patient") {
+      navigate(`/patient/token/${token}`);
+    } else if (role === "admin") {
+      navigate(`/admin/token/${token}`);
+    }
   };
 
-  // Handle row click to navigate to the appointment detail page
-  const handleRowClick = (token) => {
-    navigate(`/doctor/token/${token}`);
+  // Render profile image or placeholder based on role (doctor or patient)
+  const renderProfile = (user, defaultLabel) => {
+    if (user?.imageUrl) {
+      return (
+        <img
+          src={user.imageUrl}
+          alt={user.username || defaultLabel}
+          className="w-8 h-8 rounded-full object-cover mr-2"
+        />
+      );
+    }
+    return (
+      <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-700 mr-2">
+        {user?.username ? user.username.charAt(0).toUpperCase() : "?"}
+      </div>
+    );
   };
 
   return (
     <div className="bg-white rounded-md shadow p-4 w-full">
-      {/* Page Heading */}
+      {/* Heading */}
       <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-800">Appointments List</h2>
+        <h2 className="text-xl font-bold text-gray-800">
+          {role === "doctor" && "Appointments List"}
+          {role === "patient" && "Your Appointments"}
+          {role === "admin" && "All Appointments"}
+        </h2>
         <p className="text-sm text-gray-500">
-          Here are all your recent and upcoming appointments.
+          {role === "doctor" && "Here are all your recent and upcoming appointments."}
+          {role === "patient" && "Here are your recent and upcoming appointments with doctors."}
+          {role === "admin" && "Manage all appointments in the system."}
         </p>
       </div>
 
@@ -107,7 +158,7 @@ const DoctorAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
           </div>
           <input
             type="text"
-            placeholder="Search by patient name..."
+            placeholder={role === "doctor" ? "Search by patient name..." : "Search by doctor name..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -132,9 +183,25 @@ const DoctorAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
           <thead>
             <tr className="text-gray-600 border-b">
               <th className="py-3 px-4 text-sm font-medium">Token</th>
-              <th className="py-3 px-4 text-sm font-medium">Patient Name</th>
-              <th className="py-3 px-4 text-sm font-medium">Patient Email</th>
-              <th className="py-3 px-4 text-sm font-medium">Phone</th>
+              {role === "doctor" && (
+                <>
+                  <th className="py-3 px-4 text-sm font-medium">Patient Name</th>
+                  <th className="py-3 px-4 text-sm font-medium">Patient Email</th>
+                  <th className="py-3 px-4 text-sm font-medium">Phone</th>
+                </>
+              )}
+              {role === "patient" && (
+                <>
+                  <th className="py-3 px-4 text-sm font-medium">Profile</th>
+                  <th className="py-3 px-4 text-sm font-medium">Specialization</th>
+                </>
+              )}
+              {role === "admin" && (
+                <>
+                  <th className="py-3 px-4 text-sm font-medium">Patient</th>
+                  <th className="py-3 px-4 text-sm font-medium">Doctor</th>
+                </>
+              )}
               <th className="py-3 px-4 text-sm font-medium">Date</th>
               <th className="py-3 px-4 text-sm font-medium">Time Slot</th>
               <th className="py-3 px-4 text-sm font-medium">Status</th>
@@ -143,16 +210,24 @@ const DoctorAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
           <tbody className="text-gray-700 text-sm">
             {filteredAppointments.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-4 px-4 text-center">
+                <td colSpan={role === "admin" ? 9 : 7} className="py-4 px-4 text-center">
                   No appointments found.
                 </td>
               </tr>
             ) : (
               filteredAppointments.map((appt) => {
-                const { token, patient, appointmenDate, status, scheduleId } = appt;
-                const startTime = formatTime(scheduleId?.startTime);
-                const endTime = formatTime(scheduleId?.endTime);
-
+                const { token, status } = appt;
+                let date, startTime, endTime;
+                // Determine date and time based on role (you can adjust if your data structure differs)
+                if (role === "doctor" || role === "patient") {
+                  date = appt.appointmenDate || appt.scheduleId?.date;
+                  startTime = formatTime(appt.scheduleId?.startTime);
+                  endTime = formatTime(appt.scheduleId?.endTime);
+                } else if (role === "admin") {
+                  date = appt.scheduleId?.date;
+                  startTime = formatTime(appt.scheduleId?.startTime);
+                  endTime = formatTime(appt.scheduleId?.endTime);
+                }
                 return (
                   <tr
                     key={token}
@@ -160,13 +235,48 @@ const DoctorAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
                     onClick={() => handleRowClick(token)}
                   >
                     <td className="py-3 px-4">{token}</td>
-                    <td className="py-3 px-4 flex items-center">
-                      {renderPatientProfile(patient)}
-                      <span>{patient?.username}</span>
-                    </td>
-                    <td className="py-3 px-4">{patient?.email}</td>
-                    <td className="py-3 px-4">{patient?.phoneNumber}</td>
-                    <td className="py-3 px-4">{formatDate(appointmenDate)}</td>
+                    {role === "doctor" && (
+                      <>
+                        <td className="py-3 px-4 flex items-center">
+                          {renderProfile(appt.patient, "Patient")}
+                          <span>{appt.patient?.username}</span>
+                        </td>
+                        <td className="py-3 px-4">{appt.patient?.email}</td>
+                        <td className="py-3 px-4">{appt.patient?.phoneNumber}</td>
+                      </>
+                    )}
+                    {role === "patient" && (
+                      <>
+                        <td className="py-3 px-4 flex items-center gap-2">
+                          <img
+                            src={
+                              appt.doctor?.imageUrl ||
+                              "https://ui-avatars.com/api/?name=" +
+                                encodeURIComponent(appt.doctor?.username || "Doctor")
+                            }
+                            alt="Doctor"
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                          <span>{appt.doctor?.username}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          {appt.doctor?.doctorDetails?.specialization || "N/A"}
+                        </td>
+                      </>
+                    )}
+                    {role === "admin" && (
+                      <>
+                        <td className="py-3 px-4 flex items-center">
+                          {renderProfile(appt.patient, "Patient")}
+                          <span>{appt.patient?.username}</span>
+                        </td>
+                        <td className="py-3 px-4 flex items-center">
+                          {renderProfile(appt.doctor, "Doctor")}
+                          <span>{appt.doctor?.username}</span>
+                        </td>
+                      </>
+                    )}
+                    <td className="py-3 px-4">{formatDate(date)}</td>
                     <td className="py-3 px-4">
                       {startTime} - {endTime}
                     </td>
@@ -177,14 +287,14 @@ const DoctorAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
                             ? "bg-green-100 text-green-700"
                             : status.toLowerCase() === "upcoming"
                             ? "bg-blue-100 text-blue-700"
-                            : status.toLowerCase() === "cancelled"
+                            : status.toLowerCase() === "cancelled" || status.toLowerCase() === "cancel"
                             ? "bg-red-100 text-red-700"
                             : status.toLowerCase() === "missed"
                             ? "bg-yellow-100 text-yellow-700"
                             : "bg-gray-100 text-gray-700"
                         }`}
                       >
-                        {status}
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
                       </span>
                     </td>
                   </tr>
@@ -198,4 +308,4 @@ const DoctorAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
   );
 };
 
-export default DoctorAppointmentsPage;
+export default AppointmentsPage;

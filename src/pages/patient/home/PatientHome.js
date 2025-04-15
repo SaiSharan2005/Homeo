@@ -168,7 +168,7 @@ const HomePage = () => {
   var index = 1;
   return (
     <div className="HomePage">
-      <PatientNavbar />
+      {/* <PatientNavbar /> */}
       {/* Hero Section */}
       <div className="relative bg-gray-100">
         <img
