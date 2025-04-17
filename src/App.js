@@ -308,6 +308,10 @@ export default function App() {
           path="/doctor/details"
           element={<AuthContainer activeForm="doctor-details" />}
         />
+          <Route
+          path="/patient/signup"
+          element={<AuthContainer activeForm={"patient-signup"} />}
+        />
 
         {/* Doctor routes (with DoctorLayout) */}
         <Route path="/doctor" element={<DoctorLayout />}>
