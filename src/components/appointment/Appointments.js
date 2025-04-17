@@ -105,14 +105,17 @@ const AppointmentsPage = ({
   // Row click navigation, update routes based on role if necessary
   const handleRowClick = (token) => {
     if (role === "doctor") {
-      navigate(`/doctor/token/${token}`);
+      navigate(`token/${token}`);
     } else if (role === "patient") {
-      navigate(`/patient/token/${token}`);
+      navigate(`token/${token}`);
     } else if (role === "admin") {
       // Admin row click directs to update page
-      navigate(`/admin/appointment/token/${token}`);
-    }
-  };
+      navigate(`token/${token}`);
+    }else if (role === "staff") {
+    // Admin row click directs to update page
+    navigate(`token/${token}`);
+  }
+};
 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(

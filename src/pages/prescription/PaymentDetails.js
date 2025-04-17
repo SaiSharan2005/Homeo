@@ -287,7 +287,7 @@ const PaymentDetails = () => {
       </div>
 
       {/* QR Code & File Upload Section */}
-      {!payment.status === "PAID" && !payment.paymentScreenshotPath && showQRCode && (
+      {payment.status !== "PAID" && !payment.paymentScreenshotPath && showQRCode && (
         <div className="mt-8 p-4 bg-gray-50 rounded-md flex flex-col items-center">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
             Scan to Pay
@@ -337,3 +337,4 @@ const PaymentDetails = () => {
 };
 
 export default PaymentDetails;
+

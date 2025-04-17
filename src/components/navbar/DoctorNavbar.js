@@ -9,9 +9,9 @@ const DoctorNavbar = ({ activeMenu, setActiveMenu }) => {
     { icon: Home, label: 'Overview', key: 'home' },
     { icon: FileText, label: 'Appointment', key: 'appointment' },
     { icon: Calendar, label: 'Schedule', key: 'schedule' },
-    { icon: Users, label: 'Medicians', key: 'medicians' },
-    { icon: MessageCircle, label: 'Messages', key: 'messages' },
-    { icon: User, label: 'Patients', key: 'patients' }
+    { icon: Users, label: 'Medicines', key: 'medicians' },
+    // { icon: MessageCircle, label: 'Messages', key: 'messages' },
+    // { icon: User, label: 'Patients', key: 'patients' }
   ];
 
   // Update activeMenu based on URL path

@@ -22,7 +22,7 @@ const PatientNavbar = ({ activeMenu, setActiveMenu }) => {
 
   const menuItems = [
     { icon: Home, label: 'Home', key: 'home' },
-    { icon: FileText, label: 'Appointment', key: 'history' },
+    { icon: FileText, label: 'Appointment', key: 'appointment' },
     // Removed Search item; added Patient and Doctor items
     // { icon: Users, label: 'Patient', key: 'patient-search' },
     { icon: User, label: 'Doctor', key: 'doctorSearch' },

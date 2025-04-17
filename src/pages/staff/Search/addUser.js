@@ -67,7 +67,7 @@ export default function AdminAddUser({ initialRole = "PATIENT" }) {
       // For roles with extra profile data, make additional API calls
       if (role === "PATIENT") {
         const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/api/patient/addProfile/${baseData.username}`,
+          `${process.env.REACT_APP_BACKEND_URL}/patient/addProfile/${baseData.username}`,
           {
             method: "POST",
             headers: {
