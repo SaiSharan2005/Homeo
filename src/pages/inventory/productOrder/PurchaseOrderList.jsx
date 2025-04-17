@@ -14,7 +14,7 @@ const PurchaseOrderList = () => {
     const fetchOrders = async () => {
       try {
         const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL + '/api/purchase-orders'
+          process.env.REACT_APP_BACKEND_URL + '/purchase-orders'
         );
         if (!response.ok) {
           throw new Error('Failed to fetch purchase orders');

@@ -69,7 +69,6 @@ export default function CreateAdvertisement() {
 
   return (
     <>
-      <AdminNavbar />
       <div className="p-8 bg-gray-50 min-h-screen">
         <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg shadow-lg border border-gray-200">
           <h1 className="text-3xl font-semibold mb-8 text-gray-800 text-center">
@@ -126,8 +125,8 @@ export default function CreateAdvertisement() {
                 <option value="" disabled>
                   Select a target page
                 </option>
-                <option value="doctorSearch-left">Doctor Search - Left</option>
-                <option value="doctorSearch-right">Doctor Search - Right</option>
+                <option value="doctor-search-bottom">Doctor Search - bottom</option>
+                <option value="doctor-search-right">Doctor Search - Right</option>
                 <option value="history-left">History - Left</option>
                 <option value="history-right">History - Right</option>
               </select>

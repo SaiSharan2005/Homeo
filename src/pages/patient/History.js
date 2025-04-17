@@ -1,175 +1,198 @@
 import React, { useEffect, useState } from "react";
-import profile1 from "../../images/doctorPatient.jpg";
-import PatientNavbar from "../../components/navbar/PatientNavbar";
 import { useNavigate } from "react-router-dom";
-import AdBanner from "./Adv";
 
-export default function PatientHistory() {
+const PatientAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
   const [appointments, setAppointments] = useState([]);
-  const [activeTab, setActiveTab] = useState("all"); // State for the active tab
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState(defaultStatusFilter);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL +
-          `/bookingAppointments/patient/my-appointments`,
+    const fetchAppointments = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/patient/my-appointments`,
           {
-            method: "GET", // Specify the method explicitly
+            method: "GET",
             headers: {
-              "Content-Type": "application/json", // Ensures the backend knows the data format
-              Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("Token")}`,
             },
           }
-      );
-      const data = await response.json();
-      setAppointments(data);
+        );
+        const data = await response.json();
+        setAppointments(data);
+      } catch (error) {
+        console.error("Error fetching patient appointments:", error);
+      }
     };
-    fetchData();
+
+    fetchAppointments();
   }, []);
 
-  // Filter appointments based on the active tab
-  const filteredAppointments = appointments.filter((appointment) => {
-    if (activeTab === "all") return true;
-    if (activeTab === "upcoming") return appointment.status === "Upcoming";
-    if (activeTab === "completed") return appointment.status === "completed";
-    if (activeTab === "canceled")
-      return appointment.status === "cancel" || appointment.status === "missed";
-    return false;
+  // Format date to "dd mon yyyy"
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const monthAbbr = date
+      .toLocaleString("default", { month: "short" })
+      .toLowerCase();
+    const year = date.getFullYear();
+    return `${day} ${monthAbbr} ${year}`;
+  };
+
+  // Format time to "HH:MM" (dropping seconds)
+  const formatTime = (timeString) => {
+    return timeString ? timeString.substring(0, 5) : "";
+  };
+
+  // Filter appointments by doctor name and status
+  const filteredAppointments = appointments.filter((appt) => {
+    const doctorName = appt.doctor?.username || "";
+    const status = appt.status || "";
+    const matchesName = doctorName
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "All" ||
+      status.toLowerCase() === statusFilter.toLowerCase();
+    return matchesName && matchesStatus;
   });
 
-  // Sort the filtered appointments by date and time
-  const sortedAppointments = filteredAppointments.sort((a, b) => {
-    const dateA = new Date(`${a.scheduleId.date}T${a.scheduleId.startTime}`);
-    const dateB = new Date(`${b.scheduleId.date}T${b.scheduleId.startTime}`);
-    return dateA - dateB;
-  });
-
-  // Helper function to determine status color
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "upcoming":
-        return "text-blue-600";
-      case "cancel":
-      case "missed":
-        return "text-red-600";
-      case "completed":
-        return "text-green-600";
-      default:
-        return "text-gray-600";
-    }
+  const handleRowClick = (token) => {
+    navigate(`/token/${token}`);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PatientNavbar />
-      <div className="flex w-full justify-between">
-        {/* Left Banner */}
-        <div className="w-[15%] hidden lg:block">
-          <AdBanner targetPage="history-left" />
-        </div>
+    <div className="bg-white rounded-md shadow p-4 w-full mt-8">
+      <div className="mb-4">
+        <h2 className="text-xl font-bold text-gray-800">Your Appointments</h2>
+        <p className="text-sm text-gray-500">
+          Here are your recent and upcoming appointments with doctors.
+        </p>
+      </div>
 
-        {/* Main Content */}
-        <div className="w-full lg:w-[60%] mt-8 p-4">
-          {/* Tabs for filtering */}
-          <div className="flex space-x-4 mb-8 justify-center">
-            <button
-              onClick={() => setActiveTab("all")}
-              className={`px-4 py-2 rounded ${
-                activeTab === "all"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-800"
-              }`}
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="relative w-full sm:w-1/2">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg
+              className="w-5 h-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              All
-            </button>
-            <button
-              onClick={() => setActiveTab("upcoming")}
-              className={`px-4 py-2 rounded ${
-                activeTab === "upcoming"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-800"
-              }`}
-            >
-              Upcoming
-            </button>
-            <button
-              onClick={() => setActiveTab("completed")}
-              className={`px-4 py-2 rounded ${
-                activeTab === "completed"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-800"
-              }`}
-            >
-              Completed
-            </button>
-            <button
-              onClick={() => setActiveTab("canceled")}
-              className={`px-4 py-2 rounded ${
-                activeTab === "canceled"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-800"
-              }`}
-            >
-              Canceled
-            </button>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 17.5a7.5 7.5 0 006.15-3.85z"
+              />
+            </svg>
           </div>
+          <input
+            type="text"
+            placeholder="Search by doctor name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="w-full sm:w-1/6 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="All">All Status</option>
+          <option value="Completed">Completed</option>
+          <option value="Upcoming">Upcoming</option>
+          <option value="Cancel">Cancelled</option>
+          <option value="Missed">Missed</option>
+        </select>
+      </div>
 
-          {/* Display sorted appointments */}
-          <div>
-            <h1 className="text-2xl font-bold mb-6 text-center">
-              {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}{" "}
-              Appointments
-            </h1>
-            <ul>
-              {sortedAppointments.length === 0 && (
-                <p className="text-gray-600 text-center">
-                  No appointments for this category.
-                </p>
-              )}
-              {sortedAppointments.map((appointment) => (
-                <li
-                  key={appointment.id}
-                  onClick={() => navigate(`/token/${appointment?.token}`)}
-                  className="flex items-center justify-between mb-4 cursor-pointer bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition"
-                >
-                  <div className="flex items-center">
-                    <img
-                      className="h-12 w-12 rounded-full object-cover mr-4"
-                      src={profile1}
-                      alt={appointment?.doctorId?.doctorName}
-                    />
-                    <div>
-                      <h2 className="text-lg font-semibold">
-                        {appointment?.doctorId?.doctorName}
-                      </h2>
-                      <p className="text-gray-600">
-                        {appointment?.doctorId?.doctorDetails?.specialization}
-                      </p>
-                      <p className="text-gray-600">{appointment?.token}</p>
-                    </div>
-                  </div>
-                  <div className="text-gray-600">
-                    {appointment?.scheduleId?.date}{" "}
-                    {appointment?.scheduleId?.startTime}
-                  </div>
-                  <div
-                    className={`${getStatusColor(appointment.status)} font-bold`}
+      <div className="overflow-x-auto">
+        <table className="w-full table-auto text-left border-collapse">
+          <thead>
+            <tr className="text-gray-600 border-b">
+              <th className="py-3 px-4 text-sm font-medium">Token</th>
+              <th className="py-3 px-4 text-sm font-medium">Profile</th>
+              <th className="py-3 px-4 text-sm font-medium">
+                Specialization
+              </th>
+              <th className="py-3 px-4 text-sm font-medium">Date</th>
+              <th className="py-3 px-4 text-sm font-medium">Time Slot</th>
+              <th className="py-3 px-4 text-sm font-medium">Status</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-700 text-sm">
+            {filteredAppointments.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="py-4 px-4 text-center">
+                  No appointments found.
+                </td>
+              </tr>
+            ) : (
+              filteredAppointments.map((appt) => {
+                const { token, doctor, scheduleId, status } = appt;
+                const startTime = formatTime(scheduleId?.startTime);
+                const endTime = formatTime(scheduleId?.endTime);
+
+                return (
+                  <tr
+                    key={token}
+                    className="border-b hover:bg-gray-50 transition cursor-pointer"
+                    onClick={() => handleRowClick(token)}
                   >
-                    {appointment.status.charAt(0).toUpperCase() +
-                      appointment.status.slice(1)}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Right Banner */}
-        <div className="w-[15%] hidden lg:block">
-          <AdBanner targetPage="history-right" />
-        </div>
+                    <td className="py-3 px-4">{token}</td>
+                    <td className="py-3 px-4 flex items-center gap-2">
+                      <img
+                        src={
+                          doctor?.imageUrl
+                            ? doctor.imageUrl
+                            : "https://ui-avatars.com/api/?name=" +
+                              encodeURIComponent(doctor?.username || "Doctor")
+                        }
+                        alt="Doctor"
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <span>{doctor?.username}</span>
+                    </td>
+                    <td className="py-3 px-4">
+                      {doctor?.doctorDetails?.specialization || "N/A"}
+                    </td>
+                    <td className="py-3 px-4">
+                      {formatDate(scheduleId?.date)}
+                    </td>
+                    <td className="py-3 px-4">
+                      {startTime} - {endTime}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          status.toLowerCase() === "completed"
+                            ? "bg-green-100 text-green-700"
+                            : status.toLowerCase() === "upcoming"
+                            ? "bg-blue-100 text-blue-700"
+                            : status.toLowerCase() === "cancel"
+                            ? "bg-red-100 text-red-700"
+                            : status.toLowerCase() === "missed"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
-}
+};
+
+export default PatientAppointmentsPage;

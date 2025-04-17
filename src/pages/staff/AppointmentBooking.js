@@ -353,7 +353,7 @@ const AppointmentBooking = () => {
         };
         sendEmail()
         console.log("Appointment booked successfully!" +responseData);
-        navigate( `/token/${responseData.token}`)
+        navigate( `/patient/token/${responseData.token}`)
         // Optionally update the schedule state to reflect the booked appointment
         setSchedules((prevSchedules) =>
           prevSchedules.map((sch) =>
@@ -403,7 +403,6 @@ const AppointmentBooking = () => {
 
   return (
     <>
-      <PatientNavbar/>
       <div className="min-h-[90vh] bg-gray-50 flex flex-col items-center">
         <main className="w-full max-w-3xl mt-8 p-4 bg-white shadow-md rounded-md">
           <h1 className="text-2xl font-bold">{doctor.doctorName}</h1>
