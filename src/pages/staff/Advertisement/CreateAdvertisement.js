@@ -125,8 +125,8 @@ export default function CreateAdvertisement() {
                 <option value="" disabled>
                   Select a target page
                 </option>
-                <option value="doctorSearch-left">Doctor Search - Left</option>
-                <option value="doctorSearch-right">Doctor Search - Right</option>
+                <option value="doctor-search-bottom">Doctor Search - bottom</option>
+                <option value="doctor-search-right">Doctor Search - Right</option>
                 <option value="history-left">History - Left</option>
                 <option value="history-right">History - Right</option>
               </select>

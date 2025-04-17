@@ -13,3 +13,12 @@ export const fetchPaymentDetail = async (id) => {
 };
 
 
+
+export const fetchPatientPayments = async () => {
+  return await getData("/payments/patient");
+};
+
+export const fetchDoctorPayments = async () => {
+  return await getData("/payments/doctor");
+};
+

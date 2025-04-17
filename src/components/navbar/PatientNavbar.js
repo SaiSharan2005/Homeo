@@ -27,7 +27,7 @@ const PatientNavbar = ({ activeMenu, setActiveMenu }) => {
     // { icon: Users, label: 'Patient', key: 'patient-search' },
     { icon: User, label: 'Doctor', key: 'doctorSearch' },
     // { icon: Megaphone, label: 'Advertisement', key: 'advertisement' },
-    // { icon: Activity, label: 'Activity', key: 'activity' },
+    { icon: Package, label: 'Payments', key: 'payments' },
     // { icon: Package, label: 'Inventory', key: 'inventory' }
   ];
 

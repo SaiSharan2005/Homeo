@@ -307,11 +307,11 @@ export default function App() {
           <Route path="profile" element={<DoctorProfile />} />
           <Route path="details" element={<DoctorDetails />} />
           <Route path="create-schedule" element={<DoctorScheduleCreation />} />
-          <Route
-            path="patient/profile/:patientId"
-            element={<PatientProfile />}
-          />
+          <Route path="patient/profile/:patientId" element={<PatientProfile />} />
           <Route path="doctor/profile/:patientId" element={<DoctorProfile />} />
+          <Route path="medicians" element={<InventoryItemList />} />
+          <Route path="medician/:id" element={<InventoryItemDetail />} />
+          <Route path="payments" element={<PaymentList role="doctor" />} />
 
           {/* Use the generic AppointmentsPage with role="doctor" */}
           <Route
@@ -409,6 +409,10 @@ export default function App() {
           <Route path="BookAppoinment/:doctorId" element={<AppointmentBooking />} />
           <Route path="appointment" element={<AppointmentsPage role="patient" />} />
           <Route path="token/:tokenId" element={<AppointmentDetails />} />
+          <Route path="payments" element={<PaymentList role="patient" />} />
+          <Route path="payments/:id" element={<PaymentDetails />} />
+
+
         </Route>
 
 

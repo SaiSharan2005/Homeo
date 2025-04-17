@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { MdDelete } from "react-icons/md";
 import { fetchInventoryItems } from "../../services/doctor/appointment";
 
 const InventoryItemsPage = () => {
@@ -17,14 +18,12 @@ const InventoryItemsPage = () => {
         console.error("Error fetching inventory items:", error);
       }
     };
-
     loadInventoryItems();
   }, []);
 
-  const filteredItems = inventoryItems.filter((item) => {
-    const name = item.name || "";
-    return name.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  const filteredItems = inventoryItems.filter((item) =>
+    (item.name || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const renderMedicineImage = (item) => {
     if (item.imageUrl) {
@@ -47,7 +46,9 @@ const InventoryItemsPage = () => {
     if (!dateString) return "";
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, "0");
-    const monthAbbr = date.toLocaleString("default", { month: "short" }).toLowerCase();
+    const monthAbbr = date
+      .toLocaleString("default", { month: "short" })
+      .toLowerCase();
     const year = date.getFullYear();
     return `${day} ${monthAbbr} ${year}`;
   };
@@ -56,13 +57,33 @@ const InventoryItemsPage = () => {
     navigate(`/admin/inventory/${id}`);
   };
 
-  const handleDelete = (e, id) => {
+  const handleDelete = async (e, id) => {
     e.stopPropagation();
-    console.log(`Delete inventory item with id: ${id}`);
+    if (
+      !window.confirm("Are you sure you want to delete this inventory item?")
+    ) {
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/inventory-items/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (!res.ok) throw new Error("Delete failed");
+      // Remove locally
+      setInventoryItems((prev) => prev.filter((item) => item.id !== id));
+    } catch (err) {
+      console.error("Error deleting inventory item:", err);
+      alert("Failed to delete item. Please try again.");
+    }
   };
 
   return (
     <div className="bg-white rounded-md shadow p-4 w-full">
+      {/* Header */}
       <div className="mb-4">
         <h2 className="text-xl font-bold text-gray-800">Inventory Items</h2>
         <p className="text-sm text-gray-500">
@@ -70,21 +91,23 @@ const InventoryItemsPage = () => {
         </p>
       </div>
 
+      {/* Search & Create */}
       <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="relative w-full sm:w-1/2">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            {/* magnifier icon */}
             <svg
               className="w-5 h-5 text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 17.5a7.5 7.5 0 006.15-3.85z"
+                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 
+                   1010.5 17.5a7.5 7.5 0 006.15-3.85z"
               />
             </svg>
           </div>
@@ -93,19 +116,21 @@ const InventoryItemsPage = () => {
             placeholder="Search by medicine name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full pl-10 p-2 rounded-md border border-gray-300 
+                       focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
-        <div className="sm:w-auto flex justify-end">
+        {userRole === "ADMIN" && (
           <button
             onClick={() => navigate("/admin/inventory/create")}
             className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
           >
             Create Inventory
           </button>
-        </div>
+        )}
       </div>
 
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full table-auto text-left border-collapse">
           <thead>
@@ -156,9 +181,13 @@ const InventoryItemsPage = () => {
                     <td className="py-3 px-4">
                       <button
                         onClick={(e) => handleDelete(e, item.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded-md text-xs hover:bg-red-600"
+                        className="p-1 rounded-md hover:bg-red-100 transition"
+                        title="Delete"
                       >
-                        Delete
+                        <MdDelete
+                          className="text-red-600 hover:text-red-800"
+                          size={18}
+                        />
                       </button>
                     </td>
                   )}

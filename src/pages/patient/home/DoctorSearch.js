@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import image from "../../../images/image.jpg";
 import { Link } from "react-router-dom";
-import AdBanner from "../Adv"; // If still needed
+import AdBanner from "../Adv";
 
 const specialties = [
   "Primary Care Doctor",
@@ -26,20 +26,53 @@ const DoctorSearch = () => {
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
 
+  const [hasRightAd, setHasRightAd] = useState(false);
+  const [hasBottomAd, setHasBottomAd] = useState(false);
+
+  // Fetch doctors
   useEffect(() => {
-    const fetchDoctors = async () => {
+    (async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/doctor/availableDoctors`);
-        const data = await response.json();
+        const res = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/doctor/availableDoctors`
+        );
+        const data = await res.json();
         setDoctors(data);
         setFilteredDoctors(data);
-      } catch (error) {
-        console.error("Failed to fetch doctor data:", error.message);
-        setDoctors([]);
-        setFilteredDoctors([]);
+      } catch (e) {
+        console.error("Error fetching doctors:", e);
       }
-    };
-    fetchDoctors();
+    })();
+  }, []);
+
+  // Check for right‑side ad
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/ads/active?targetPage=doctor-search-right`
+        );
+        if (res.ok) {
+          const ad = await res.json();
+          setHasRightAd(!!ad);
+        }
+      } catch {/* ignore */}
+    })();
+  }, []);
+
+  // Check for bottom ad
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/ads/active?targetPage=doctor-search-bottom`
+        );
+        if (res.ok) {
+          const ad = await res.json();
+          setHasBottomAd(!!ad);
+        }
+      } catch {/* ignore */}
+    })();
   }, []);
 
   const handleSearchChange = (e) => {
@@ -48,77 +81,130 @@ const DoctorSearch = () => {
     setFilteredDoctors(
       term === ""
         ? doctors
-        : doctors.filter(
-            (doctor) =>
-              doctor.username?.toLowerCase().includes(term.toLowerCase()) ||
-              doctor.email?.toLowerCase().includes(term.toLowerCase()) ||
-              doctor.doctorId?.toLowerCase().includes(term.toLowerCase())
+        : doctors.filter((doc) =>
+            [doc.username, doc.email, doc.doctorId]
+              .filter(Boolean)
+              .some((field) =>
+                field.toLowerCase().includes(term.toLowerCase())
+              )
           )
     );
   };
 
+  const containerClasses = hasRightAd
+    ? "flex max-w-6xl mx-auto gap-6"
+    : "max-w-6xl mx-auto";
+
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6">
-        <h3 className="text-2xl font-medium text-gray-900 mb-2">Find a doctor</h3>
-        <p className="text-sm text-gray-500 mb-4">
-          Use the search box or explore by specialty or insurance to find a doctor that suits your needs.
-        </p>
-        <input
-          type="text"
-          placeholder="Search by name, specialty, or condition"
-          className="py-2 px-4 w-full mb-6 rounded border border-gray-300"
-          value={searchTerm}
-          onChange={handleSearchChange}
-        />
+    <>
+      <div className={containerClasses}>
+        {/* Main search card */}
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6 flex-1">
+          <h3 className="text-2xl font-medium text-gray-900 mb-2">
+            Find a doctor
+          </h3>
+          <p className="text-sm text-gray-500 mb-4">
+            Use the search box or explore by specialty or insurance to find a
+            doctor that suits your needs.
+          </p>
 
-        <div className="mb-6">
-          <h4 className="text-lg font-medium text-gray-900 mb-2">Popular specialties</h4>
-          <div className="flex flex-wrap gap-2">
-            {specialties.map((specialty, index) => (
-              <span key={index} className="bg-[#AADCD2] text-gray-700 px-3 py-1 rounded-full text-sm">
-                {specialty}
-              </span>
-            ))}
+          <input
+            type="text"
+            placeholder="Search by name, specialty, or condition"
+            className="py-2 px-4 w-full mb-6 rounded border border-gray-300"
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+
+          <div className="mb-6">
+            <h4 className="text-lg font-medium text-gray-900 mb-2">
+              Popular specialties
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {specialties.map((s, i) => (
+                <span
+                  key={i}
+                  className="bg-[#AADCD2] text-gray-700 px-3 py-1 rounded-full text-sm"
+                >
+                  {s}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="mb-6">
-          <h4 className="text-lg font-medium text-gray-900 mb-2">Popular insurance</h4>
-          <div className="flex flex-wrap gap-2">
-            {insurances.map((insurance, index) => (
-              <span key={index} className="bg-[#AADCD2] text-gray-700 px-3 py-1 rounded-full text-sm">
-                {insurance}
-              </span>
-            ))}
+          <div className="mb-6">
+            <h4 className="text-lg font-medium text-gray-900 mb-2">
+              Popular insurance
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {insurances.map((ins, i) => (
+                <span
+                  key={i}
+                  className="bg-[#AADCD2] text-gray-700 px-3 py-1 rounded-full text-sm"
+                >
+                  {ins}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div>
-          <h4 className="text-lg font-medium text-gray-900 mb-2">Available Doctors</h4>
           <div>
-            {filteredDoctors.map((doctor, index) => (
-              <div key={index} className="flex items-center justify-between py-3 border-b">
-                <div className="flex items-center">
-                  <img src={image} alt={doctor.username} className="h-10 w-10 rounded-full mr-4" />
-                  <div>
-                    <p className="text-lg font-medium text-gray-900">{doctor.username}</p>
-                    <p className="text-sm text-gray-500">
-                      {doctor.doctorDetails?.specialization || "Specialization not mentioned"}
-                    </p>
+            <h4 className="text-lg font-medium text-gray-900 mb-2">
+              Available Doctors
+            </h4>
+            <div>
+              {filteredDoctors.map((doc, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between py-3 border-b"
+                >
+                  <div className="flex items-center">
+                    <img
+                      src={image}
+                      alt={doc.username}
+                      className="h-10 w-10 rounded-full mr-4"
+                    />
+                    <div>
+                      <p className="text-lg font-medium text-gray-900">
+                        {doc.username}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {doc.doctorDetails?.specialization ||
+                          "Specialization not mentioned"}
+                      </p>
+                    </div>
                   </div>
+                  <Link to={`/patient/BookAppoinment/${doc.id}`}>
+                    <button className="bg-[#AADCD2] text-gray-700 px-4 py-1 rounded-full text-sm hover:bg-[#93ccc2]">
+                      Book now
+                    </button>
+                  </Link>
                 </div>
-                <Link to={`/patient/BookAppoinment/${doctor.id}`}>
-                  <button className="bg-[#AADCD2] text-gray-700 px-4 py-1 rounded-full text-sm hover:bg-[#93ccc2]">
-                    Book now
-                  </button>
-                </Link>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* right‑side ad */}
+        {hasRightAd && (
+        <div className="hidden lg:block">
+          <AdBanner targetPage="doctor-search-right" />
+        </div>
+      )}
       </div>
-    </div>
+
+      {/* bottom ad */}
+      {hasBottomAd && (
+  <div className="mt-8"> 
+    {/* pass w-full down into AdBanner */}
+    <AdBanner 
+      targetPage="doctor-search-bottom" 
+      className="w-full" 
+    />
+  </div>
+)}
+
+    </>
   );
 };
 

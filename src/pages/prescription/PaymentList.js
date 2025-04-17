@@ -1,57 +1,76 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchPaymentList } from "../../services/other/other";
+import {
+  fetchPatientPayments,
+  fetchDoctorPayments,
+  fetchPaymentList,         // ← import the new helper
+} from "../../services/other/other";
 
-const PaymentList = () => {
+const PaymentList = ({ role = "admin" }) => {
   const [payments, setPayments] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchPaymentList()
-      .then((data) => {
-        console.log("Fetched payments:", data);
+    const fetchPayments = async () => {
+      try {
+        let data;
+        switch (role) {
+          case "doctor":
+            data = await fetchDoctorPayments();
+            break;
+          case "patient":
+            data = await fetchPatientPayments();
+            break;
+          case "admin":
+          case "staff":
+            data = await fetchPaymentList();
+            break;
+          default:
+            console.warn(`Unknown role "${role}", defaulting to patient`);
+            data = await fetchPatientPayments();
+        }
         setPayments(data);
-      })
-      .catch((error) => console.error("Error fetching payments:", error));
-  }, []);
+      } catch (error) {
+        console.error("Error fetching payments:", error);
+      }
+    };
+    fetchPayments();
+  }, [role]);
 
-  // Filter payments based on search query (by Prescription ID or Method)
   const filteredPayments = payments.filter((payment) => {
     const searchField = `${payment.prescriptionId} ${payment.method}`.toLowerCase();
     return searchField.includes(searchQuery.toLowerCase());
   });
 
-  // Handle row click to redirect to the payment detail page
-  const handleRowClick = (id) => {
-    navigate(`${id}`);
+  const handleRowClick = (id) => navigate(`${id}`);
+
+  // Heading + sub‑text change per role
+  const headings = {
+    patient: ["Your Payments", "Below is a list of your payment transactions."],
+    doctor: ["Doctor’s Payments", "Payments related to your prescriptions."],
+    staff:   ["All Payments (Staff)", "All payment transactions in the system."],
+    admin:   ["All Payments (Admin)", "Full payment log — staff and patient records."],
   };
+  const [title, subtitle] = headings[role] || headings.patient;
 
   return (
     <div className="bg-white rounded-md shadow p-4 w-full">
-      {/* Page Heading */}
+      {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">All Payments</h2>
-          <p className="text-sm text-gray-500">
-            Below is a list of all payment transactions.
-          </p>
+          <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+          <p className="text-sm text-gray-500">{subtitle}</p>
         </div>
+
+        {/* Search */}
         <div className="relative w-full sm:w-1/3">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg
-              className="w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 17.5a7.5 7.5 0 006.15-3.85z"
-              />
+            {/* magnifying-glass icon */}
+            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor"
+                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 17.5a7.5 7.5 0 006.15-3.85z" />
             </svg>
           </div>
           <input
@@ -64,7 +83,7 @@ const PaymentList = () => {
         </div>
       </div>
 
-      {/* Payments Table */}
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full table-auto text-left border-collapse">
           <thead>
@@ -103,8 +122,7 @@ const PaymentList = () => {
                           : "bg-gray-100 text-gray-700"
                       }`}
                     >
-                      {payment.status.charAt(0).toUpperCase() +
-                        payment.status.slice(1)}
+                      {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
                     </span>
                   </td>
                   <td className="py-3 px-4">{payment.totalAmount}</td>
