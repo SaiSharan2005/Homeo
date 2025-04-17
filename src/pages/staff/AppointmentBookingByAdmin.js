@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const BookSlot = () => {
+const AdminBookSlot = () => {
   const [patients, setPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -233,4 +233,4 @@ const BookSlot = () => {
   );
 };
 
-export default BookSlot;
+export default AdminBookSlot;

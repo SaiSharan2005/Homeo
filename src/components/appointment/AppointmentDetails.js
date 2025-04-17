@@ -55,31 +55,29 @@ const CompleteSlot = () => {
 
     fetchAppointmentData();
   }, [tokenId]);
-
   const handleAppointmentCompleted = async () => {
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/completed-appointment/${tokenId}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' } }
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        }
       );
       if (!response.ok) throw new Error('Failed to mark appointment as completed');
       const data = await response.json();
-      setIsCompleted(true);
+      // Update state or handle the response here as needed
     } catch (error) {
       console.error('Error completing appointment:', error);
-      setError('Failed to complete the appointment. Please try again.');
     }
   };
-
-  // When clicking the role-based card, navigate accordingly.
+  
+  // Handle navigation for DOCTOR and PATIENT roles
   const handleCardClick = () => {
-    // If the role is DOCTOR, then the card shows patient details.
     if (role === "DOCTOR" && appointmentData?.patient?.id) {
       navigate(`/${role.toLowerCase()}/patient/profile/${appointmentData.patient.userId}`);
-    }
-    // If the role is PATIENT, then the card shows doctor details.
-    else if (role === "PATIENT" && appointmentData?.doctor?.id) {
-      navigate(`/${role.toLowerCase()}/doctor/${appointmentData.doctor.userId}`);
+    } else if (role === "PATIENT" && appointmentData?.doctor?.id) {
+      navigate(`/${role.toLowerCase()}/doctor/profile/${appointmentData.doctor.userId}`);
     }
   };
 
@@ -100,58 +98,113 @@ const CompleteSlot = () => {
   }
 
   // Extract reusable data
-  const patient = appointmentData.patient;
-  const doctor = appointmentData.doctor;
+  const { patient, doctor } = appointmentData;
 
   return (
     <>
       <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl p-8">
-        <div className="flex justify-between items-center border-b pb-4 mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-center border-b pb-4 mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Appointment Report</h1>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow">
+          <button className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow transition-colors">
             🖨 Print Report
           </button>
         </div>
 
         {/* Details Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          {/* Left: Role-based Card */}
-          <div 
-            className="bg-gray-50 hover:shadow-xl rounded-xl p-6 cursor-pointer" 
-            onClick={handleCardClick}
-          >
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">
-              {role === "DOCTOR" ? "Patient Details" : "Doctor Details"}
-            </h2>
-            <div className="flex flex-col items-center">
-              <img
-                src={image}
-                alt="User"
-                className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-gray-300 shadow-md"
-              />
-              <div className="w-full">
-                <p className="mb-1">
-                  <span className="font-semibold">Name:</span> {role === "DOCTOR" ? patient?.username : doctor?.username}
-                </p>
-                <p className="mb-1">
-                  <span className="font-semibold">Email:</span> {role === "DOCTOR" ? patient?.email : doctor?.email}
-                </p>
-                <p className="mb-1">
-                  <span className="font-semibold">Phone:</span> {role === "DOCTOR" ? patient?.phoneNumber : doctor?.phoneNumber}
-                </p>
-                <p className="mb-1">
-                  <span className="font-semibold">ID:</span>{" "}
-                  {role === "DOCTOR" ? patient?.patientDetails?.id : doctor?.doctorDetails?.id || 'N/A'}
-                </p>
-                <p className="mb-1">
-                  <span className="font-semibold">City:</span>{" "}
-                  {role === "DOCTOR" ? patient?.patientDetails?.city : doctor?.doctorDetails?.city || 'N/A'}
-                </p>
+          {role === "ADMIN" ? (
+            <>
+              {/* Patient Details Card */}
+              <div 
+                className="bg-gray-50 hover:shadow-xl rounded-xl p-6 cursor-pointer"
+                onClick={() => navigate(`/admin/patient/profile/${patient.userId}`)}
+              >
+                <h2 className="text-xl font-semibold text-gray-700 mb-4">Patient Details</h2>
+                <div className="flex flex-col items-center">
+                  <img
+                    src={image}
+                    alt="Patient"
+                    className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-gray-300 shadow-md"
+                  />
+                  <div className="w-full">
+                    <p className="mb-1"><span className="font-semibold">Name:</span> {patient.username}</p>
+                    <p className="mb-1"><span className="font-semibold">Email:</span> {patient.email}</p>
+                    <p className="mb-1"><span className="font-semibold">Phone:</span> {patient.phoneNumber}</p>
+                    <p className="mb-1"><span className="font-semibold">ID:</span> {patient.patientDetails?.id || 'N/A'}</p>
+                    <p className="mb-1"><span className="font-semibold">City:</span> {patient.patientDetails?.city || 'N/A'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Doctor Details Card */}
+              <div 
+                className="bg-gray-50 hover:shadow-xl rounded-xl p-6 cursor-pointer"
+                onClick={() => navigate(`/admin/doctor/profile/${doctor.userId}`)}
+              >
+                <h2 className="text-xl font-semibold text-gray-700 mb-4">Doctor Details</h2>
+                <div className="flex flex-col items-center">
+                  <img
+                    src={image}
+                    alt="Doctor"
+                    className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-gray-300 shadow-md"
+                  />
+                  <div className="w-full">
+                    <p className="mb-1"><span className="font-semibold">Name:</span> {doctor.username}</p>
+                    <p className="mb-1"><span className="font-semibold">Email:</span> {doctor.email}</p>
+                    <p className="mb-1"><span className="font-semibold">Phone:</span> {doctor.phoneNumber}</p>
+                    <p className="mb-1"><span className="font-semibold">ID:</span> {doctor.doctorDetails?.id || 'N/A'}</p>
+                    <p className="mb-1"><span className="font-semibold">City:</span> {doctor.doctorDetails?.city || 'N/A'}</p>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            // For DOCTOR or PATIENT roles, show one role-based card.
+            <div 
+              className="bg-gray-50 hover:shadow-xl rounded-xl p-6 cursor-pointer" 
+              onClick={handleCardClick}
+            >
+              <h2 className="text-xl font-semibold text-gray-700 mb-4">
+                {role === "DOCTOR" ? "Patient Details" : "Doctor Details"}
+              </h2>
+              <div className="flex flex-col items-center">
+                <img
+                  src={image}
+                  alt="User"
+                  className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-gray-300 shadow-md"
+                />
+                <div className="w-full">
+                  {role === "DOCTOR" ? (
+                    <>
+                      <p className="mb-1"><span className="font-semibold">Name:</span> {patient.username}</p>
+                      <p className="mb-1"><span className="font-semibold">Email:</span> {patient.email}</p>
+                      <p className="mb-1"><span className="font-semibold">Phone:</span> {patient.phoneNumber}</p>
+                      <p className="mb-1">
+                        <span className="font-semibold">ID:</span> {patient.patientDetails?.id || 'N/A'}
+                      </p>
+                      <p className="mb-1">
+                        <span className="font-semibold">City:</span> {patient.patientDetails?.city || 'N/A'}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="mb-1"><span className="font-semibold">Name:</span> {doctor.username}</p>
+                      <p className="mb-1"><span className="font-semibold">Email:</span> {doctor.email}</p>
+                      <p className="mb-1"><span className="font-semibold">Phone:</span> {doctor.phoneNumber}</p>
+                      <p className="mb-1">
+                        <span className="font-semibold">ID:</span> {doctor.doctorDetails?.id || 'N/A'}
+                      </p>
+                      <p className="mb-1">
+                        <span className="font-semibold">City:</span> {doctor.doctorDetails?.city || 'N/A'}
+                      </p>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Right: Appointment Info */}
+          {/* Appointment Details Card */}
           <div className="bg-gray-50 hover:shadow-xl rounded-xl p-6">
             <h2 className="text-xl font-semibold text-gray-700 mb-4">Appointment Details</h2>
             <p className="mb-2"><span className="font-semibold">Token:</span> {appointmentData.token}</p>
@@ -163,7 +216,7 @@ const CompleteSlot = () => {
           </div>
         </div>
 
-        {/* Doctor can mark as completed */}
+        {/* Doctor-specific controls */}
         {role === "DOCTOR" && appointmentData.status === "Upcoming" && (
           <div className="flex justify-center mb-8">
             <button
@@ -180,14 +233,14 @@ const CompleteSlot = () => {
           </div>
         )}
 
-        {/* Show patient status note */}
+        {/* Patient status note for PATIENT role */}
         {role === "PATIENT" && (
           <div className="bg-blue-50 text-blue-700 px-4 py-3 rounded mb-8 text-center font-semibold">
             Appointment Status: {appointmentData.status}
           </div>
         )}
 
-        {/* Prescription */}
+        {/* Prescription Section */}
         {createdPrescription ? (
           <PrescriptionReport prescription={createdPrescription} />
         ) : (

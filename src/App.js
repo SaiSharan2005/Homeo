@@ -143,8 +143,6 @@
 //         />
 //                 <Route path="token/:tokenId/" element={<AppointmentDetails />} />
 
-
-
 //         </Route>
 //         <Route path="/patient/adv" element={<PatientPage />} />
 //         <Route path="/doctorSearch" element={<DoctorSearch />} />
@@ -284,6 +282,8 @@ import SchedulePage from "./pages/doctor/Schedule";
 import PaymentList from "./pages/prescription/PaymentList";
 import PaymentDetails from "./pages/prescription/PaymentDetails";
 import CompleteSlot from "./components/appointment/AppointmentDetails";
+import AdminAddUser from "./pages/staff/Search/addUser"
+import StaffRoleManagement from "./pages/staff/Search/Staff-Search";
 
 export default function App() {
   return (
@@ -294,18 +294,30 @@ export default function App() {
         <Route path="/login" element={<AuthContainer activeForm="login" />} />
 
         {/* Doctor Routes */}
-        <Route path="/doctor/signup" element={<AuthContainer activeForm="doctor-signup" />} />
-        <Route path="/doctor/details" element={<AuthContainer activeForm="doctor-details" />} />
+        <Route
+          path="/doctor/signup"
+          element={<AuthContainer activeForm="doctor-signup" />}
+        />
+        <Route
+          path="/doctor/details"
+          element={<AuthContainer activeForm="doctor-details" />}
+        />
         <Route path="/doctor" element={<DoctorLayout />}>
           <Route path="home" element={<DoctorDashboard />} />
           <Route path="profile" element={<DoctorProfile />} />
           <Route path="details" element={<DoctorDetails />} />
           <Route path="create-schedule" element={<DoctorScheduleCreation />} />
-          <Route path="patient/profile/:patientId" element={<PatientProfile />} />
+          <Route
+            path="patient/profile/:patientId"
+            element={<PatientProfile />}
+          />
           <Route path="doctor/profile/:patientId" element={<DoctorProfile />} />
 
           {/* Use the generic AppointmentsPage with role="doctor" */}
-          <Route path="appointment" element={<AppointmentsPage role="doctor" />} />
+          <Route
+            path="appointment"
+            element={<AppointmentsPage role="doctor" />}
+          />
           <Route path="token/:tokenId" element={<CompleteSlot />} />
           <Route path="schedule" element={<SchedulePage />} />
         </Route>
@@ -314,30 +326,78 @@ export default function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="home" element={<AdminHomePage />} />
           {/* Use the generic AppointmentsPage with role="admin" */}
-          <Route path="appointment" element={<AppointmentsPage role="admin" />} />
+          <Route path="appointment" element={<AppointmentsPage role="admin" />}/>   
+          <Route path="appointment/token/update/:AppointmentId" element={<UpdateAppointment   />}/>
+          <Route path="appointment/token/:tokenId" element={<AppointmentDetails />} />
+          <Route path="BookSlot" element={<BookSlot />} />
+
           <Route path="doctor-search" element={<StaffDoctorSearch />} />
+          <Route path="doctor-search/profile/:doctorId" element={<DoctorProfile />} />
           <Route path="patient-search" element={<PatientSearch />} />
+          <Route path="patient-search/profile/:patientId" element={<PatientProfile />} />
+          <Route path="patient-search/addPatient/" element={<AdminAddUser initialRole="PATIENT" />} />
+          <Route path="doctor-search/addDoctor/" element={<AdminAddUser initialRole="DOCTOR" />} />
+          <Route path="staff-search/" element={<StaffRoleManagement />} />
+          <Route path="staff-search/addStaff/" element={<AdminAddUser initialRole="STAFF" />} />
+
           <Route path="advertisement" element={<ShowAdvertisements />} />
+          <Route path="advertisement/create" element={<CreateAdvertisement />} />
+          <Route path="advertisement/update/:id" element={<UpdateAdvertisement />} />
+
           <Route path="inventory/create" element={<InventoryPage />} />
           <Route path="inventory" element={<InventoryItemList />} />
-        </Route>
+          <Route path="inventory/:id" element={<InventoryItemDetail />} />
 
-        {/* Staff Routes */}
-        <Route path="/staff" element={<StaffLayout />}>
-          <Route path="payments" element={<PaymentList />} />
-          <Route path="payment/:id" element={<PaymentDetails />} />
+
           <Route path="all-activity" element={<ActivitySearch />} />
           <Route path="doctor-activity" element={<DoctorActivitySearch />} />
           <Route path="patient-activity" element={<PatientActivitySearch />} />
-          <Route path="appointment-activity" element={<AppointmentActivitySearch />} />
-          <Route path="advertisement-activity" element={<AdvertisementActivitySearch />} />
-          <Route path="appointment-booking" element={<AppointmentBooking />} />
-          <Route path="BookSlot" element={<BookSlot />} />
+          <Route path="appointment-activity" element={<AppointmentActivitySearch />}/>
+          <Route path="advertisment-activity"  element={<AdvertisementActivitySearch />}/>
+
+          <Route path="payment" element={<PaymentList />} />
+          <Route path="payment/:id" element={<PaymentDetails />} />
+
         </Route>
 
-        {/* Patient Routes */}
-        <Route path="/patient/signup" element={<AuthContainer activeForm="patient-signup" />} />
-        <Route path="/patient/details" element={<AuthContainer activeForm="patient-details" />} />
+        <Route path="/staff" element={<StaffLayout />}>
+          <Route path="home" element={<AdminHomePage />} />
+
+          <Route path="appointment" element={<AppointmentsPage role="admin" />}/>   
+          <Route path="appointment/token/update/:AppointmentId" element={<UpdateAppointment   />}/>
+          <Route path="appointment/token/:tokenId" element={<AppointmentDetails />} />
+          <Route path="BookSlot" element={<BookSlot />} />
+
+          <Route path="doctor-search" element={<StaffDoctorSearch />} />
+          <Route path="doctor-search/profile/:doctorId" element={<DoctorProfile />} />
+          <Route path="patient-search" element={<PatientSearch />} />
+          <Route path="patient-search/profile/:patientId" element={<PatientProfile />} />
+          <Route path="patient-search/addPatient/" element={<AdminAddUser initialRole="PATIENT" />} />
+          <Route path="doctor-search/addDoctor/" element={<AdminAddUser initialRole="DOCTOR" />} />
+          <Route path="staff-search/" element={<StaffRoleManagement />} />
+          <Route path="staff-search/addStaff/" element={<AdminAddUser initialRole="STAFF" />} />
+
+          <Route path="advertisement" element={<ShowAdvertisements />} />
+          <Route path="advertisement/create" element={<CreateAdvertisement />} />
+          <Route path="advertisement/update/:id" element={<UpdateAdvertisement />} />
+
+          <Route path="inventory/create" element={<InventoryPage />} />
+          <Route path="inventory" element={<InventoryItemList />} />
+          <Route path="inventory/:id" element={<InventoryItemDetail />} />
+
+
+          <Route path="all-activity" element={<ActivitySearch />} />
+          <Route path="doctor-activity" element={<DoctorActivitySearch />} />
+          <Route path="patient-activity" element={<PatientActivitySearch />} />
+          <Route path="appointment-activity" element={<AppointmentActivitySearch />}/>
+          <Route path="advertisment-activity"  element={<AdvertisementActivitySearch />}/>
+
+          <Route path="payment" element={<PaymentList />} />
+          <Route path="payment/:id" element={<PaymentDetails />} />        
+        </Route>
+
+
+        
         <Route path="/patient" element={<PatientLayout />}>
           <Route path="profile" element={<PatientProfile />} />
           <Route path="profile/:patientId" element={<PatientProfile />} />
@@ -347,17 +407,19 @@ export default function App() {
           <Route path="adv" element={<PatientPage />} />
           <Route path="doctorSearch" element={<DoctorSearch />} />
           <Route path="BookAppoinment/:doctorId" element={<AppointmentBooking />} />
-
-          {/* Use the generic AppointmentsPage with role="patient" */}
-          
           <Route path="appointment" element={<AppointmentsPage role="patient" />} />
           <Route path="token/:tokenId" element={<AppointmentDetails />} />
         </Route>
 
-        {/* Other Routes */}
-        <Route path="/patient/adv" element={<PatientPage />} />
+
+
+        <Route path=
+        "/patient/adv" element={<PatientPage />} />
         <Route path="/doctorSearch" element={<DoctorSearch />} />
-        <Route path="/staff/signup" element={<AuthContainer activeForm="admin-signup" />} />
+        <Route
+          path="/admin/signup"
+          element={<AuthContainer activeForm="admin-signup" />}
+        />
         <Route path="/adv/management" element={<AdvertisementManager />} />
         <Route path="/staff/create-adv" element={<CreateAdvertisement />} />
         <Route path="/staff/update-adv/:id" element={<UpdateAdvertisement />} />
@@ -366,8 +428,14 @@ export default function App() {
         <Route path="/inventory-items" element={<InventoryItemList />} />
         <Route path="/inventory-items/:id" element={<InventoryItemDetail />} />
         <Route path="/purchase-orders" element={<PurchaseOrderList />} />
-        <Route path="/purchase-orders/create" element={<PurchaseOrderCreate />} />
-        <Route path="/prescription/create" element={<CreatePrescriptionPage />} />
+        <Route
+          path="/purchase-orders/create"
+          element={<PurchaseOrderCreate />}
+        />
+        <Route
+          path="/prescription/create"
+          element={<CreatePrescriptionPage />}
+        />
         <Route path="/test" element={<ProvoHealDashboard />} />
       </Routes>
       <ToastContainer

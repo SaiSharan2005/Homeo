@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import AdminNavBar from "../../../components/navbar/AdminNavbar"
+import AdminNavBar from "../../../components/navbar/AdminNavbar"; // Uncomment if needed
+
 const ActivitySearch = () => {
   const [keyword, setKeyword] = useState("");
   const [activityLogs, setActivityLogs] = useState([]);
@@ -8,7 +9,9 @@ const ActivitySearch = () => {
   // Fetch activity logs from the API
   const fetchActivityLogs = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_URL+"/activity-log");
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/activity-log`
+      );
       const data = await response.json();
       setActivityLogs(data);
     } catch (error) {
@@ -22,7 +25,7 @@ const ActivitySearch = () => {
       setFilteredLogs(activityLogs);
     } else {
       const lowercasedKeyword = keyword.toLowerCase();
-      const filtered = activityLogs.filter(log =>
+      const filtered = activityLogs.filter((log) =>
         log.message.toLowerCase().includes(lowercasedKeyword) ||
         log.userType.toLowerCase().includes(lowercasedKeyword)
       );
@@ -30,69 +33,55 @@ const ActivitySearch = () => {
     }
   };
 
-  // Fetch and filter logs when component mounts or keyword changes
+  // Fetch logs on component mount
   useEffect(() => {
     fetchActivityLogs();
   }, []);
 
+  // Update filtered logs when keyword or activityLogs change
   useEffect(() => {
     filterLogs();
   }, [keyword, activityLogs]);
 
-  return (<>
-  <AdminNavBar/>
+  return (
     <div className="container mx-auto p-6">
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h2 className="text-2xl font-bold mb-4">Activity Search</h2>
-        <input
-          type="text"
-          placeholder="Search activities..."
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          className="w-full p-2 border rounded mb-4"
+      {/* Uncomment the AdminNavBar component if you need it */}
+      {/* <AdminNavBar /> */}
+      <div className="bg-white rounded-md shadow p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Activity Log</h2>
+        <div className="flex flex-col sm:flex-row items-center mb-4 gap-4">
+          <input
+            type="text"
+            placeholder="Search activities by message or user type"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            aria-label="Search activities"
           />
-      </div>
-
-      <div className="bg-gray-200 p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Activity Log</h2>
+        </div>
         {filteredLogs.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+            <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
               <thead>
-                <tr>
-                  <th className="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-sm leading-4 text-gray-600 font-medium">
-                    ID
-                  </th>
-                  <th className="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-sm leading-4 text-gray-600 font-medium">
-                    User Type
-                  </th>
-                  <th className="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-sm leading-4 text-gray-600 font-medium">
-                    User ID
-                  </th>
-                  <th className="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-sm leading-4 text-gray-600 font-medium">
-                    Message
-                  </th>
-                  <th className="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-sm leading-4 text-gray-600 font-medium">
-                    Timestamp
-                  </th>
+                <tr className="bg-gray-100 text-gray-600 border-b">
+                  <th className="px-6 py-3 text-sm font-medium">ID</th>
+                  <th className="px-6 py-3 text-sm font-medium">User Type</th>
+                  <th className="px-6 py-3 text-sm font-medium">User ID</th>
+                  <th className="px-6 py-3 text-sm font-medium">Message</th>
+                  <th className="px-6 py-3 text-sm font-medium">Timestamp</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="text-gray-700 text-sm">
                 {filteredLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-gray-100">
-                    <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                      {log.id}
-                    </td>
-                    <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                      {log.userType}
-                    </td>
-                    <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                      {log.userId}
-                    </td>
-                    <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                      {log.message}
-                    </td>
-                    <td className="px-6 py-4 border-b border-gray-200 text-sm">
+                  <tr
+                    key={log.id}
+                    className="hover:bg-gray-50 transition cursor-pointer"
+                  >
+                    <td className="px-6 py-4 border-b">{log.id}</td>
+                    <td className="px-6 py-4 border-b">{log.userType}</td>
+                    <td className="px-6 py-4 border-b">{log.userId}</td>
+                    <td className="px-6 py-4 border-b">{log.message}</td>
+                    <td className="px-6 py-4 border-b">
                       {new Date(log.timestamp).toLocaleString()}
                     </td>
                   </tr>
@@ -105,7 +94,6 @@ const ActivitySearch = () => {
         )}
       </div>
     </div>
-        </>
   );
 };
 

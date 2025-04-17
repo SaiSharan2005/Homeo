@@ -23,6 +23,8 @@ function LoginForm() {
         const role = aboutMe.roles[0].name.toUpperCase();
         const name = aboutMe.username;
         localStorage.setItem("USERNAME",name);
+        const nameList = aboutMe.roles.map(item => item.name);
+
         // Navigate based on role
         switch (role) {
           case "DOCTOR":
@@ -40,10 +42,16 @@ function LoginForm() {
             break;
           case "STAFF":
             localStorage.setItem("ROLE", "STAFF");
+
+
+            localStorage.setItem("ROLES",JSON.stringify(nameList));
             navigate("/staff/home");
             break;
           default:
-            navigate("/dashboard");
+            localStorage.setItem("ROLE", "STAFF");
+            localStorage.setItem("ROLES",JSON.stringify(nameList));
+            navigate("/staff/home");
+            // navigate("/dashboard");
         }
       } else {
         setError("Login failed. Please try again.");

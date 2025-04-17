@@ -44,20 +44,24 @@ const DoctorProfile = ({ appointments: appointmentsProp }) => {
   const { doctorId } = useParams();
   const navigate = useNavigate();
 
-  // Fetch logged-in doctor data (profile always comes from /doctor/me)
+  // Fetch doctor data. If a doctorId is provided (admin or other user viewing a profile), fetch using that ID.
+  // Otherwise, fetch the details of the currently authenticated doctor.
   useEffect(() => {
     const fetchDoctorData = async () => {
       try {
-        const res = await fetch(
-          process.env.REACT_APP_BACKEND_URL + `/doctor/me`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("Token")}`,
-            },
-          }
-        );
+        const url = doctorId 
+          ? `${process.env.REACT_APP_BACKEND_URL}/doctor/${doctorId}` 
+          : `${process.env.REACT_APP_BACKEND_URL}/doctor/me`;
+        const res = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("Token")}`,
+          },
+        });
+        if (!res.ok) {
+          throw new Error("Failed to fetch doctor data");
+        }
         const data = await res.json();
         setDoctor(data);
         setDoctorDetails(data.doctorDetails || {});
@@ -66,9 +70,9 @@ const DoctorProfile = ({ appointments: appointmentsProp }) => {
       }
     };
     fetchDoctorData();
-  }, []);
+  }, [doctorId]);
 
-  // Single useEffect to handle appointments:
+  // Fetch appointments.
   // If appointmentsProp is passed, use it;
   // Otherwise, fetch appointments using the appropriate route.
   useEffect(() => {
@@ -89,6 +93,9 @@ const DoctorProfile = ({ appointments: appointmentsProp }) => {
             Authorization: `Bearer ${localStorage.getItem("Token")}`,
           },
         });
+        if (!response.ok) {
+          throw new Error("Failed to fetch appointments");
+        }
         const data = await response.json();
         setAppointments(data);
       } catch (error) {
@@ -116,7 +123,7 @@ const DoctorProfile = ({ appointments: appointmentsProp }) => {
   };
 
   const handleSave = () => {
-    // Save changes logic goes here
+    // Save changes logic goes here.
     setIsEditing(false);
   };
 
@@ -136,7 +143,7 @@ const DoctorProfile = ({ appointments: appointmentsProp }) => {
             <div className="relative">
               <div className="absolute -inset-1 bg-green-100 rounded-full" />
               <img
-                src={`https://picsum.photos/seed/${doctor.id}/200/200`}
+                src={doctor.imageUrl || `https://picsum.photos/seed/${doctor.id}/200/200`}
                 alt="Doctor"
                 className="relative w-24 h-24 rounded-full object-cover border-2 border-green-400"
               />
@@ -147,7 +154,7 @@ const DoctorProfile = ({ appointments: appointmentsProp }) => {
                 {doctorDetails.specialization || "ENT Doctor"}
               </p>
               <p className="text-sm text-gray-500">
-                {doctorDetails.address || "Siloam Hospitals"},{" "}
+                {doctorDetails.address || "Siloam Hospitals"}, {" "}
                 {doctorDetails.city || "West Bekasi, Bekasi"}
               </p>
               <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mt-2">
@@ -348,8 +355,6 @@ const DoctorProfile = ({ appointments: appointmentsProp }) => {
           </div>
 
           {/* Upcoming Appointments Card */}
-          {/* If a doctorId is passed in the route, the backend route for that doctor is used. */}
-          {/* Upcoming Appointments Card */}
           <div className="bg-white shadow-sm rounded-lg p-6">
             <h3 className="font-bold text-lg mb-3">Upcoming Appointments</h3>
             <hr className="my-2" />
@@ -376,7 +381,6 @@ const DoctorProfile = ({ appointments: appointmentsProp }) => {
               )}
             </div>
           </div>
-
 
           {/* Medical Actions Card */}
           <div className="bg-white shadow-sm rounded-lg p-6">

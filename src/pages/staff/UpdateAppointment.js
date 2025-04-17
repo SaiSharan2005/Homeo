@@ -18,7 +18,7 @@ const UpdateAppointment = () => {
     const fetchAppointmentData = async () => {
       try {
         const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/byId/${AppointmentId}`,
+          process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/token/${AppointmentId}`,
           {
             method: "GET",
             headers: {
@@ -65,11 +65,10 @@ const UpdateAppointment = () => {
     bookingData.doctorId= bookingData.doctor.id;
     bookingData.patientId= bookingData.patient.id
     bookingData.scheduleId = selectedSchedule.scheduleId;
-    bookingData.updateReason = updateReason; // Assigning update reason
-
+    bookingData.updateReason = updateReason; 
     try {
       const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/${AppointmentId}`,
+        process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/${bookingData.bookingId}`,
         {
           method: "PUT",
           headers: {
@@ -154,12 +153,11 @@ const UpdateAppointment = () => {
 
   return (
     <>
-      <PatientNavbar />
       <div className="min-h-[90vh] bg-gray-50 flex flex-col items-center">
         <main className="w-full max-w-3xl mt-8 p-4 bg-white shadow-md rounded-md">
           <div className="flex justify-between">
             <div className="patient">
-              <h1 className="text-2xl font-bold">{patient.username}</h1>
+              <h1 className="text-2xl font-bold">{patient.name}</h1>
               <p className="">Patient Id : {patient.userId}</p>
               {doctor.doctorDetails && (
                 <>

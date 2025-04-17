@@ -53,7 +53,7 @@ const InventoryItemsPage = () => {
   };
 
   const handleRowClick = (id) => {
-    navigate(`/inventory-items/${id}`);
+    navigate(`/admin/inventory/${id}`);
   };
 
   const handleDelete = (e, id) => {

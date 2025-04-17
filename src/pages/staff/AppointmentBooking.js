@@ -353,7 +353,7 @@ const AppointmentBooking = () => {
         };
         sendEmail()
         console.log("Appointment booked successfully!" +responseData);
-        navigate( `/token/${responseData.token}`)
+        navigate( `/patient/token/${responseData.token}`)
         // Optionally update the schedule state to reflect the booked appointment
         setSchedules((prevSchedules) =>
           prevSchedules.map((sch) =>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AdminNavbar from '../../components/navbar/AdminNavbar';
-// Import icons from react-icons
 import { AiOutlineInfoCircle, AiOutlineCalendar } from 'react-icons/ai';
 import { FaIndustry, FaCube, FaTags, FaClipboardList, FaHome } from 'react-icons/fa';
 
@@ -56,7 +55,6 @@ const InventoryItemDetail = () => {
 
   return (
     <>
-      <AdminNavbar />
       <div className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-200 p-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Header Section */}

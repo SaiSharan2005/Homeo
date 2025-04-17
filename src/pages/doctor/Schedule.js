@@ -166,7 +166,7 @@ export default function SchedulePage() {
       </div>
       
       {/* Upcoming Appointments Section */}
-      <DoctorAppointmentsPage defaultStatusFilter="Upcoming" />
+      <DoctorAppointmentsPage role="doctor" defaultStatusFilter="upcoming" />
       </div>
   );
 }

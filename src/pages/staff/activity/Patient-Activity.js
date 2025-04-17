@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AdminNavBar from "../../../components/navbar/AdminNavbar"
+import AdminNavBar from "../../../components/navbar/AdminNavbar"; // Uncomment if needed
 
 const PatientActivitySearch = () => {
   const [keyword, setKeyword] = useState("");
@@ -9,7 +9,9 @@ const PatientActivitySearch = () => {
   // Fetch activity logs from the API
   const fetchActivityLogs = async () => {
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_URL+"/activity-log");
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/activity-log`
+      );
       const data = await response.json();
       setActivityLogs(data);
     } catch (error) {
@@ -17,10 +19,10 @@ const PatientActivitySearch = () => {
     }
   };
 
-  // Filter activity logs based on the search keyword and userType
+  // Filter logs based on keyword and userType === "patient"
   const filterLogs = () => {
     const lowercasedKeyword = keyword.toLowerCase();
-    const filtered = activityLogs.filter(log =>
+    const filtered = activityLogs.filter((log) =>
       log.userType.toLowerCase() === "patient" &&
       (log.message.toLowerCase().includes(lowercasedKeyword) ||
        log.userType.toLowerCase().includes(lowercasedKeyword))
@@ -28,7 +30,6 @@ const PatientActivitySearch = () => {
     setFilteredLogs(filtered);
   };
 
-  // Fetch and filter logs when component mounts or keyword changes
   useEffect(() => {
     fetchActivityLogs();
   }, []);
@@ -37,60 +38,40 @@ const PatientActivitySearch = () => {
     filterLogs();
   }, [keyword, activityLogs]);
 
-  return (<>
-    <AdminNavBar/>
+  return (
     <div className="container mx-auto p-6">
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h2 className="text-2xl font-bold mb-4">Activity Search</h2>
-        <input
-          type="text"
-          placeholder="Search activities..."
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          className="w-full p-2 border rounded mb-4"
+      {/* <AdminNavBar /> */}
+      <div className="bg-white rounded-md shadow p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Patient Activity Log</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center mb-6 gap-4">
+          <input
+            type="text"
+            placeholder="Search activities by message or user type"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            aria-label="Search activities"
           />
-      </div>
-
-      <div className="bg-gray-200 p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Activity Log</h2>
+        </div>
         {filteredLogs.length > 0 ? (
-            <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
               <thead>
-                <tr>
-                  <th className="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-sm leading-4 text-gray-600 font-medium">
-                    ID
-                  </th>
-                  {/* <th className="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-sm leading-4 text-gray-600 font-medium">
-                    User Type
-                    </th> */}
-                  <th className="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-sm leading-4 text-gray-600 font-medium">
-                    User ID
-                  </th>
-                  <th className="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-sm leading-4 text-gray-600 font-medium">
-                    Message
-                  </th>
-                  <th className="px-6 py-3 border-b border-gray-200 bg-gray-100 text-left text-sm leading-4 text-gray-600 font-medium">
-                    Timestamp
-                  </th>
+                <tr className="bg-gray-100 text-gray-600 border-b">
+                  <th className="px-6 py-3 text-sm font-medium">ID</th>
+                  {/* User Type column can be omitted if not needed */}
+                  <th className="px-6 py-3 text-sm font-medium">User ID</th>
+                  <th className="px-6 py-3 text-sm font-medium">Message</th>
+                  <th className="px-6 py-3 text-sm font-medium">Timestamp</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="text-gray-700 text-sm">
                 {filteredLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-gray-100">
-                    <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                      {log.id}
-                    </td>
-                    {/* <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                      {log.userType}
-                      </td> */}
-                    <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                      {log.userId}
-                    </td>
-                    <td className="px-6 py-4 border-b border-gray-200 text-sm">
-                      {log.message}
-                    </td>
-                    <td className="px-6 py-4 border-b border-gray-200 text-sm">
+                  <tr key={log.id} className="hover:bg-gray-50 transition cursor-pointer">
+                    <td className="px-6 py-4 border-b">{log.id}</td>
+                    <td className="px-6 py-4 border-b">{log.userId}</td>
+                    <td className="px-6 py-4 border-b">{log.message}</td>
+                    <td className="px-6 py-4 border-b">
                       {new Date(log.timestamp).toLocaleString()}
                     </td>
                   </tr>
@@ -99,11 +80,10 @@ const PatientActivitySearch = () => {
             </table>
           </div>
         ) : (
-            <p className="text-gray-600 text-center">No activity logs available</p>
+          <p className="text-gray-600 text-center">No activity logs available</p>
         )}
       </div>
     </div>
-        </>
   );
 };
 

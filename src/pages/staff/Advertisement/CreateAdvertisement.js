@@ -69,7 +69,6 @@ export default function CreateAdvertisement() {
 
   return (
     <>
-      <AdminNavbar />
       <div className="p-8 bg-gray-50 min-h-screen">
         <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg shadow-lg border border-gray-200">
           <h1 className="text-3xl font-semibold mb-8 text-gray-800 text-center">
