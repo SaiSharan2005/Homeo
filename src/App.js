@@ -328,7 +328,7 @@ export default function App() {
             element={<DoctorProfile />}
           />
           <Route path="medicians" element={<InventoryItemList />} />
-          <Route path="medician/:id" element={<InventoryItemDetail />} />
+          <Route path="medicians/:id" element={<InventoryItemDetail />} />
           <Route path="payments" element={<PaymentList role="doctor" />} />
           <Route
             path="appointment"
@@ -350,7 +350,7 @@ export default function App() {
             path="appointment/token/:tokenId"
             element={<AppointmentDetails />}
           />
-          <Route path="BookSlot" element={<BookSlot />} />
+          <Route path="appointment/create" element={<BookSlot />} />
 
           <Route path="doctor-search" element={<StaffDoctorSearch />} />
           <Route
