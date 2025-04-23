@@ -54,7 +54,7 @@ const InventoryItemsPage = () => {
   };
 
   const handleRowClick = (id) => {
-    navigate(`/admin/inventory/${id}`);
+    navigate(`${id}`);
   };
 
   const handleDelete = async (e, id) => {

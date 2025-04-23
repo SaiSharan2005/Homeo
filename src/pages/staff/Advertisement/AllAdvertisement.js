@@ -72,7 +72,7 @@ export default function ShowAdvertisements() {
             Manage Advertisements
           </h1>
           <button
-            onClick={() => navigate("/admin/advertisement/create")}
+            onClick={() => navigate("create")}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
           >
             Create Advertisement
@@ -171,7 +171,7 @@ export default function ShowAdvertisements() {
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Link to={`/admin/advertisement/update/${ad.id}`}>
+                    <Link to={`update/${ad.id}`}>
                       <button className="text-yellow-600 hover:text-yellow-800 focus:outline-none focus:ring-2 focus:ring-yellow-500">
                         Edit
                       </button>
