@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import PrescriptionForm from '../prescription/PrescriptionForm';
 import PrescriptionReport from '../prescription/PrescriptionDetails';
 import image from '../../images/image.jpg';
-
+import PatientAppointmentsPage from './PatientAppointment';
 const CompleteSlot = () => {
   const { tokenId } = useParams();
   const navigate = useNavigate();
@@ -288,6 +288,15 @@ const CompleteSlot = () => {
           </div>
         </div>
       )}
+
+{role === "DOCTOR" && appointmentData.patient?.id && (
+        <div className="mt-8">
+          <PatientAppointmentsPage
+            patientId={appointmentData.patient.id}
+          />
+        </div>
+      )}
+
     </>
   );
 };

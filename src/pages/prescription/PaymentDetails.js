@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { fetchPaymentDetail } from "../../services/other/other";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import {
+  fetchPaymentDetail,
+  fetchNextPayment,
+  fetchLastPayment
+} from "../../services/other/other";
 import { MdCheck, MdClear, MdPayment } from "react-icons/md"; // Using react-icons
 
 const PaymentDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const [payment, setPayment] = useState(null);
   const [showQRCode, setShowQRCode] = useState(false);
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const role = localStorage.getItem("ROLE");
+  const [nextId, setNextId] = useState(null);
+  const [prevId, setPrevId] = useState(null);
 
   useEffect(() => {
     fetchPaymentDetail(id)
@@ -19,6 +27,19 @@ const PaymentDetails = () => {
       })
       .catch(error => console.error("Error fetching payment details:", error));
   }, [id]);
+  useEffect(() => {
+    if (!payment) return;
+    (async () => {
+      try {
+        const nxt = await fetchNextPayment(id);
+        const prev = await fetchLastPayment(id);
+        setNextId(nxt?.id ?? null);
+        setPrevId(prev?.id ?? null);
+      } catch (err) {
+        console.error("Error loading adjacent payments:", err);
+      }
+    })();
+  }, [payment, id]);
 
   if (!payment)
     return (
@@ -332,6 +353,19 @@ const PaymentDetails = () => {
             />
           </div>
         )}
+         {/* Prev / Next */}
+      <div className="flex justify-between">
+        <button
+          onClick={() => prevId && navigate(`../${prevId}`, { relative: 'path' })}
+          disabled={!prevId}
+          className={`px-4 py-2 rounded ${prevId?"bg-blue-500 text-white":"bg-gray-200 text-gray-500"}`}
+        >← Previous</button>
+        <button
+          onClick={() => nextId && navigate(`../${nextId}`, { relative: 'path' })}
+          disabled={!nextId}
+          className={`px-4 py-2 rounded ${nextId?"bg-blue-500 text-white":"bg-gray-200 text-gray-500"}`}
+        >Next →</button>
+      </div>
     </div>
   );
 };

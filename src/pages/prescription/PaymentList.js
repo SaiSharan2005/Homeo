@@ -4,7 +4,10 @@ import {
   fetchPatientPayments,
   fetchDoctorPayments,
   fetchPaymentList,         // ← import the new helper
+  fetchCurrentPayment,
 } from "../../services/other/other";
+import CurrentPaymentBanner from "./CurrentPaymentBanner";
+
 
 const PaymentList = ({ role = "admin" }) => {
   const [payments, setPayments] = useState([]);
@@ -56,6 +59,8 @@ const PaymentList = ({ role = "admin" }) => {
 
   return (
     <div className="bg-white rounded-md shadow p-4 w-full">
+           <CurrentPaymentBanner role={role} />
+
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div>

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import PrescriptionReport from "../components/prescription/PrescriptionDetails"
+import PrescriptionReport from "../prescription/PrescriptionDetails"
 
-const PatientAppointmentsPage = () => {
-  const navigate = useNavigate();
+const PatientAppointmentsPage = ({ patientId }) => {
+    
+    const navigate = useNavigate();
 //   const patientId = localStorage.getItem("USER_ID");
-const patientId = 202;
 
   // pagination & filters
   const [page, setPage] = useState(0);
