@@ -1,76 +1,91 @@
 import React, { useState, useEffect } from "react";
-import AdminNavBar from "../../../components/navbar/AdminNavbar"; // Uncomment if needed
 
 const AppointmentActivitySearch = () => {
   const [keyword, setKeyword] = useState("");
-  const [activityLogs, setActivityLogs] = useState([]);
+  const [logsPage, setLogsPage] = useState({ content: [], totalPages: 0 });
   const [filteredLogs, setFilteredLogs] = useState([]);
+  const [page, setPage] = useState(0);
+  const size = 10; // page size
 
-  // Fetch activity logs from the API
-  const fetchActivityLogs = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/activity-log`
-      );
-      const data = await response.json();
-      setActivityLogs(data);
-    } catch (error) {
-      console.error("Error fetching activity logs:", error);
-    }
-  };
+  // Reset to first page whenever the keyword changes
+  useEffect(() => {
+    setPage(0);
+  }, [keyword]);
 
-  // Filter activity logs based on the search keyword and userType
-  const filterLogs = () => {
-    const lowercasedKeyword = keyword.toLowerCase();
-    const filtered = activityLogs.filter(
+  // Fetch one page of activity logs whenever `page` changes
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const resp = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/activity-log?page=${page}&size=${size}`
+        );
+        if (!resp.ok) throw new Error("Failed to fetch activity logs");
+        const data = await resp.json();
+        setLogsPage({
+          content: data.content || [],
+          totalPages: data.totalPages || 0,
+        });
+      } catch (err) {
+        console.error("Error fetching activity logs:", err);
+        setLogsPage({ content: [], totalPages: 0 });
+      }
+    };
+    fetchLogs();
+  }, [page]);
+
+  // Filter the current page down to appointment logs matching the keyword
+  useEffect(() => {
+    const kw = keyword.toLowerCase();
+    const filtered = logsPage.content.filter(
       (log) =>
         log.userType.toLowerCase() === "appointment" &&
-        (log.message.toLowerCase().includes(lowercasedKeyword) ||
-          log.userType.toLowerCase().includes(lowercasedKeyword))
+        (log.message.toLowerCase().includes(kw) ||
+         log.userType.toLowerCase().includes(kw))
     );
     setFilteredLogs(filtered);
-  };
-
-  // Fetch logs on component mount
-  useEffect(() => {
-    fetchActivityLogs();
-  }, []);
-
-  // Update filtered logs when keyword or activityLogs change
-  useEffect(() => {
-    filterLogs();
-  }, [keyword, activityLogs]);
+  }, [keyword, logsPage.content]);
 
   return (
     <div className="container mx-auto p-6">
-      {/* Uncomment the AdminNavBar component if needed */}
-      {/* <AdminNavBar /> */}
       <div className="bg-white rounded-md shadow p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Appointment Activity Log</h2>
-        <div className="flex flex-col sm:flex-row sm:items-center mb-6 gap-4">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          Appointment Activity Log
+        </h2>
+
+        {/* Search input */}
+        <div className="flex mb-6">
           <input
             type="text"
-            placeholder="Search activities by message or user type"
+            placeholder="Search activities by message"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             aria-label="Search activities"
           />
         </div>
+
+        {/* Table */}
         {filteredLogs.length > 0 ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto mb-4">
             <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
               <thead>
                 <tr className="bg-gray-100 text-gray-600 border-b">
-                  <th className="px-6 py-3 text-sm font-medium">ID</th>
-                  <th className="px-6 py-3 text-sm font-medium">User ID</th>
-                  <th className="px-6 py-3 text-sm font-medium">Message</th>
-                  <th className="px-6 py-3 text-sm font-medium">Timestamp</th>
+                  {["ID", "User ID", "Message", "Timestamp"].map((h) => (
+                    <th
+                      key={h}
+                      className="px-6 py-3 text-sm font-medium whitespace-nowrap"
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="text-gray-700 text-sm">
                 {filteredLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-gray-50 transition cursor-pointer">
+                  <tr
+                    key={log.id}
+                    className="hover:bg-gray-50 transition cursor-pointer"
+                  >
                     <td className="px-6 py-4 border-b">{log.id}</td>
                     <td className="px-6 py-4 border-b">{log.userId}</td>
                     <td className="px-6 py-4 border-b">{log.message}</td>
@@ -83,7 +98,46 @@ const AppointmentActivitySearch = () => {
             </table>
           </div>
         ) : (
-          <p className="text-gray-600 text-center">No activity logs available</p>
+          <p className="text-gray-600 text-center">
+            No appointment activity logs available
+          </p>
+        )}
+
+        {/* Numbered Pagination Controls */}
+        {logsPage.totalPages > 1 && (
+          <div className="flex justify-center items-center mt-6 space-x-2">
+            <button
+              onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+              disabled={page === 0}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
+
+            {Array.from({ length: logsPage.totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i)}
+                className={`px-3 py-1 border rounded ${
+                  i === page ? "bg-blue-500 text-white" : ""
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() =>
+                setPage((prev) =>
+                  Math.min(prev + 1, logsPage.totalPages - 1)
+                )
+              }
+              disabled={page >= logsPage.totalPages - 1}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         )}
       </div>
     </div>

@@ -70,7 +70,7 @@ export default function Schedule({ selectedDate }) {
   useEffect(() => {
     const fetchAppointmentsData = async () => {
       const data = await fetchDoctorAppointments();
-      setAppointments(data);
+      setAppointments(data.content);
     };
 
     fetchAppointmentsData();

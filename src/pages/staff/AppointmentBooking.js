@@ -339,7 +339,7 @@ const AppointmentBooking = () => {
 
         const sendEmail = async () => {
           try {
-            const response = await fetch(process.env.REACT_APP_BACKEND_URL+`/sendEmail?Token=${responseData.token}`);
+            const response = await fetch(process.env.REACT_APP_BACKEND_URL+`/sendEmail?token=${responseData.token}`);
             if (!response.ok) {
               throw new Error('Failed to send email');
             }

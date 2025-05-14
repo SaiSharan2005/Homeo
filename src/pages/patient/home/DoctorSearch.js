@@ -21,7 +21,7 @@ const insurances = [
   "Humana",
 ];
 
-const DoctorSearch = () => {
+export default function DoctorSearch() {
   const [searchTerm, setSearchTerm] = useState("");
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
@@ -29,21 +29,35 @@ const DoctorSearch = () => {
   const [hasRightAd, setHasRightAd] = useState(false);
   const [hasBottomAd, setHasBottomAd] = useState(false);
 
-  // Fetch doctors
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const size = 10;
+  const [totalPages, setTotalPages] = useState(0);
+
+  // Fetch doctors with paging
   useEffect(() => {
     (async () => {
       try {
         const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/doctor/availableDoctors`
+          `${process.env.REACT_APP_BACKEND_URL}/doctor/availableDoctors?page=${page}&size=${size}`
         );
         const data = await res.json();
-        setDoctors(data);
-        setFilteredDoctors(data);
+        // If server returns Page<User>, use content and totalPages
+        if (data.content) {
+          setDoctors(data.content);
+          setFilteredDoctors(data.content);
+          setTotalPages(data.totalPages || 0);
+        } else {
+          // Fallback to unpaged array
+          setDoctors(data);
+          setFilteredDoctors(data);
+          setTotalPages(1);
+        }
       } catch (e) {
         console.error("Error fetching doctors:", e);
       }
     })();
-  }, []);
+  }, [page]);
 
   // Check for right‑side ad
   useEffect(() => {
@@ -56,7 +70,7 @@ const DoctorSearch = () => {
           const ad = await res.json();
           setHasRightAd(!!ad);
         }
-      } catch {/* ignore */}
+      } catch {}
     })();
   }, []);
 
@@ -71,24 +85,26 @@ const DoctorSearch = () => {
           const ad = await res.json();
           setHasBottomAd(!!ad);
         }
-      } catch {/* ignore */}
+      } catch {}
     })();
   }, []);
 
-  const handleSearchChange = (e) => {
-    const term = e.target.value;
-    setSearchTerm(term);
+  // Filter local list by search term
+  useEffect(() => {
+    const term = searchTerm.toLowerCase();
     setFilteredDoctors(
-      term === ""
-        ? doctors
-        : doctors.filter((doc) =>
-            [doc.username, doc.email, doc.doctorId]
-              .filter(Boolean)
-              .some((field) =>
-                field.toLowerCase().includes(term.toLowerCase())
-              )
+      doctors.filter((doc) =>
+        [doc.username, doc.email, doc.doctorId]
+          .filter(Boolean)
+          .some((field) =>
+            field.toLowerCase().includes(term)
           )
+      )
     );
+  }, [searchTerm, doctors]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   const containerClasses = hasRightAd
@@ -187,25 +203,47 @@ const DoctorSearch = () => {
 
         {/* right‑side ad */}
         {hasRightAd && (
-        <div className="hidden lg:block">
-          <AdBanner targetPage="doctor-search-right" />
-        </div>
-      )}
+          <div className="hidden lg:block">
+            <AdBanner targetPage="doctor-search-right" />
+          </div>
+        )}
       </div>
 
       {/* bottom ad */}
       {hasBottomAd && (
-  <div className="mt-8"> 
-    {/* pass w-full down into AdBanner */}
-    <AdBanner 
-      targetPage="doctor-search-bottom" 
-      className="w-full" 
-    />
-  </div>
-)}
+        <div className="mt-8">
+          <AdBanner targetPage="doctor-search-bottom" className="w-full" />
+        </div>
+      )}
 
+      {/* Pagination Bar */}
+      <div className="flex justify-center items-center mt-6 space-x-2">
+        <button
+          onClick={() => setPage(p => Math.max(p - 1, 0))}
+          disabled={page === 0}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setPage(i)}
+            className={`px-3 py-1 border rounded ${i === page ? "bg-blue-500 text-white" : ""}`}
+          >
+            {i + 1}
+          </button>
+        ))}
+
+        <button
+          onClick={() => setPage(p => Math.min(p + 1, totalPages - 1))}
+          disabled={page >= totalPages - 1}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </>
   );
-};
-
-export default DoctorSearch;
+}

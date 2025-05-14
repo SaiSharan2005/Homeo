@@ -15,10 +15,10 @@ const fetchData = async (endpoint, options = {}) => {
       ...options,
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Error ${response.status}: ${errorText}`);
-    }
+    // if (!response.ok) {
+    //   const errorText = await response.text();
+    //   throw new Error(`Error ${response.status}: ${errorText}`);
+    // }
 
     // Check if response has content before parsing JSON
     if (response.status === 204) {
@@ -31,6 +31,7 @@ const fetchData = async (endpoint, options = {}) => {
     } else {
       return await response.text(); // Handle non-JSON responses
     }
+    
   } catch (error) {
     console.error("API Request Error:", error);
     throw error;

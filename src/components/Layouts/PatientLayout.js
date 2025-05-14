@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import PatientNavbar from '../navbar/PatientNavbar';
 import { Bell, User } from 'lucide-react';
@@ -6,16 +6,24 @@ import { Link } from 'react-router-dom';
 
 const PatientLayout = () => {
   const [activeMenu, setActiveMenu] = useState('overview');
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('USERNAME');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-50">
       <PatientNavbar activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
-      
+
       <div className="flex-grow bg-gray-50 p-6 overflow-y-auto">
         <header className="flex justify-between items-center mb-6">
           <div className="relative flex-grow max-w-md mr-4">
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-1">
-              Welcome back, Patient
+             Hi {username ? `, ${username}` : ''}
             </h1>
           </div>
           <div className="flex items-center space-x-4">
@@ -27,7 +35,7 @@ const PatientLayout = () => {
             </div>
           </div>
         </header>
-        
+
         {/* Render Child Components */}
         <Outlet />
       </div>

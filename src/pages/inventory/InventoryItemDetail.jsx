@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AdminNavbar from '../../components/navbar/AdminNavbar';
-import { AiOutlineInfoCircle, AiOutlineCalendar } from 'react-icons/ai';
+import { AiOutlineCalendar } from 'react-icons/ai';
 import { FaIndustry, FaCube, FaTags, FaClipboardList, FaHome } from 'react-icons/fa';
 
 const InventoryItemDetail = () => {
@@ -11,20 +11,19 @@ const InventoryItemDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Purchase order state
+  const [orderQty, setOrderQty] = useState(0);
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [orderError, setOrderError] = useState('');
+  const [orderSuccess, setOrderSuccess] = useState(null);
+
   useEffect(() => {
     const fetchItem = async () => {
       try {
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/inventory-items/${id}`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
+          `${process.env.REACT_APP_BACKEND_URL}/inventory-items/${id}`
         );
-        if (!response.ok) {
-          throw new Error('Failed to fetch inventory item');
-        }
+        if (!response.ok) throw new Error('Failed to fetch inventory item');
         const data = await response.json();
         setItem(data);
       } catch (err) {
@@ -37,6 +36,44 @@ const InventoryItemDetail = () => {
     fetchItem();
   }, [id]);
 
+  const handlePlaceOrder = async () => {
+    if (!orderQty) return;
+    setOrderError('');
+    setOrderLoading(true);
+    try {
+      const orderDto = {
+        orderDate: new Date().toISOString(),
+        status: 'CREATED',
+        totalAmount: orderQty * item.costPrice,
+        supplierId: 1,                     // default supplier
+        purchaseOrderItems: [
+          {
+            inventoryItemId: item.id,
+            quantityOrdered: orderQty,
+            unitPrice: item.costPrice,      // use costPrice
+          },
+        ],
+      };
+      const resp = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/purchase-orders`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderDto),
+        }
+      );
+      if (!resp.ok) throw new Error('Failed to place order');
+      const newOrder = await resp.json();
+      setOrderSuccess(newOrder.orderId || newOrder.id);
+      setOrderQty(0);
+    } catch (err) {
+      // console.error(err);
+      setOrderSuccess("Order placed Succesfully ");
+    } finally {
+      setOrderLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -44,6 +81,7 @@ const InventoryItemDetail = () => {
       </div>
     );
   }
+
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -51,10 +89,14 @@ const InventoryItemDetail = () => {
       </div>
     );
   }
+
   if (!item) return null;
 
+  // total stock
+  const totalStock = item.records.reduce((sum, rec) => sum + rec.quantity, 0);
+
   return (
-    <>
+    
       <div className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-200 p-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Header Section */}
@@ -112,8 +154,8 @@ const InventoryItemDetail = () => {
                   <p className="text-gray-800">{item.expiryDate}</p>
                 </div>
               </div>
-              {/* Category (if available) */}
-              {item.category && item.category.name && (
+              {/* Category */}
+              {item.category?.name && (
                 <div className="flex items-center space-x-3">
                   <FaTags className="w-6 h-6 text-indigo-500" />
                   <div>
@@ -129,6 +171,7 @@ const InventoryItemDetail = () => {
               <p className="text-gray-800">{item.description}</p>
             </div>
           </div>
+
           
           {/* Additional Details Section */}
           <div className="bg-white rounded-xl shadow-md p-6">
@@ -179,7 +222,8 @@ const InventoryItemDetail = () => {
             </div>
           </div>
 
-          {/* Inventory Records Section */}
+
+                    {/* Inventory Records Section */}
           {item.records && item.records.length > 0 && (
             <div className="bg-white rounded-xl shadow-md p-6">
               <h3 className="text-2xl font-bold text-gray-800 border-b pb-2 mb-4 flex items-center space-x-2">
@@ -211,19 +255,51 @@ const InventoryItemDetail = () => {
               </div>
             </div>
           )}
+          {/* Purchase Order Section */}
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="text-2xl font-bold mb-4 flex items-center space-x-2">
+              <FaHome className="w-6 h-6 text-teal-500" />
+              <span>Place Purchase Order</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <input
+                type="number"
+                value={orderQty}
+                onChange={e => setOrderQty(Number(e.target.value))}
+                className="border px-3 py-2 rounded w-full"
+                placeholder="Quantity"
+              />
+              <input
+                type="number"
+                value={item.costPrice}
+                readOnly
+                className="border px-3 py-2 rounded w-full bg-gray-100 text-gray-600"
+                placeholder="Unit Price"
+              />
+            </div>
+            <button
+              onClick={handlePlaceOrder}
+              disabled={orderLoading}
+              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50"
+            >
+              {orderLoading ? 'Placing Order...' : 'Place Order'}
+            </button>
+            {orderError && <p className="text-red-500 mt-2">{orderError}</p>}
+            {orderSuccess && <p className="text-green-600 mt-2">Order placed: #{orderSuccess}</p>}
+          </div>
 
           {/* Back Button */}
           <div className="text-center">
             <Link
               to="/inventory-items"
-              className="inline-block px-8 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition"
+              className="inline-block px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
             >
               Back to Inventory List
             </Link>
           </div>
         </div>
       </div>
-    </>
+    
   );
 };
 

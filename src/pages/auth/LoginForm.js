@@ -16,16 +16,17 @@ function LoginForm() {
     const data = { phoneNumber: phone, password: password };
 
     try {
+
       const success = await loginService(data);
+      // console.log("dam",success);
       const aboutMe = await fetchAboutMe();
-      if (success && aboutMe && aboutMe.roles && aboutMe.roles.length > 0) {
+      if (success.status && aboutMe && aboutMe.roles && aboutMe.roles.length > 0) {
         // Assume the first role is the primary one
         const role = aboutMe.roles[0].name.toUpperCase();
         const name = aboutMe.username;
         localStorage.setItem("USERNAME",name);
         const nameList = aboutMe.roles.map(item => item.name);
 
-        // Navigate based on role
         switch (role) {
           case "DOCTOR":
             localStorage.setItem("ROLE", "DOCTOR");
@@ -54,7 +55,7 @@ function LoginForm() {
             // navigate("/dashboard");
         }
       } else {
-        setError("Login failed. Please try again.");
+setError(success?.message || "Login failed. Please try again.");
       }
     } catch (err) {
       console.error("Login error:", err);
