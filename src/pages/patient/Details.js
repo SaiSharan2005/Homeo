@@ -35,7 +35,7 @@ export default function PatientDetails() {
       
       if (response.ok) {
         console.log('Patient details saved successfully!');
-        navigate("/login");
+        navigate("/questionnaire/1");
       } else {
         console.error('Failed to save patient details');
       }

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { MdPerson, MdPhone, MdEmail, MdLock } from "react-icons/md";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { Signup } from "../../services/patient/patient_api"; // Your signup API function
 // Note: createDoctor is imported if needed but here we forward based on role
 // import { createDoctor } from '../../services/doctor/doctor_api';
@@ -11,12 +11,16 @@ export default function SignUpForm({ rolesFromParams }) {
     name: "",
     number: "",
     email: "",
-    password: ""
+    password: "",
   });
+
   const [error, setError] = useState(null);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [code, setCode] = useState("");
 
   // Use roles from props, defaulting to ["PATIENT"] if not provided
   const roles = rolesFromParams || ["PATIENT"];
+  const isPatient = roles.includes("PATIENT");
 
   const onChange = (event) => {
     const { name, value } = event.target;
@@ -27,7 +31,7 @@ export default function SignUpForm({ rolesFromParams }) {
     } else {
       setError(null);
     }
-    setCredentials(prev => ({
+    setCredentials((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -85,32 +89,93 @@ export default function SignUpForm({ rolesFromParams }) {
 
     try {
       const responseData = await Signup(data);
+      if (!responseData.status) {
+        setError(responseData?.message || "Sign up Failes ");
+      }
       // Navigate to the respective details page based on role
-      if (roles.includes("DOCTOR")) {
+      else if (roles.includes("DOCTOR")) {
         localStorage.setItem("ROLE", "DOCTOR");
         // Forward to doctor details page with responseData (which contains user data)
-        navigate("/doctor/details", { state: { data: {username:data.username} } });
+        navigate("/doctor/details", {
+          state: { data: { username: data.username } },
+        });
       } else if (roles.includes("PATIENT")) {
         localStorage.setItem("ROLE", "PATIENT");
-        navigate("/patient/details", { state: { data: responseData } });
+        // navigate("/patient/details", { state: { data: responseData } });
+        setVerificationSent(true);
       } else if (roles.includes("ADMIN")) {
         localStorage.setItem("ROLE", "ADMIN");
         navigate("/admin/home", { state: { data: responseData } });
       }
     } catch (error) {
-      console.error('Error registering user:', error.message);
+      console.error("Error registering user:", error.message);
       setError(error.message);
     }
   };
+  // ── new: request a 4‑digit code for the patient’s email
+  const handleRequestCode = async (event) => {
+    event.preventDefault();
+    // reuse your validations for email/phone/etc.
+    setError(null);
+    await fetch(
+      `${
+        process.env.REACT_APP_BACKEND_URL
+      }/verify/request?email=${encodeURIComponent(credentials.email)}`,
+      { method: "POST" }
+    );
+    setVerificationSent(true);
+  };
 
+  // ── new: confirm the code, then call real signup
+  const handleConfirmCode = async (event) => {
+    event.preventDefault();
+    const token = localStorage.getItem("Token");
+
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/verify/confirm` +
+        `?email=${encodeURIComponent(credentials.email)}` +
+        `&code=${encodeURIComponent(code)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    );
+    const msg = await res.text();
+    if (res.ok && msg.includes("success")) {
+      // now actually sign up
+        // navigate("/patient/details", { state: { data: responseData } });
+                navigate("/patient/details");
+
+    } else {
+      setError("Invalid or expired verification code.");
+    }
+  };
+  const handleSignUpAndRequest = async (event) => {
+    // stop the form/button default
+    event.preventDefault();
+    // run your normal signup logic
+    await handleSubmit(event);
+    // only if signup succeeded (no error), fire the code request
+    if (!error) {
+      await handleRequestCode(event);
+    }
+  };
   return (
     <div className="min-h-[400px] flex flex-col justify-center p-6 bg-white rounded-2xl max-w-2xl mx-auto">
-      <h2 className="mb-4 text-3xl font-bold text-center text-gray-800">Sign Up</h2>
+      <h2 className="mb-4 text-3xl font-bold text-center text-gray-800">
+        Sign Up
+      </h2>
       {error && <p className="mb-4 text-center text-red-500">{error}</p>}
       <form className="space-y-4" onSubmit={handleSubmit}>
         {/* Name Field */}
         <div>
-          <label htmlFor="name" className="block mb-1 text-sm font-semibold text-gray-700">
+          <label
+            htmlFor="name"
+            className="block mb-1 text-sm font-semibold text-gray-700"
+          >
             Name
           </label>
           <div className="relative">
@@ -132,7 +197,10 @@ export default function SignUpForm({ rolesFromParams }) {
 
         {/* Phone Number Field */}
         <div>
-          <label htmlFor="number" className="block mb-1 text-sm font-semibold text-gray-700">
+          <label
+            htmlFor="number"
+            className="block mb-1 text-sm font-semibold text-gray-700"
+          >
             Phone Number
           </label>
           <div className="relative">
@@ -152,7 +220,10 @@ export default function SignUpForm({ rolesFromParams }) {
 
         {/* Email Field */}
         <div>
-          <label htmlFor="email" className="block mb-1 text-sm font-semibold text-gray-700">
+          <label
+            htmlFor="email"
+            className="block mb-1 text-sm font-semibold text-gray-700"
+          >
             Email
           </label>
           <div className="relative">
@@ -172,7 +243,10 @@ export default function SignUpForm({ rolesFromParams }) {
 
         {/* Password Field */}
         <div>
-          <label htmlFor="password" className="block mb-1 text-sm font-semibold text-gray-700">
+          <label
+            htmlFor="password"
+            className="block mb-1 text-sm font-semibold text-gray-700"
+          >
             Password
           </label>
           <div className="relative">
@@ -191,17 +265,69 @@ export default function SignUpForm({ rolesFromParams }) {
         </div>
 
         {/* Submit Button */}
-        <button
+        {/* <button
           type="submit"
           className="w-full py-2 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition transform hover:scale-105"
         >
           SIGN UP
-        </button>
+        </button> */}
+
+        {/* ── conditional submit UI for patient vs others */}
+        {isPatient ? (
+          !verificationSent ? (
+            // 1️⃣ First click: sign them up (Signup + send code)
+            <button
+              type="button"
+              //  onClick={()=>{handleSubmit(); handleRequestCode()}}
+              onClick={handleSignUpAndRequest}
+              className="w-full py-2 …"
+            >
+              Sign Up & Send Verification Code
+            </button>
+          ) : (
+            <>
+              {/* 2️⃣ Show the code‑entry UI */}
+              <div>
+                <label
+                  htmlFor="code"
+                  className="block mb-1 text-sm font-semibold text-gray-700"
+                >
+                  Verification Code
+                </label>
+                <input
+                  id="code"
+                  name="code"
+                  type="text"
+                  maxLength={4}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleConfirmCode}
+                className="w-full py-2 …"
+              >
+                Verify & Continue
+              </button>
+            </>
+          )
+        ) : (
+          // Non‑patients still just call handleSubmit
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="w-full py-2 …"
+          >
+            SIGN UP
+          </button>
+        )}
       </form>
 
       {/* Footer Links */}
       <div className="mt-4 text-sm text-center text-gray-600">
-        Already have an account?{' '}
+        Already have an account?{" "}
         <a href="#" className="font-medium text-green-600 hover:underline">
           Login here
         </a>

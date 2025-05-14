@@ -293,7 +293,14 @@ const CompleteSlot = () => {
         <div className="mt-8">
           <PatientAppointmentsPage
             patientId={appointmentData.patient.id}
+            patientUsername={appointmentData.patient.username}
+
           />
+
+
+
+
+          
         </div>
       )}
 

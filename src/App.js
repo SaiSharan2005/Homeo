@@ -290,6 +290,14 @@ import PaymentDetails from "./pages/prescription/PaymentDetails";
 // Misc
 import ProvoHealDashboard from "./utils/Test";
 
+// Questionnaire
+import QuestionSetList from './pages/questionnaire/QuestionSetList';
+import CreateQuestionSet from './pages/questionnaire/CreateQuestionSet';
+import QuestionnairePage from './pages/questionnaire/QuestionnairePage';
+import SubmissionList from "./pages/questionnaire/SubmissionList";
+import SubmissionDetail from "./pages/questionnaire/SubmissionDetail";
+
+
 export default function App() {
   return (
     <Router>
@@ -536,6 +544,12 @@ export default function App() {
           element={<CreatePrescriptionPage />}
         />
         <Route path="/test" element={<ProvoHealDashboard />} />
+        <Route path="/questionnaires" element={<QuestionSetList />} />
+        <Route path="/question-sets/create" element={<CreateQuestionSet />} />
+        <Route path="/questionnaire/:id" element={<QuestionnairePage />} />
+        <Route path="/submissions" element={<SubmissionList />} />
+        <Route path="/submissions/:id" element={<SubmissionDetail />} />
+
       </Routes>
 
       <ToastContainer

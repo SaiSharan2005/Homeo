@@ -1,302 +1,117 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import PrescriptionReport from "../components/prescription/PrescriptionDetails"
+// import React, { useState, useEffect } from 'react';
+// import { useParams, useNavigate } from 'react-router-dom';
 
-const PatientAppointmentsPage = () => {
-  const navigate = useNavigate();
-//   const patientId = localStorage.getItem("USER_ID");
-const patientId = 202;
+// export default function QuestionnairePage() {
+//   // const { id: questionSetId } = useParams();
+//   const  questionSetId  = 1;
+//   const navigate = useNavigate();
 
-  // pagination & filters
-  const [page, setPage] = useState(0);
-  const size = 10;
-  const [logsPage, setLogsPage] = useState({ content: [], totalPages: 0 });
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+//   const [questions, setQuestions] = useState([]);
+//   const [answers, setAnswers] = useState({});
+//   const [loading, setLoading] = useState(true);
 
-  // which booking is expanded?
-  const [expandedBookingId, setExpandedBookingId] = useState(null);
-  // prescription data for the expanded booking
-  const [createdPrescription, setCreatedPrescription] = useState(null);
+//   useEffect(() => {
+//     async function fetchQuestions() {
+//       try {
+//         const res = await fetch(
+//           `${process.env.REACT_APP_BACKEND_URL}/question-sets/${questionSetId}`,
+//           {
+//             headers: {
+//               'Content-Type': 'application/json',
+//               'Authorization': `Bearer ${localStorage.getItem('Token')}`,
+//             },
+//           }
+//         );
+//         if (!res.ok) throw new Error('Failed to load questions');
+//         const data = await res.json();
+//         setQuestions(data.questions);
+//         // initialize answers state
+//         const initAnswers = {};
+//         data.questions.forEach(q => {
+//           initAnswers[q.id] = '';
+//         });
+//         setAnswers(initAnswers);
+//       } catch (err) {
+//         console.error(err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     }
+//     fetchQuestions();
+//   }, [questionSetId]);
 
-  // fetch paged appointments
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const resp = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/patient/${patientId}?page=${page}&size=${size}`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("Token")}` } }
-        );
-        const data = await resp.json();
-        setLogsPage({
-          content: data.content || [],
-          totalPages: data.totalPages || 0,
-        });
-      } catch (err) {
-        console.error("Error loading appointments", err);
-      }
-    };
-    fetchAppointments();
-  }, [page, patientId]);
+//   const handleChange = (questionId, value) => {
+//     setAnswers(prev => ({
+//       ...prev,
+//       [questionId]: value,
+//     }));
+//   };
 
-  // fetch prescription for a booking
-  const fetchPrescriptionByBooking = async (bookingId) => {
-    try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/prescriptions/booking/${bookingId}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem("Token")}` } }
-      );
-      if (resp.ok) {
-        const prescriptionData = await resp.json();
-        setCreatedPrescription(prescriptionData);
-      } else {
-        setCreatedPrescription(null);
-      }
-    } catch (err) {
-      console.error("No existing prescription found for this booking", err);
-      setCreatedPrescription(null);
-    }
-  };
+//   const handleSubmit = async e => {
+//     e.preventDefault();
+//     const payload = {
+//       username: localStorage.getItem('Username'),
+//       answers: Object.entries(answers).map(([questionId, response]) => ({
+//         questionId: Number(questionId),
+//         response,
+//       })),
+//     };
 
-  // toggle expand & fetch prescription
-  const toggleExpand = (bookingId) => {
-    if (expandedBookingId === bookingId) {
-      setExpandedBookingId(null);
-      setCreatedPrescription(null);
-    } else {
-      setExpandedBookingId(bookingId);
-      fetchPrescriptionByBooking(bookingId);
-    }
-  };
+//     try {
+//       const res = await fetch(
+//         `${process.env.REACT_APP_BACKEND_URL}/question-sets/${questionSetId}/submit`,
+//         {
+//           method: 'POST',
+//           headers: {
+//             'Content-Type': 'application/json',
+//             'Authorization': `Bearer ${localStorage.getItem('Token')}`,
+//           },
+//           body: JSON.stringify(payload),
+//         }
+//       );
+//       if (!res.ok) throw new Error('Submission failed');
+//       navigate('/thank-you');
+//     } catch (err) {
+//       console.error(err);
+//       alert('There was a problem submitting your answers.');
+//     }
+//   };
 
-  // formatting helpers
-  const formatDate = (ds) => {
-    if (!ds) return "";
-    const d = new Date(ds);
-    const day = String(d.getDate()).padStart(2, "0");
-    const mon = d
-      .toLocaleString("default", { month: "short" })
-      .toLowerCase();
-    return `${day} ${mon} ${d.getFullYear()}`;
-  };
-  const formatTime = (ts) => (ts ? ts.slice(0, 5) : "");
+//   if (loading) {
+//     return <div className="p-6 text-center">Loading questions…</div>;
+//   }
 
-  // profile avatar
-  const renderProfile = (user) =>
-    user?.imageUrl ? (
-      <img
-        src={user.imageUrl}
-        alt={user.username}
-        className="w-8 h-8 rounded-full object-cover mr-2"
-      />
-    ) : (
-      <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-semibold text-gray-700 mr-2">
-        {user?.username?.[0]?.toUpperCase() || "?"}
-      </div>
-    );
+//   return (
+//     <div className="min-h-[400px] flex flex-col justify-center p-6 bg-white rounded-2xl max-w-3xl mx-auto">
+//       <h2 className="mb-6 text-3xl font-bold text-center text-gray-800">
+//         Questionnaire
+//       </h2>
+//       <form className="space-y-6" onSubmit={handleSubmit}>
+//         {questions.map(q => (
+//           <div key={q.id} className="flex flex-col">
+//             <label htmlFor={`q-${q.id}`} className="mb-2 text-sm font-medium text-gray-700">
+//               {q.text}
+//             </label>
+//             <textarea
+//               id={`q-${q.id}`}
+//               value={answers[q.id]}
+//               onChange={e => handleChange(q.id, e.target.value)}
+//               required
+//               rows={3}
+//               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+//               placeholder="Your answer..."
+//             />
+//           </div>
+//         ))}
 
-  // apply search & status filter
-  const filtered = logsPage.content.filter((appt) => {
-    const name = appt.doctor?.username?.toLowerCase() || "";
-    const status = appt.status?.toLowerCase() || "";
-    return (
-      name.includes(searchQuery.toLowerCase()) &&
-      (statusFilter === "All" || status === statusFilter.toLowerCase())
-    );
-  });
+//         <button
+//           type="submit"
+//           className="w-full py-2 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition transform hover:scale-105"
+//         >
+//           Submit Answers
+//         </button>
+//       </form>
+//     </div>
+//   );
+// }
 
-  return (
-    <div className="flex flex-col lg:flex-row container mx-auto p-6">
-      {/* Main Table */}
-      <div className="flex-1 bg-white rounded-md shadow p-4">
-        <h2 className="text-2xl font-bold mb-4">Your Appointments</h2>
-
-        {/* Search & Filter */}
-        <div className="flex flex-col sm:flex-row sm:justify-between mb-4 gap-4">
-          <input
-            className="flex-grow border p-2 rounded focus:ring-2 focus:ring-green-500"
-            placeholder="Search by doctor name..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setPage(0);
-            }}
-          />
-          <select
-            className="border p-2 rounded focus:ring-2 focus:ring-green-500"
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(0);
-            }}
-          >
-            {["All", "Completed", "Upcoming", "Cancelled", "Missed"].map(
-              (s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              )
-            )}
-          </select>
-        </div>
-
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-100 text-gray-600">
-                <th className="px-4 py-2">Token</th>
-                <th className="px-4 py-2">Profile</th>
-                <th className="px-4 py-2">Specialization</th>
-                <th className="px-4 py-2">Date</th>
-                <th className="px-4 py-2">Time</th>
-                <th className="px-4 py-2">Status</th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-700">
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="p-4 text-center">
-                    No appointments found.
-                  </td>
-                </tr>
-              )}
-              {filtered.map((appt) => {
-                const date = appt.appointmenDate || appt.scheduleId?.date;
-                const start = appt.scheduleId?.startTime;
-                const end = appt.scheduleId?.endTime;
-                const badgeColor =
-                  appt.status === "completed"
-                    ? "bg-green-100 text-green-700"
-                    : appt.status === "upcoming"
-                    ? "bg-blue-100 text-blue-700"
-                    : ["cancelled", "cancel"].includes(appt.status)
-                    ? "bg-red-100 text-red-700"
-                    : appt.status === "missed"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-gray-100 text-gray-700";
-
-                return (
-                  <React.Fragment key={appt.bookingId}>
-                    <tr
-                      className="cursor-pointer hover:bg-gray-50 border-b"
-                      onClick={() => toggleExpand(appt.bookingId)}
-                    >
-                      <td className="px-4 py-2">{appt.token}</td>
-                      <td className="px-4 py-2 flex items-center">
-                        {renderProfile(appt.doctor)}
-                        {appt.doctor?.username}
-                      </td>
-                      <td className="px-4 py-2">
-                        {appt.doctor?.doctorDetails?.specialization || "N/A"}
-                      </td>
-                      <td className="px-4 py-2">{formatDate(date)}</td>
-                      <td className="px-4 py-2">
-                        {formatTime(start)}–{formatTime(end)}
-                      </td>
-                      <td className="px-4 py-2">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-semibold ${badgeColor}`}
-                        >
-                          {appt.status.charAt(0).toUpperCase() +
-                            appt.status.slice(1)}
-                        </span>
-                      </td>
-                    </tr>
-
-                    {expandedBookingId === appt.bookingId && (
-                      <tr>
-                        <td colSpan={6} className="bg-gray-50 p-4">
-                          {/* Doctor & Schedule Details */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                              <h3 className="font-semibold mb-1">
-                                Doctor Details
-                              </h3>
-                              <p>Name: {appt.doctor.username}</p>
-                              <p>
-                                City: {appt.doctor.doctorDetails?.city}
-                              </p>
-                              <p>
-                                Fee:{" "}
-                                {appt.doctor.doctorDetails
-                                  ?.consultationFee ?? "-"}
-                              </p>
-                            </div>
-                            <div>
-                              <h3 className="font-semibold mb-1">Schedule</h3>
-                              <p>
-                                Slot ID: {appt.scheduleId?.slot.slotId}
-                              </p>
-                              <p>
-                                Start:{" "}
-                                {formatTime(appt.scheduleId?.startTime)}
-                              </p>
-                              <p>
-                                End:{" "}
-                                {formatTime(appt.scheduleId?.endTime)}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Prescription Report */}
-                          {createdPrescription ? (
-                            <PrescriptionReport
-                              prescription={createdPrescription}
-                            />
-                          ) : (
-                            <p className="text-sm text-gray-500">
-                              No prescription available.
-                            </p>
-                          )}
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        {logsPage.totalPages > 1 && (
-          <div className="flex justify-center items-center mt-4 space-x-2">
-            <button
-              onClick={() => setPage((p) => Math.max(p - 1, 0))}
-              disabled={page === 0}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Prev
-            </button>
-            {Array.from({ length: logsPage.totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setPage(i)}
-                className={`px-3 py-1 border rounded ${
-                  i === page ? "bg-blue-500 text-white" : ""
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-            <button
-              onClick={() =>
-                setPage((p) => Math.min(p + 1, logsPage.totalPages - 1))
-              }
-              disabled={page >= logsPage.totalPages - 1}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Ads for patient */}
-    
-    </div>
-  );
-};
-
-export default PatientAppointmentsPage;

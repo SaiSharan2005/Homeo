@@ -470,18 +470,18 @@ const AppointmentsPage = ({
 
           </div>
         </div>
-        {role === "patient" && (
+        {/* {role === "patient" && ( */}
           <div className="hidden lg:block w-[20%] pl-4">
             <AdBanner targetPage="history-right" />
           </div>
-        )}
+        {/* )} */}
       </div>
 
-      {role === "patient" && (
+      {/* {role === "patient" && ( */}
         <div className="w-full mt-6 lg:mt-8">
           <AdBanner targetPage="appointments-bottom" />
         </div>
-      )}
+      {/* )} */}
     </div>
   );
 };
