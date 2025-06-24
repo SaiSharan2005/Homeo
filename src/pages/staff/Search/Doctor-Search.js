@@ -27,7 +27,6 @@ const DoctorSearchPage = () => {
           throw new Error("Failed to fetch doctors");
         }
         const data = await res.json();
-        // Spring Data Page<T> returns { content, totalPages, number, size, ... }
         setDoctors(data.content || []);
         setTotalPages(data.totalPages);
       } catch (err) {
@@ -41,9 +40,23 @@ const DoctorSearchPage = () => {
   const renderGenderIcon = (gender) => {
     if (!gender) return "-";
     const g = gender.toLowerCase();
-    if (g === "male") return <span role="img" aria-label="Male">♂️</span>;
-    if (g === "female") return <span role="img" aria-label="Female">♀️</span>;
-    return <span role="img" aria-label="Other">⚧</span>;
+    if (g === "male")
+      return (
+        <span role="img" aria-label="Male">
+          ♂️
+        </span>
+      );
+    if (g === "female")
+      return (
+        <span role="img" aria-label="Female">
+          ♀️
+        </span>
+      );
+    return (
+      <span role="img" aria-label="Other">
+        ⚧
+      </span>
+    );
   };
 
   const renderProfile = (doctor) =>
@@ -78,7 +91,7 @@ const DoctorSearchPage = () => {
             value={keyword}
             onChange={(e) => {
               setKeyword(e.target.value);
-              setPage(0); // reset to first page on new search
+              setPage(0);
             }}
             className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             aria-label="Search doctors"
@@ -87,16 +100,27 @@ const DoctorSearchPage = () => {
       </div>
 
       {doctors.length > 0 ? (
-        <div className="overflow-x-auto mb-4">
+        <div className="overflow-x-auto mb-4 bg-white rounded-md shadow">
           <table className="w-full table-auto text-left border-collapse">
             <thead>
               <tr className="bg-gray-100 text-gray-600 border-b">
                 {[
-                  "Profile", "Doctor Name", "Doctor ID",
-                  "Specialization", "City", "Age",
-                  "Gender", "Address", "Pincode", "Fee"
+                  "Profile",
+                  "Doctor Name",
+                                    "Phone",
+
+                  "Doctor ID",
+                  "Specialization",
+                  "City",
+                  "Age",
+                  "Gender",
+                  "Address",
+                  "Pincode",
+                  "Fee",
                 ].map((h) => (
-                  <th key={h} className="px-6 py-3 text-sm font-medium">{h}</th>
+                  <th key={h} className="px-6 py-3 text-sm font-medium">
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -109,13 +133,25 @@ const DoctorSearchPage = () => {
                 >
                   <td className="px-6 py-4">{renderProfile(doc)}</td>
                   <td className="px-6 py-4">{doc.username || "-"}</td>
+                  <td className="px-6 py-4">{doc.phoneNumber || "-"}</td>
+
                   <td className="px-6 py-4">{doc.userId || "-"}</td>
-                  <td className="px-6 py-4">{doc.doctorDetails?.specialization || "-"}</td>
-                  <td className="px-6 py-4">{doc.doctorDetails?.city || "-"}</td>
+                  <td className="px-6 py-4">
+                    {doc.doctorDetails?.specialization || "-"}
+                  </td>
+                  <td className="px-6 py-4">
+                    {doc.doctorDetails?.city || "-"}
+                  </td>
                   <td className="px-6 py-4">{doc.doctorDetails?.age || "-"}</td>
-                  <td className="px-6 py-4">{renderGenderIcon(doc.doctorDetails?.gender)}</td>
-                  <td className="px-6 py-4">{doc.doctorDetails?.address || "-"}</td>
-                  <td className="px-6 py-4">{doc.doctorDetails?.pincode || "-"}</td>
+                  <td className="px-6 py-4">
+                    {renderGenderIcon(doc.doctorDetails?.gender)}
+                  </td>
+                  <td className="px-6 py-4">
+                    {doc.doctorDetails?.address || "-"}
+                  </td>
+                  <td className="px-6 py-4">
+                    {doc.doctorDetails?.pincode || "-"}
+                  </td>
                   <td className="px-6 py-4">
                     {doc.doctorDetails?.consultationFee != null
                       ? `$${doc.doctorDetails.consultationFee}`

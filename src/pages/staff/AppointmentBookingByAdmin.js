@@ -11,62 +11,66 @@ const AdminBookSlot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch all patients
+  // Base URL from environment
+  const BASE = process.env.REACT_APP_BACKEND_URL || "";
+
+  // 1) Fetch all patients (unwrap `content` from Page<User>)
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/patient/all`
-        );
-        if (!response.ok) throw new Error("Failed to fetch patients");
-        const data = await response.json();
-        setPatients(data);
-      } catch (error) {
-        alert(error.message);
+        const res = await fetch(`${BASE}/patient/all?page=0&size=100`);
+        if (!res.ok) throw new Error("Failed to fetch patients");
+        const json = await res.json();
+        // json is a Page object; actual list is in json.content
+        setPatients(Array.isArray(json.content) ? json.content : []);
+      } catch (err) {
+        alert(err.message);
       }
     };
     fetchPatients();
-  }, []);
+  }, [BASE]);
 
-  // Fetch all available doctors
+  // 2) Fetch all available doctors (unwrap `content` from Page<User>)
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/doctor/availableDoctors`
-        );
-        if (!response.ok) throw new Error("Failed to fetch doctors");
-        const data = await response.json();
-        setDoctors(data);
-      } catch (error) {
-        alert(error.message);
+        const res = await fetch(`${BASE}/doctor/availableDoctors?page=0&size=100`);
+        if (!res.ok) throw new Error("Failed to fetch doctors");
+        const json = await res.json();
+        setDoctors(Array.isArray(json.content) ? json.content : []);
+      } catch (err) {
+        alert(err.message);
       }
     };
     fetchDoctors();
-  }, []);
+  }, [BASE]);
 
-  // Fetch doctor's schedule when a doctor is selected
+  // 3) Whenever selectedDoctor changes, fetch his/her schedule
   useEffect(() => {
-    if (selectedDoctor) {
-      const fetchSchedules = async () => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/schedule/doctor/${selectedDoctor.id}`
-          );
-          if (!response.ok) throw new Error("Failed to fetch schedules");
-          const data = await response.json();
-          setSchedules(data);
-        } catch (error) {
-          alert(error.message);
-        }
-      };
-      fetchSchedules();
+    if (!selectedDoctor) {
+      setSchedules([]);
+      setSelectedSchedule(null);
+      return;
     }
-  }, [selectedDoctor]);
 
+    const fetchSchedules = async () => {
+      try {
+        const res = await fetch(`${BASE}/schedule/doctor/${selectedDoctor.id}`);
+        if (!res.ok) throw new Error("Failed to fetch schedules");
+        const json = await res.json();
+        // Assuming your schedule service now returns a plain array
+        setSchedules(Array.isArray(json) ? json : []);
+      } catch (err) {
+        alert(err.message);
+      }
+    };
+    fetchSchedules();
+  }, [selectedDoctor, BASE]);
+
+  // 4) Booking an appointment
   const bookAppointment = async () => {
     if (!selectedPatient || !selectedDoctor || !selectedSchedule) {
-      alert("Please select a patient, doctor, and slot.");
+      alert("Please select a patient, a doctor, and a slot.");
       return;
     }
 
@@ -78,156 +82,162 @@ const AdminBookSlot = () => {
 
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/byStaff`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(bookingData),
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to book appointment");
-      const data = await response.json();
+      const res = await fetch(`${BASE}/bookingAppointments/byStaff`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingData),
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Failed to book appointment");
+      }
+      const created = await res.json();
       alert("Appointment booked successfully!");
-      navigate(`/token/${data.token}`);
-    } catch (error) {
-      alert(error.message);
+      // Navigate to token page
+      navigate(`/token/${created.token}`);
+    } catch (err) {
+      alert(err.message);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // 5) Utility to format "HH:mm" into e.g. "10:30 AM"
   const formatTime = (time) => {
-    const [hours, minutes] = time.split(":");
-    const date = new Date();
-    date.setHours(hours);
-    date.setMinutes(minutes);
-    const options = { hour: "numeric", minute: "numeric", hour12: true };
-    return date.toLocaleTimeString([], options);
+    const [hh, mm] = time.split(":").map(Number);
+    const d = new Date();
+    d.setHours(hh, mm);
+    return d.toLocaleTimeString([], { hour: "numeric", minute: "numeric", hour12: true });
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center py-8">
       <div className="w-full max-w-4xl p-6 bg-white shadow-md rounded-lg">
         <h1 className="text-2xl font-bold mb-6">Book an Appointment</h1>
-{/* Patient Selection */}
-<div className="mb-6">
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Select Patient
-  </label>
-  <select
-    className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm px-3 py-2 bg-white hover:shadow-md transition-all duration-200"
-    value={selectedPatient?.id || ""}
-    onChange={(e) =>
-      setSelectedPatient(
-        patients.find(
-          (patient) => patient.id === parseInt(e.target.value)
-        )
-      )
-    }
-  >
-    <option value="" disabled className="text-gray-500">
-      Select a patient
-    </option>
-    {patients.map((patient) => (
-      <option key={patient.id} value={patient.id}>
-        {patient.userId} - {patient.username}
-      </option>
-    ))}
-  </select>
-</div>
 
-{/* Doctor Selection */}
-<div className="mb-6">
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Select Doctor
-  </label>
-  <select
-    className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm px-3 py-2 bg-white hover:shadow-md transition-all duration-200"
-    value={selectedDoctor?.id || ""}
-    onChange={(e) =>
-      setSelectedDoctor(
-        doctors.find((doctor) => doctor.id === parseInt(e.target.value))
-      )
-    }
-  >
-    <option value="" disabled className="text-gray-500">
-      Select a doctor
-    </option>
-    {doctors.map((doctor) => (
-      <option key={doctor.id} value={doctor.id}>
-        {doctor.userId} - {doctor.username}
-      </option>
-    ))}
-  </select>
-</div>
+        {/* 1) Patient Selection */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Select Patient
+          </label>
+          <select
+            className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm px-3 py-2 bg-white hover:shadow-md transition-all duration-200"
+            value={selectedPatient?.id || ""}
+            onChange={(e) => {
+              const pid = parseInt(e.target.value, 10);
+              const found = patients.find((p) => p.id === pid) || null;
+              setSelectedPatient(found);
+            }}
+          >
+            <option value="" disabled className="text-gray-500">
+              -- Select a patient --
+            </option>
+            {patients.map((patient) => (
+              <option key={patient.id} value={patient.id}>
+                {patient.userId} – {patient.username}
+              </option>
+            ))}
+          </select>
+        </div>
+        {/* 2) Doctor Selection */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Select Doctor
+          </label>
+          <select
+            className="block w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm px-3 py-2 bg-white hover:shadow-md transition-all duration-200"
+            value={selectedDoctor?.id || ""}
+            onChange={(e) => {
+              const did = parseInt(e.target.value, 10);
+              const found = doctors.find((d) => d.id === did) || null;
+              setSelectedDoctor(found);
+            }}
+          >
+            <option value="" disabled className="text-gray-500">
+              -- Select a doctor --
+            </option>
+            {doctors.map((doctor) => (
+              <option key={doctor.id} value={doctor.id}>
+                {doctor.userId} – {doctor.username}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        {/* Schedule Slots */}
-        <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold mb-2">Morning</h3>
-                <div className="flex flex-wrap gap-2">
-                  {schedules
-                    .filter((schedule) => {
-                      const hour = parseInt(schedule.startTime.split(":")[0]);
-                      return hour >= 9 && hour < 12;
-                    })
-                    .map((schedule) => (
-                      <button
-                        onClick={() => setSelectedSchedule(schedule)}
-                        key={schedule.scheduleId}
-                        className={`px-4 py-2 rounded ${
-                          schedule.booked ? "bg-red-300" : "bg-green-400"
-                        } ${
-                          schedule === selectedSchedule ? "bg-blue-400" : ""
+        {/* 3) Schedule Slots (Morning / Afternoon) */}
+        {selectedDoctor && (
+          <div className="space-y-4 mb-6">
+            <div>
+              <h3 className="font-semibold mb-2">Morning</h3>
+              <div className="flex flex-wrap gap-2">
+                {schedules
+                  .filter((sch) => {
+                    const hr = parseInt(sch.startTime.split(":")[0], 10);
+                    return hr >= 9 && hr < 12;
+                  })
+                  .map((sch) => (
+                    <button
+                      key={sch.scheduleId}
+                      onClick={() => setSelectedSchedule(sch)}
+                      disabled={sch.booked}
+                      className={`px-4 py-2 rounded transition-all duration-150
+                        ${
+                          sch.booked
+                            ? "bg-red-300 cursor-not-allowed"
+                            : "bg-green-400 hover:bg-green-500"
+                        }
+                        ${
+                          sch === selectedSchedule ? "bg-blue-400 text-white" : ""
                         }`}
-                        disabled={schedule.booked}
-                      >
-                        {formatTime(schedule.startTime)}
-                      </button>
-                    ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-semibold mb-2">Afternoon</h3>
-                <div className="flex flex-wrap gap-2">
-                  {schedules
-                    .filter((schedule) => {
-                      const hour = parseInt(schedule.startTime.split(":")[0]);
-                      return hour >= 12 && hour < 18;
-                    })
-                    .map((schedule) => (
-                      <button
-                        onClick={() => setSelectedSchedule(schedule)}
-                        key={schedule.scheduleId}
-                        className={`px-4 py-2 rounded ${
-                          schedule.booked ? "bg-red-300" : "bg-green-400"
-                        } ${
-                          schedule === selectedSchedule ? "bg-blue-400" : ""
-                        }`}
-                        disabled={schedule.booked}
-                      >
-                        {formatTime(schedule.startTime)}
-                      </button>
-                    ))}
-                </div>
+                    >
+                      {formatTime(sch.startTime)}
+                    </button>
+                  ))}
               </div>
             </div>
 
-        
-     <div className="mt-4">
-              <button
-                onClick={bookAppointment}
-                className="w-full bg-[#2BA78F] text-white px-4 py-2 rounded"          disabled={isLoading}
+            <div>
+              <h3 className="font-semibold mb-2">Afternoon</h3>
+              <div className="flex flex-wrap gap-2">
+                {schedules
+                  .filter((sch) => {
+                    const hr = parseInt(sch.startTime.split(":")[0], 10);
+                    return hr >= 12 && hr < 18;
+                  })
+                  .map((sch) => (
+                    <button
+                      key={sch.scheduleId}
+                      onClick={() => setSelectedSchedule(sch)}
+                      disabled={sch.booked}
+                      className={`px-4 py-2 rounded transition-all duration-150
+                        ${
+                          sch.booked
+                            ? "bg-red-300 cursor-not-allowed"
+                            : "bg-green-400 hover:bg-green-500"
+                        }
+                        ${
+                          sch === selectedSchedule ? "bg-blue-400 text-white" : ""
+                        }`}
+                    >
+                      {formatTime(sch.startTime)}
+                    </button>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
 
-              >
-          {isLoading ? "Booking..." : "Book Appointment"}
+        {/* 4) Book Button */}
+        <div className="mt-4">
+          <button
+            onClick={bookAppointment}
+            disabled={isLoading}
+            className={`w-full text-white px-4 py-2 rounded transition-all duration-150
+              ${isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-[#2BA78F] hover:bg-green-600"}`}
+          >
+            {isLoading ? "Booking..." : "Book Appointment"}
           </button>
-            </div>
+        </div>
       </div>
     </div>
   );

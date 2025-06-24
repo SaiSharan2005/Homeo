@@ -77,11 +77,10 @@ const PatientSearchPage = () => {
       <td className="px-6 py-4 border-b">{p.userId || "-"}</td>
       <td className="px-6 py-4 border-b">{p.patientDetails?.city || "-"}</td>
       <td className="px-6 py-4 border-b">{p.patientDetails?.age || "-"}</td>
-      <td className="px-6 py-4 border-b">
-        {renderGenderIcon(p.patientDetails?.gender)}
-      </td>
+      <td className="px-6 py-4 border-b">{renderGenderIcon(p.patientDetails?.gender)}</td>
       <td className="px-6 py-4 border-b">{p.patientDetails?.address || "-"}</td>
       <td className="px-6 py-4 border-b">{p.patientDetails?.pincode || "-"}</td>
+      <td className="px-6 py-4 border-b">{p.phoneNumber || "-"}</td>
     </tr>
   ));
 
@@ -121,6 +120,7 @@ const PatientSearchPage = () => {
                 <th className="px-6 py-3 text-sm">Gender</th>
                 <th className="px-6 py-3 text-sm">Address</th>
                 <th className="px-6 py-3 text-sm">Pincode</th>
+                <th className="px-6 py-3 text-sm">Phone</th>
               </tr>
             </thead>
             <tbody className="text-gray-700 text-sm">{rows}</tbody>

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { MdPhone, MdLock } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 // Import the login service and aboutMe fetching service
 import { Login as loginService } from "../../services/patient/patient_api.js";
 import { fetchAboutMe } from "../../services/other/other.js";
+import { toast } from "react-toastify";
 
 function LoginForm() {
   const navigate = useNavigate();
@@ -11,25 +12,37 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
+  useEffect(()=>{
+    if(localStorage.getItem("Token")){
+      navigate(`/${localStorage.getItem("ROLE").toLowerCase()}/home`)
+      
+    }
+  })
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = { phoneNumber: phone, password: password };
 
     try {
-
       const success = await loginService(data);
       // console.log("dam",success);
       const aboutMe = await fetchAboutMe();
-      if (success.status && aboutMe && aboutMe.roles && aboutMe.roles.length > 0) {
+      if (
+        success.status &&
+        aboutMe &&
+        aboutMe.roles &&
+        aboutMe.roles.length > 0
+      ) {
         // Assume the first role is the primary one
         const role = aboutMe.roles[0].name.toUpperCase();
         const name = aboutMe.username;
-        localStorage.setItem("USERNAME",name);
-        const nameList = aboutMe.roles.map(item => item.name);
+        localStorage.setItem("USERNAME", name);
+        const nameList = aboutMe.roles.map((item) => item.name);
+            toast.success("Login Successfully !");
 
         switch (role) {
           case "DOCTOR":
             localStorage.setItem("ROLE", "DOCTOR");
+            // toast.success("Login Successfully !");
             navigate("/doctor/home");
             break;
           case "PATIENT":
@@ -44,33 +57,37 @@ function LoginForm() {
           case "STAFF":
             localStorage.setItem("ROLE", "STAFF");
 
-
-            localStorage.setItem("ROLES",JSON.stringify(nameList));
+            localStorage.setItem("ROLES", JSON.stringify(nameList));
             navigate("/staff/home");
             break;
           default:
             localStorage.setItem("ROLE", "STAFF");
-            localStorage.setItem("ROLES",JSON.stringify(nameList));
+            localStorage.setItem("ROLES", JSON.stringify(nameList));
             navigate("/staff/home");
-            // navigate("/dashboard");
+          // navigate("/dashboard");
         }
       } else {
-setError(success?.message || "Login failed. Please try again.");
+        toast.error(success?.message || "Login failed. Please try again.");
       }
     } catch (err) {
       console.error("Login error:", err);
-      setError("An error occurred during login.");
+      toast.error("An error occurred during login.");
     }
   };
 
   return (
     <div className="min-h-[500px] flex flex-col justify-center p-8 bg-white rounded-2xl max-w-2xl mx-auto">
-      <h2 className="mb-8 text-3xl font-bold text-center text-gray-800">Login</h2>
+      <h2 className="mb-8 text-3xl font-bold text-center text-gray-800">
+        Login
+      </h2>
       {error && <p className="mb-4 text-center text-red-500">{error}</p>}
       <form className="space-y-8" onSubmit={handleSubmit}>
         {/* Phone Number Field */}
         <div>
-          <label htmlFor="phone" className="block mb-2 text-sm font-semibold text-gray-700">
+          <label
+            htmlFor="phone"
+            className="block mb-2 text-sm font-semibold text-gray-700"
+          >
             Phone Number
           </label>
           <div className="relative">
@@ -89,7 +106,10 @@ setError(success?.message || "Login failed. Please try again.");
 
         {/* Password Field */}
         <div>
-          <label htmlFor="password" className="block mb-2 text-sm font-semibold text-gray-700">
+          <label
+            htmlFor="password"
+            className="block mb-2 text-sm font-semibold text-gray-700"
+          >
             Password
           </label>
           <div className="relative">
@@ -125,7 +145,10 @@ setError(success?.message || "Login failed. Please try again.");
       {/* Footer Links */}
       <div className="mt-10 text-sm text-center text-gray-600">
         If you don't have an account,{" "}
-        <Link to="/patient/signup" className="font-medium text-green-600 hover:underline">
+        <Link
+          to="/patient/signup"
+          className="font-medium text-green-600 hover:underline"
+        >
           Register here
         </Link>
       </div>

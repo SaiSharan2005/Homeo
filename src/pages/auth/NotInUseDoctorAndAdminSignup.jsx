@@ -286,7 +286,31 @@ export default function SignUpForm({ rolesFromParams }) {
             </button>
           ) : (
             <>
-             
+              {/* 2️⃣ Show the code‑entry UI */}
+              <div>
+                <label
+                  htmlFor="code"
+                  className="block mb-1 text-sm font-semibold text-gray-700"
+                >
+                  Verification Code
+                </label>
+                <input
+                  id="code"
+                  name="code"
+                  type="text"
+                  maxLength={4}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleConfirmCode}
+                className="w-full py-2 …"
+              >
+                Verify & Continue
+              </button>
             </>
           )
         ) : (
@@ -313,38 +337,6 @@ export default function SignUpForm({ rolesFromParams }) {
           Need help?
         </a>
       </div>
-      {isPatient && verificationSent && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white rounded-lg p-6 w-full max-w-sm">
-      <h3 className="text-xl font-semibold text-center mb-4">Enter OTP</h3>
-      <div className="flex justify-center gap-2 mb-4">
-        {[0, 1, 2, 3].map((i) => (
-          <input
-            key={i}
-            type="text"
-            maxLength={1}
-            className="w-12 h-12 text-xl text-center border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-            value={code[i] || ""}
-            onChange={(e) => {
-              const newCode = [...code];
-              newCode[i] = e.target.value;
-              setCode(newCode.join(""));
-              // Auto focus next input
-              if (e.target.nextSibling) e.target.nextSibling.focus();
-            }}
-          />
-        ))}
-      </div>
-      <button
-        onClick={handleConfirmCode}
-        className="w-full py-2 font-semibold text-white bg-green-600 rounded hover:bg-green-700"
-      >
-        Verify & Continue
-      </button>
-    </div>
-  </div>
-)}
-
     </div>
   );
 }
