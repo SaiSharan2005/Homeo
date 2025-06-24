@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useEffect} from 'react'
 
 import { Helmet } from 'react-helmet'
 
@@ -13,8 +13,17 @@ import Testimonial from '../components/testimonial'
 import Contact from '../components/contact'
 import Footer from '../components/footer'
 import './home.css'
+import {  useNavigate } from "react-router-dom";
 
 const Home = (props) => {
+  const navigate = useNavigate();
+    useEffect(()=>{
+    if(localStorage.getItem("Token")){
+      navigate(`/${localStorage.getItem("ROLE").toLowerCase()}/home`)
+      
+    }
+  })
+
   return (
     <div className="home-container">
       <Helmet>

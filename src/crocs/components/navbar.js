@@ -11,7 +11,7 @@ const Navbar = (props) => {
   };
 
   const handleSignUpClick = () => {
-    navigate('/register');
+    navigate('/patient/signup');
   };
 
   return (

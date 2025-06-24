@@ -291,13 +291,16 @@ import PaymentDetails from "./pages/prescription/PaymentDetails";
 import ProvoHealDashboard from "./utils/Test";
 
 // Questionnaire
-import QuestionSetList from './pages/questionnaire/QuestionSetList';
-import CreateQuestionSet from './pages/questionnaire/CreateQuestionSet';
-import QuestionnairePage from './pages/questionnaire/QuestionnairePage';
+import QuestionSetList from "./pages/questionnaire/QuestionSetList";
+import CreateQuestionSet from "./pages/questionnaire/CreateQuestionSet";
+import QuestionnairePage from "./pages/questionnaire/QuestionnairePage";
 import SubmissionList from "./pages/questionnaire/SubmissionList";
 import SubmissionDetail from "./pages/questionnaire/SubmissionDetail";
 
 
+// Warehouse
+import AllWarehouse from "./components/inventory/warehouse/AllWarehouse" 
+import AllSupplier from "./components/inventory/supplier/AllSupplier" 
 export default function App() {
   return (
     <Router>
@@ -306,7 +309,6 @@ export default function App() {
         <Route path="/" element={<Mainhome />} />
         <Route path="/login" element={<AuthContainer activeForm="login" />} />
 
-        {/* Doctor Signup & Details (no layout) */}
         <Route
           path="/doctor/signup"
           element={<AuthContainer activeForm="doctor-signup" />}
@@ -324,7 +326,6 @@ export default function App() {
           path="/patient/details"
           element={<AuthContainer activeForm="patient-details" />}
         />
-        {/* Doctor routes (with DoctorLayout) */}
         <Route path="/doctor" element={<DoctorLayout />}>
           <Route path="home" element={<DoctorDashboard />} />
           <Route path="profile" element={<DoctorProfile />} />
@@ -417,6 +418,15 @@ export default function App() {
 
           <Route path="payment" element={<PaymentList />} />
           <Route path="payment/:id" element={<PaymentDetails />} />
+          <Route path="questionnaire" element={<QuestionSetList />} />
+          <Route path="questionnaire/create" element={<CreateQuestionSet />} />
+          <Route path="questionnaire/:id" element={<QuestionnairePage />} />
+          <Route path="submissions" element={<SubmissionList />} />
+          <Route path="submissions/:id" element={<SubmissionDetail />} />
+          <Route path="warehouse" element={<AllWarehouse />} />
+          <Route path="supplier" element={<AllSupplier />} />
+
+
         </Route>
 
         {/* Staff routes (with StaffLayout) */}
@@ -543,13 +553,12 @@ export default function App() {
           path="/prescription/create"
           element={<CreatePrescriptionPage />}
         />
-        <Route path="/test" element={<ProvoHealDashboard />} />
+        <Route path="/test" element={<AllSupplier />} />
         <Route path="/questionnaires" element={<QuestionSetList />} />
         <Route path="/question-sets/create" element={<CreateQuestionSet />} />
         <Route path="/questionnaire/:id" element={<QuestionnairePage />} />
         <Route path="/submissions" element={<SubmissionList />} />
         <Route path="/submissions/:id" element={<SubmissionDetail />} />
-
       </Routes>
 
       <ToastContainer
