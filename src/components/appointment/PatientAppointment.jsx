@@ -6,6 +6,7 @@ import { fetchInstructionsByPatient } from '../../services/other/prescriptionApi
 import { fetchSubmissionsByUser } from '../../services/other/questionnaireApi';
 import { AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { toast } from 'react-toastify';
 
 export default function InstructionsPage({ patientId, patientUsername }) {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export default function InstructionsPage({ patientId, patientUsername }) {
 
   useEffect(() => {
     if (!patientId || !patientUsername) {
-      alert('Missing patient information. Please log in.');
+      toast.error('Missing patient information. Please log in.');
       navigate('/login');
       return;
     }
@@ -30,7 +31,7 @@ export default function InstructionsPage({ patientId, patientUsername }) {
       })
       .catch(err => {
         console.error(err);
-        alert('Failed to load data. Please try again.');
+        toast.error('Failed to load data. Please try again.');
       })
       .finally(() => setLoading(false));
   }, [patientId, patientUsername, navigate]);

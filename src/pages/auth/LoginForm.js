@@ -24,50 +24,57 @@ function LoginForm() {
 
     try {
       const success = await loginService(data);
-      // console.log("dam",success);
-      const aboutMe = await fetchAboutMe();
-      if (
-        success.status &&
-        aboutMe &&
-        aboutMe.roles &&
-        aboutMe.roles.length > 0
-      ) {
-        // Assume the first role is the primary one
-        const role = aboutMe.roles[0].name.toUpperCase();
-        const name = aboutMe.username;
-        localStorage.setItem("USERNAME", name);
-        const nameList = aboutMe.roles.map((item) => item.name);
-            toast.success("Login Successfully !");
+      console.log("Login response:", success);
+      
+      if (!success || !success.token) {
+        toast.error("Login failed. Invalid response from server.");
+        return;
+      }
+      
+      localStorage.setItem("Token", success.token);
+      
+      try {
+        const aboutMe = await fetchAboutMe();
+        console.log("AboutMe response:", aboutMe);
+        
+        if (aboutMe && aboutMe.roles && aboutMe.roles.length > 0) {
+          // Assume the first role is the primary one
+          const role = aboutMe.roles[0].name.toUpperCase();
+          const name = aboutMe.username;
+          localStorage.setItem("USERNAME", name);
+          const nameList = aboutMe.roles.map((item) => item.name);
+          toast.success("Login Successfully !");
 
-        switch (role) {
-          case "DOCTOR":
-            localStorage.setItem("ROLE", "DOCTOR");
-            // toast.success("Login Successfully !");
-            navigate("/doctor/home");
-            break;
-          case "PATIENT":
-            localStorage.setItem("ROLE", "PATIENT");
-            navigate("/patient/home");
-            break;
-          case "ADMIN":
-            localStorage.setItem("ROLE", "ADMIN");
-
-            navigate("/admin/home");
-            break;
-          case "STAFF":
-            localStorage.setItem("ROLE", "STAFF");
-
-            localStorage.setItem("ROLES", JSON.stringify(nameList));
-            navigate("/staff/home");
-            break;
-          default:
-            localStorage.setItem("ROLE", "STAFF");
-            localStorage.setItem("ROLES", JSON.stringify(nameList));
-            navigate("/staff/home");
-          // navigate("/dashboard");
+          switch (role) {
+            case "DOCTOR":
+              localStorage.setItem("ROLE", "DOCTOR");
+              navigate("/doctor/home");
+              break;
+            case "PATIENT":
+              localStorage.setItem("ROLE", "PATIENT");
+              navigate("/patient/home");
+              break;
+            case "ADMIN":
+              localStorage.setItem("ROLE", "ADMIN");
+              navigate("/admin/home");
+              break;
+            case "STAFF":
+              localStorage.setItem("ROLE", "STAFF");
+              localStorage.setItem("ROLES", JSON.stringify(nameList));
+              navigate("/staff/home");
+              break;
+            default:
+              localStorage.setItem("ROLE", "STAFF");
+              localStorage.setItem("ROLES", JSON.stringify(nameList));
+              navigate("/staff/home");
+          }
+        } else {
+          console.error("No roles found in aboutMe response:", aboutMe);
+          toast.error("Login failed. User has no roles assigned.");
         }
-      } else {
-        toast.error(success?.message || "Login failed. Please try again.");
+      } catch (aboutMeError) {
+        console.error("Error fetching user details:", aboutMeError);
+        toast.error("Login successful but failed to fetch user details.");
       }
     } catch (err) {
       console.error("Login error:", err);

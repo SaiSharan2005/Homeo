@@ -54,3 +54,20 @@ export const fetchLastPayment = async (id) => {
     throw err;
   }
 };
+
+// Fetch a list of outstanding dues for a patient (legacy helper used by PaymentDetails)
+export const fetchDuesForPatient = async (patientId, page = 0, size = 100) => {
+  try {
+    const res = await getData(`/payments/patient/${patientId}/dues?page=${page}&size=${size}`);
+    // Support both paginated and array responses
+    return Array.isArray(res) ? res : (res?.content || []);
+  } catch (err) {
+    if (err.response?.status === 204) return [];
+    throw err;
+  }
+};
+
+// Record a partial payment amount against a payment (legacy helper used by PaymentDetails)
+export const recordPaymentAmount = async (paymentId, amount) => {
+  return await postData(`/payments/${paymentId}/record-amount`, { amount });
+};

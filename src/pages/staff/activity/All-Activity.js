@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { getAllActivity } from "../../../services/activity";
 
 const ActivitySearch = () => {
   const [keyword, setKeyword] = useState("");
-  const [activityLogs, setActivityLogs] = useState([]);    // current page’s content
+  const [activityLogs, setActivityLogs] = useState([]);    // current page's content
   const [filteredLogs, setFilteredLogs] = useState([]);
   const [page, setPage] = useState(0);
   const size = 10;
@@ -11,11 +12,7 @@ const ActivitySearch = () => {
   // Fetch one page of logs whenever `page` changes
   const fetchActivityLogs = async () => {
     try {
-      const resp = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/activity-log?page=${page}&size=${size}`
-      );
-      if (!resp.ok) throw new Error("Failed to fetch activity logs");
-      const data = await resp.json();
+      const data = await getAllActivity({ page, size });
       setActivityLogs(data.content || []);
       setTotalPages(data.totalPages ?? 0);
     } catch (err) {

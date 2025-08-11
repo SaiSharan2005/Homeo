@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getAdvertisements, deleteAdvertisement } from '../../services/advertisement';
 
 export default function ShowAdvertisements() {
   const [ads, setAds] = useState([]);
@@ -6,15 +7,14 @@ export default function ShowAdvertisements() {
 
   useEffect(() => {
     const fetchAds = async () => {
-      const response = await fetch(process.env.REACT_APP_BACKEND_URL+'/ads');
-      const data = await response.json();
-      setAds(data);
+      const data = await getAdvertisements(0, 100);
+      setAds(data.content || data || []);
     };
     fetchAds();
   }, []);
 
   const handleDeleteAd = async (id) => {
-    await fetch(process.env.REACT_APP_BACKEND_URL+`/ads/${id}`, { method: 'DELETE' });
+    await deleteAdvertisement(id);
     setAds(ads.filter(ad => ad.id !== id));
   };
 
@@ -30,7 +30,7 @@ export default function ShowAdvertisements() {
                 <p>{ad.description}</p>
                 {ad.imageUrl && (
                   <img
-                    src={process.env.REACT_APP_BACKEND_URL+`/${ad.imageUrl}`}
+                    src={ad.imageUrl}
                     alt={ad.title}
                     className="w-32 h-32 mt-2 rounded-lg"
                   />

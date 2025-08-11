@@ -1,26 +1,30 @@
-import { getData, postData, putData, deleteData } from '../api';
+import api from '../api';
 
-// Fetch a single purchase order item by ID
-export const fetchPurchaseOrderItemById = async (id) => {
-  return await getData(`/purchase-order-items/${id}`);
+// Purchase Order Item CRUD operations
+export const createPurchaseOrderItem = async (purchaseOrderItemData) => {
+  return api.post('/purchase-order-items', purchaseOrderItemData);
 };
 
-// Fetch all purchase order items for a given purchase order
-export const fetchPurchaseOrderItemsByOrderId = async (orderId) => {
-  return await getData(`/purchase-order-items/order/${orderId}`);
+export const getAllPurchaseOrderItems = async (page = 0, size = 10) => {
+  return api.get(`/purchase-order-items?page=${page}&size=${size}`);
 };
 
-// Create a new purchase order item
-export const createPurchaseOrderItem = async (itemDto) => {
-  return await postData('/purchase-order-items', itemDto);
+export const getPurchaseOrderItemById = async (id) => {
+  return api.get(`/purchase-order-items/${id}`);
 };
 
-// Update an existing purchase order item
-export const updatePurchaseOrderItem = async (id, itemDto) => {
-  return await putData(`/purchase-order-items/${id}`, itemDto);
+export const updatePurchaseOrderItem = async (id, purchaseOrderItemData) => {
+  return api.put(`/purchase-order-items/${id}`, purchaseOrderItemData);
 };
 
-// Delete a purchase order item
 export const deletePurchaseOrderItem = async (id) => {
-  return await deleteData(`/purchase-order-items/${id}`);
+  return api.delete(`/purchase-order-items/${id}`);
+};
+
+export const getPurchaseOrderItemsByPurchaseOrder = async (purchaseOrderId, page = 0, size = 10) => {
+  return api.get(`/purchase-order-items/purchase-order/${purchaseOrderId}?page=${page}&size=${size}`);
+};
+
+export const getPurchaseOrderItemsByProduct = async (productId, page = 0, size = 10) => {
+  return api.get(`/purchase-order-items/product/${productId}?page=${page}&size=${size}`);
 };

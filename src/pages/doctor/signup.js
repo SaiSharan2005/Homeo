@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { doctorSignup } from "../../services/auth";
 
 
 export default function DoctorSignUp() {
@@ -24,31 +25,16 @@ export default function DoctorSignUp() {
 
   
   const registerDoctor = async () => {
-    const url = process.env.REACT_APP_BACKEND_URL+'/auth/register';
     const data = {
-      doctorName: credentials.name,
+      name: credentials.name,
       phoneNumber: credentials.phoneNumber,
       email: credentials.email,
       password: credentials.password,
       roles:["DOCTOR"]
-
-        };
+    };
   
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-  
-      if (!response.ok) {
-        const errorMessage = await response.json();
-        throw new Error(errorMessage);
-      }
-  
-      const responseData = await response.json();
+      const responseData = await doctorSignup(data);
       console.log('Doctor registered successfully:', responseData);
       navigate('/doctor/details',{ state: { data: responseData } });
 
@@ -56,9 +42,8 @@ export default function DoctorSignUp() {
       return {
         "status":"success",
         "message":"Registered Succesfully "
-
       } 
-       } catch (error) {
+    } catch (error) {
       console.error('Error registering doctor:', error.message);
       // Handle error, show an error message or log the error
     }

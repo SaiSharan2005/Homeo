@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import AdminNavbar from '../../components/navbar/AdminNavbar';
 import { AiOutlineCalendar } from 'react-icons/ai';
 import { FaIndustry, FaCube, FaTags, FaClipboardList, FaHome } from 'react-icons/fa';
+import { getInventoryItemById } from '../../services/inventory/inventoryItem';
+import { createPurchaseOrder } from '../../services/inventory/purchaseOrder';
 
 const InventoryItemDetail = () => {
   const { id } = useParams();
@@ -20,15 +23,12 @@ const InventoryItemDetail = () => {
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/inventory-items/${id}`
-        );
-        if (!response.ok) throw new Error('Failed to fetch inventory item');
-        const data = await response.json();
+        const data = await getInventoryItemById(id);
         setItem(data);
       } catch (err) {
         console.error(err);
         setError('Failed to load inventory item.');
+        toast.error('Failed to load inventory item details');
       } finally {
         setLoading(false);
       }
@@ -54,21 +54,14 @@ const InventoryItemDetail = () => {
           },
         ],
       };
-      const resp = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/purchase-orders`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderDto),
-        }
-      );
-      if (!resp.ok) throw new Error('Failed to place order');
-      const newOrder = await resp.json();
+      const newOrder = await createPurchaseOrder(orderDto);
       setOrderSuccess(newOrder.orderId || newOrder.id);
       setOrderQty(0);
+      toast.success('Purchase order placed successfully');
     } catch (err) {
-      // console.error(err);
-      setOrderSuccess("Order placed Succesfully ");
+      console.error(err);
+      setOrderError('Failed to place purchase order');
+      toast.error('Failed to place purchase order');
     } finally {
       setOrderLoading(false);
     }

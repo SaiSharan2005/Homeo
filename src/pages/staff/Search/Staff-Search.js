@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import apiService from "../../../utils/api";
 
 const StaffRoleManagement = () => {
   // List of all roles available for selection.
@@ -23,17 +25,7 @@ const StaffRoleManagement = () => {
   useEffect(() => {
     const fetchStaff = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/admin/staff-roles`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("Token")}`,
-            },
-          }
-        );
-        const data = await response.json();
+        const data = await apiService.get(`/admin/staff-roles`);
 
         // Map each staff and add an "isEditing" property (default false),
         // and convert role objects to an array of strings.
@@ -45,6 +37,7 @@ const StaffRoleManagement = () => {
         setStaffList(mappedStaff);
       } catch (error) {
         console.error("Error fetching staff:", error);
+        toast.error("Failed to fetch staff data");
       } finally {
         setLoading(false);
       }
@@ -83,32 +76,17 @@ const StaffRoleManagement = () => {
   // Save the changes for a single staff member.
   const handleRowSave = async (staff) => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/admin/${staff.id}/roles`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("Token")}`,
-          },
-          body: JSON.stringify(staff.selectedRoles),
-        }
-      );
-      if (!response.ok) {
-        throw new Error(
-          `Failed to update roles for ${staff.username} (ID: ${staff.id})`
-        );
-      }
+      await apiService.put(`/admin/${staff.id}/roles`, staff.selectedRoles);
       // Turn off editing mode on success.
       setStaffList((prevStaffList) =>
         prevStaffList.map((s) =>
           s.id === staff.id ? { ...s, isEditing: false } : s
         )
       );
-      alert(`Roles updated for ${staff.username}.`);
+      toast.success(`Roles updated for ${staff.username}.`);
     } catch (error) {
       console.error("Error updating roles:", error);
-      alert("Error updating roles: " + error.message);
+      toast.error("Error updating roles: " + error.message);
     }
   };
 
@@ -166,7 +144,7 @@ const StaffRoleManagement = () => {
                 <th className="py-3 px-4 text-sm font-medium">Actions</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700 text-sm">
+            <tbody>
               {filteredStaffList.map((staff) => (
                 <tr
                   key={staff.id}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { MdPerson, MdPhone, MdEmail, MdLock } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { Signup } from "../../services/patient/patient_api"; // Your signup API function
+import apiService from "../../utils/api";
 // Note: createDoctor is imported if needed but here we forward based on role
 // import { createDoctor } from '../../services/doctor/doctor_api';
 
@@ -117,39 +118,29 @@ export default function SignUpForm({ rolesFromParams }) {
     event.preventDefault();
     // reuse your validations for email/phone/etc.
     setError(null);
-    await fetch(
-      `${
-        process.env.REACT_APP_BACKEND_URL
-      }/verify/request?email=${encodeURIComponent(credentials.email)}`,
-      { method: "POST" }
-    );
-    setVerificationSent(true);
+    try {
+      await apiService.post(`/verify/request?email=${encodeURIComponent(credentials.email)}`);
+      setVerificationSent(true);
+    } catch (error) {
+      console.error('Error requesting verification code:', error);
+      setError('Failed to send verification code');
+    }
   };
 
   // ── new: confirm the code, then call real signup
   const handleConfirmCode = async (event) => {
     event.preventDefault();
-    const token = localStorage.getItem("Token");
-
-    const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/verify/confirm` +
-        `?email=${encodeURIComponent(credentials.email)}` +
-        `&code=${encodeURIComponent(code)}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      }
-    );
-    const msg = await res.text();
-    if (res.ok && msg.includes("success")) {
-      // now actually sign up
+    try {
+      const msg = await apiService.post(`/verify/confirm?email=${encodeURIComponent(credentials.email)}&code=${encodeURIComponent(code)}`);
+      if (msg && msg.includes("success")) {
+        // now actually sign up
         // navigate("/patient/details", { state: { data: responseData } });
-                navigate("/patient/details");
-
-    } else {
+        navigate("/patient/details");
+      } else {
+        setError("Invalid or expired verification code.");
+      }
+    } catch (error) {
+      console.error('Error confirming verification code:', error);
       setError("Invalid or expired verification code.");
     }
   };

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { fetchSubmissionById } from '../../services/other/questionnaireApi';
 
 export default function SubmissionDetail() {
@@ -11,13 +12,18 @@ export default function SubmissionDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchSubmissionById(id)
-      .then(setSubmission)
-      .catch(err => {
+    const fetchSubmission = async () => {
+      try {
+        const data = await fetchSubmissionById(id);
+        setSubmission(data);
+      } catch (err) {
         console.error(err);
-        alert('Failed to load submission');
-      })
-      .finally(() => setLoading(false));
+        toast.error('Failed to load submission');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSubmission();
   }, [id]);
 
   if (loading) return <div className="p-6 text-center">Loading…</div>;

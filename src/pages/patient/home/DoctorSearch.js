@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import image from "../../../images/image.jpg";
 import { Link } from "react-router-dom";
 import AdBanner from "../Adv";
+import { fetchAvailableDoctors } from '../../../services/doctor/doctor_api';
+import apiService from '../../../utils/api';
 
 const specialties = [
   "Primary Care Doctor",
@@ -38,17 +40,12 @@ export default function DoctorSearch() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/doctor/availableDoctors?page=${page}&size=${size}`
-        );
-        const data = await res.json();
-        // If server returns Page<User>, use content and totalPages
+        const data = await fetchAvailableDoctors(page, size);
         if (data.content) {
           setDoctors(data.content);
           setFilteredDoctors(data.content);
           setTotalPages(data.totalPages || 0);
         } else {
-          // Fallback to unpaged array
           setDoctors(data);
           setFilteredDoctors(data);
           setTotalPages(1);
@@ -63,13 +60,8 @@ export default function DoctorSearch() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/ads/active?targetPage=doctor-search-right`
-        );
-        if (res.ok) {
-          const ad = await res.json();
-          setHasRightAd(!!ad);
-        }
+        const ad = await apiService.get(`/ads/active?targetPage=${encodeURIComponent('doctor-search-right')}`);
+        setHasRightAd(!!ad);
       } catch {}
     })();
   }, []);
@@ -78,13 +70,8 @@ export default function DoctorSearch() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/ads/active?targetPage=doctor-search-bottom`
-        );
-        if (res.ok) {
-          const ad = await res.json();
-          setHasBottomAd(!!ad);
-        }
+        const ad = await apiService.get(`/ads/active?targetPage=${encodeURIComponent('doctor-search-bottom')}`);
+        setHasBottomAd(!!ad);
       } catch {}
     })();
   }, []);

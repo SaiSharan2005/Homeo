@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { getPaymentByPrescription } from '../../services/billing/payment';
 
 const PrescriptionReport = ({ prescription }) => {
   const navigate = useNavigate();
@@ -26,16 +28,11 @@ const PrescriptionReport = ({ prescription }) => {
   const handleBuy = async () => {
     try {
       setLoading(true);
-      // fetch the payment for this prescription
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/payments/prescription/${prescription.id}`
-      );
-      const res = await response.json();
-      // redirect to /payments/{paymentId}
-      navigate(`/patient/payments/${res.id}`);
+      const res = await getPaymentByPrescription(prescription.id);
+      navigate(`/patient/payments/${res.id || res.paymentId || res.data?.id}`);
     } catch (err) {
       console.error(err);
-      alert('Could not initialize payment. Please try again.');
+      toast.error('Could not initialize payment. Please try again.');
     } finally {
       setLoading(false);
     }

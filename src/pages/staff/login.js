@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import apiService from "../../utils/api";
 
 
 export default function LoginStaff() {
@@ -23,7 +24,6 @@ export default function LoginStaff() {
 
 
   const registerDoctor = async () => {
-    const url = process.env.REACT_APP_BACKEND_URL+'/auth/login';
     const data = {
       // doctorName: credentials.name,
       phoneNumber: credentials.phoneNumber,
@@ -32,20 +32,7 @@ export default function LoginStaff() {
     };
   
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-  
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(errorMessage);
-      }
-  
-      const responseData = await response.json();
+      const responseData = await apiService.post('/auth/login', data);
       localStorage.setItem("staffId",responseData.id)
       localStorage.setItem("role",responseData.role)
 

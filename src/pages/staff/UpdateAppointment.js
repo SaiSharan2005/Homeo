@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PatientNavbar from "../../components/navbar/PatientNavbar";
+import apiService from "../../utils/api";
 
 const UpdateAppointment = () => {
   const { AppointmentId } = useParams();
@@ -17,16 +18,7 @@ const UpdateAppointment = () => {
   useEffect(() => {
     const fetchAppointmentData = async () => {
       try {
-        const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/token/${AppointmentId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const AppointmentDetails = await response.json();
+        const AppointmentDetails = await apiService.get(`/bookingAppointments/token/${AppointmentId}`);
         setBookingData(AppointmentDetails);
         setDoctor(AppointmentDetails.doctor);
         setScheduleId(AppointmentDetails.scheduleId?.scheduleId);
@@ -41,10 +33,7 @@ const UpdateAppointment = () => {
 
     const fetchSchedule = async (schedule) => {
       try {
-        const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL+`/schedule/doctor/${schedule}`
-        );
-        const data = await response.json();
+        const data = await apiService.get(`/schedule/doctor/${schedule}`);
         setSchedules(data);
       } catch (error) {
         console.error("Failed to fetch schedule data:", error);
@@ -67,32 +56,17 @@ const UpdateAppointment = () => {
     bookingData.scheduleId = selectedSchedule.scheduleId;
     bookingData.updateReason = updateReason; 
     try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/${bookingData.bookingId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(bookingData),
-        }
+      const responseData = await apiService.put(`/bookingAppointments/${bookingData.bookingId}`, bookingData);
+      console.log("Appointment updated successfully!", responseData);
+      updateAppointmentReason();
+      navigate(`/token/${responseData.token}`);
+      setSchedules((prevSchedules) =>
+        prevSchedules.map((sch) =>
+          sch.scheduleId === selectedSchedule.scheduleId
+            ? { ...sch, booked: true }
+            : sch
+        )
       );
-
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log("Appointment updated successfully!", responseData);
-        updateAppointmentReason();
-        navigate(`/token/${responseData.token}`);
-        setSchedules((prevSchedules) =>
-          prevSchedules.map((sch) =>
-            sch.scheduleId === selectedSchedule.scheduleId
-              ? { ...sch, booked: true }
-              : sch
-          )
-        );
-      } else {
-        console.error("Failed to update appointment");
-      }
     } catch (error) {
       console.error("Failed to update appointment:", error);
     }
@@ -112,28 +86,11 @@ const UpdateAppointment = () => {
   
   
     try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL+`/appointmentHistory/add`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
-
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log("Appointment updated successfully!", responseData);
-        // updateAppointmentReason();
-       
-        
-      } else {
-        console.error("Failed to update appointment");
-      }} catch (error) {
-        console.error("Failed to update appointment:", error);
-      }
+      const responseData = await apiService.post(`/appointmentHistory/add`, data);
+      console.log("Appointment updated successfully!", responseData);
+    } catch (error) {
+      console.error("Failed to update appointment:", error);
+    }
 
     }
 

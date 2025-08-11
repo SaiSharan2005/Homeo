@@ -1,223 +1,8 @@
-// import "./index.css";
-// import "./style.css";
-
-// import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-// // Landing Page imports
-// import Mainhome from "./crocs/views/home";
-// import Register from "./register";
-// import Login from "./login";
-
-// // Doctor imports
-// import DoctorSignUp from "./pages/doctor/signup";
-// import DoctorDetails from "./pages/doctor/Details";
-// import DoctorHome from "./pages/doctor/home/DoctorHome";
-// import DoctorScheduleCreation from "./pages/doctor/DoctorScheduleCreation";
-// import DoctorProfile from "./pages/doctor/home/DoctorProfile";
-// import DoctorHistory from "./pages/doctor/History";
-
-// // Patient imports
-// import PatientSignUp from "./pages/auth/SignupForm";
-// import PatientHome from "./pages/patient/home/PatientHome";
-// import PatientProfile from "./pages/patient/home/PatientProfile";
-// import AppointmentDetails from "./components/appointment/AppointmentDetails";
-// import PatientDetails from "./pages/patient/Details";
-// import PatientHistory from "./pages/patient/History";
-// import PatientPage from "./pages/patient/Adv";
-// import DoctorSearch from "./pages/patient/home/DoctorSearch";
-
-// // Staff imports
-// import StaffSignUp from "./pages/staff/signup";
-// import AdminHomePage from "./pages/staff/Home/Home";
-// import AppointmentBooking from "./pages/staff/AppointmentBooking";
-// import BookSlot from "./pages/staff/AppointmentBookingByAdmin";
-// import StaffDoctorSearch from "./pages/staff/Search/Doctor-Search";
-// import PatientSearch from "./pages/staff/Search/Patient-Search";
-// import GetAllAppointment from "./pages/staff/GetAllAppointment";
-// import UpdateAppointment from "./pages/staff/UpdateAppointment";
-// import AdvertisementManager from "./pages/staff/AdvertisementManager";
-// import CreateAdvertisement from "./pages/staff/Advertisement/CreateAdvertisement";
-// import UpdateAdvertisement from "./pages/staff/Advertisement/updateAdvertisement";
-// import ShowAdvertisements from "./pages/staff/Advertisement/AllAdvertisement";
-// import ActivitySearch from "./pages/staff/activity/All-Activity";
-// import DoctorActivitySearch from "./pages/staff/activity/Doctor-Activity";
-// import PatientActivitySearch from "./pages/staff/activity/Patient-Activity";
-// import AppointmentActivitySearch from "./pages/staff/activity/Appointment-Activity";
-// import AdvertisementActivitySearch from "./pages/staff/activity/Advertisement-Activity";
-
-// // Inventory & Prescription imports
-// import InventoryPage from "./pages/inventory/InventoryPage";
-// import InventoryItemList from "./pages/inventory/InventoryItemList";
-// import InventoryItemDetail from "./pages/inventory/InventoryItemDetail";
-// import PurchaseOrderCreate from "./pages/inventory/productOrder/PurchaseOrderCreate";
-// import PurchaseOrderList from "./pages/inventory/productOrder/PurchaseOrderList";
-// import CreatePrescriptionPage from "./pages/prescription/CreatePrescriptionPage";
-
-// // Auth Container
-// import AuthContainer from "./pages/auth/AuthContainer";
-// import ProvoHealDashboard from "./utils/Test";
-// import DoctorLayout from "./components/Layouts/DoctorLayout";
-// import AdminLayout from "./components/Layouts/AdminLayout";
-// import StaffLayout from "./components/Layouts/StaffLayout";
-// import DoctorDashboard from "./pages/doctor/home/DoctorOverview";
-// import { ToastContainer } from "react-toastify";
-// import DoctorAppointmentsPage from "./components/appointment/Appointments";
-// import SchedulePage from "./pages/doctor/Schedule";
-// import PaymentList from "./pages/prescription/PaymentList";
-// import PaymentDetails from "./pages/prescription/PaymentDetails";
-// import PatientLayout from "./components/Layouts/PatientLayout";
-// import CompleteSlot from "./components/appointment/AppointmentDetails";
-
-// export default function App() {
-//   return (
-//     <Router>
-//       <Routes>
-//         {/* Landing Page */}
-//         <Route exact path="/" element={<Mainhome />} />
-//         <Route
-//           exact
-//           path="/login"
-//           element={<AuthContainer activeForm={"login"} />}
-//         />
-
-//         {/* Doctor Routes */}
-//         <Route
-//           path="/doctor/signup"
-//           element={<AuthContainer activeForm={"doctor-signup"} />}
-//         />
-//         <Route
-//           path="/doctor/details"
-//           element={<AuthContainer activeForm={"doctor-details"} />}
-//         />
-//         {/* <Route path="/doctor/home" element={<DoctorHome />} />
-//         <Route path="/doctorSchedule/Create" element={<DoctorScheduleCreation />} />
-//         <Route path="/doctor/profile" element={<DoctorProfile />} />
-//         <Route path="/doctor/schedule" element={<DoctorDetails />} />
-//         <Route path="/doctor/history" element={<DoctorHistory />} />
-//         <Route path="/doctor-token/:tokenId" element={<CompleteSlot />} /> */}
-//         {/* Doctor Routes with shared layout */}
-//         <Route path="/doctor" element={<DoctorLayout />}>
-//           <Route path="home" element={<DoctorDashboard />} />
-//           <Route path="profile" element={<DoctorProfile />} />
-//           <Route path="details" element={<DoctorDetails />} />
-//           <Route path="create-schedule" element={<DoctorScheduleCreation />} />
-//           <Route path="appointment" element={<DoctorAppointmentsPage />} />
-//           <Route path="token/:tokenId" element={<CompleteSlot />} />
-//           <Route path="schedule" element={<SchedulePage />} />
-//         </Route>
-
-//         <Route path="/admin" element={<AdminLayout />}>
-//           <Route path="home" element={<AdminHomePage />} />
-//           <Route path="appointment" element={<GetAllAppointment />} />
-//           <Route path="doctor-search" element={<StaffDoctorSearch />} />
-//           <Route path="patient-search" element={<PatientSearch />} />
-//           <Route path="advertisement" element={<ShowAdvertisements />} />
-//           <Route path="inventory/create" element={<InventoryPage />} />
-//           <Route path="inventory" element={<InventoryItemList />} />
-//         </Route>
-//         <Route path="/staff" element={<StaffLayout />}>
-//           <Route path="payments" element={<PaymentList />} />
-//           <Route path="payment/:id" element={<PaymentDetails />} />
-//         </Route>
-
-//         {/* Other routes */}
-//         {/* </Routes> */}
-//         {/* Patient Routes */}
-//         <Route
-//           path="/patient/signup"
-//           element={<AuthContainer activeForm={"patient-signup"} />}
-//         />
-//         <Route
-//           path="/patient/details"
-//           element={<AuthContainer activeForm={"patient-details"} />}
-//         />
-//         <Route path="/patient" element={<PatientLayout />}>
-//           <Route path="profile" element={<PatientProfile />} />
-//           <Route path="home" element={<PatientHome />} />
-//           <Route path="history" element={<PatientHistory />} />
-//           <Route path="adv" element={<PatientPage />} />
-//           <Route path="doctorSearch" element={<DoctorSearch />} />
-//           <Route
-//           path="BookAppoinment/:doctorId"
-//           element={<AppointmentBooking />}
-//         />
-//                 <Route path="token/:tokenId/" element={<AppointmentDetails />} />
-
-//         </Route>
-//         <Route path="/patient/adv" element={<PatientPage />} />
-//         <Route path="/doctorSearch" element={<DoctorSearch />} />
-
-//         {/* Staff Routes */}
-
-//         <Route
-//           path="/staff/signup"
-//           element={<AuthContainer activeForm={"admin-signup"} />}
-//         />
-//         {/* <Route path="home" element={<StaffHomePage />} /> */}
-//         <Route path="/adv/management" element={<AdvertisementManager />} />
-//         <Route path="/staff/create-adv" element={<CreateAdvertisement />} />
-//         <Route path="/staff/update-adv/:id" element={<UpdateAdvertisement />} />
-//         <Route path="/staff/all-adv" element={<ShowAdvertisements />} />
-//         {/* <Route path="/staff/doctor-search" element={<StaffDoctorSearch />} />
-//         <Route path="/staff/patient-search" element={<PatientSearch />} /> */}
-//         {/* <Route path="staff/GetAllAppointment" element={<GetAllAppointment />} /> */}
-//         <Route path="/staff/all-activity" element={<ActivitySearch />} />
-//         <Route
-//           path="/staff/doctor-activity"
-//           element={<DoctorActivitySearch />}
-//         />
-//         <Route
-//           path="/staff/patient-activity"
-//           element={<PatientActivitySearch />}
-//         />
-//         <Route
-//           path="/staff/appointment-activity"
-//           element={<AppointmentActivitySearch />}
-//         />
-//         <Route
-//           path="/staff/advertisement-activity"
-//           element={<AdvertisementActivitySearch />}
-//         />
-//         <Route path="/BookSlot" element={<BookSlot />} />
-//         <Route
-//           path="/staff/appointment-booking"
-//           element={<AppointmentBooking />}
-//         />
-
-//         {/* Inventory & Prescription Routes */}
-//         <Route path="/inventory-items/create" element={<InventoryPage />} />
-//         <Route path="/inventory-items" element={<InventoryItemList />} />
-//         <Route path="/inventory-items/:id" element={<InventoryItemDetail />} />
-//         <Route path="/purchase-orders" element={<PurchaseOrderList />} />
-//         <Route
-//           path="/purchase-orders/create"
-//           element={<PurchaseOrderCreate />}
-//         />
-//         <Route
-//           path="/prescription/create"
-//           element={<CreatePrescriptionPage />}
-//         />
-
-//         <Route path="/test" element={<ProvoHealDashboard />} />
-//       </Routes>
-//       <ToastContainer
-//         position="top-right"
-//         autoClose={3000}
-//         hideProgressBar={false}
-//         newestOnTop={false}
-//         closeOnClick
-//         rtl={false}
-//         pauseOnFocusLoss
-//         draggable
-//         pauseOnHover
-//       />
-//     </Router>
-//   );
-// }
 // src/App.js
 
 import "./index.css";
 import "./style.css";
+import "react-toastify/dist/ReactToastify.css";
 
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -265,12 +50,37 @@ import BookSlot from "./pages/staff/AppointmentBookingByAdmin";
 import UpdateAppointment from "./pages/staff/UpdateAppointment";
 
 // Inventory & Prescription
-import InventoryPage from "./pages/inventory/InventoryPage";
+import InventoryPage from "./pages/inventory/InventoryPage.jsx";
 import InventoryItemList from "./pages/inventory/InventoryItemList";
 import InventoryItemDetail from "./pages/inventory/InventoryItemDetail";
+import InventoryItemForm from "./pages/inventory/InventoryItemForm";
+import InventoryRecordList from "./pages/inventory/InventoryRecordList";
+import InventoryRecordDetail from "./pages/inventory/InventoryRecordDetail";
+import InventoryTransactionList from "./pages/inventory/InventoryTransactionList";
+import CategoryManagement from "./pages/inventory/CategoryManagement";
 import PurchaseOrderCreate from "./pages/inventory/productOrder/PurchaseOrderCreate";
 import PurchaseOrderList from "./pages/inventory/productOrder/PurchaseOrderList";
+import GoodsReceiptList from "./pages/inventory/receipt/GoodsReceiptList";
+import GoodsReceiptDetail from "./pages/inventory/receipt/GoodsReceiptDetail";
+import GoodsReceiptCreate from "./pages/inventory/receipt/GoodsReceiptCreate";
 import CreatePrescriptionPage from "./pages/prescription/CreatePrescriptionPage";
+import PrescriptionList from "./pages/prescription/PrescriptionList";
+
+// Billing & Payments
+import PaymentList from "./pages/billing/PaymentList";
+import PaymentDetails from "./pages/prescription/PaymentDetails";
+import InvoiceList from "./pages/billing/InvoiceList";
+
+// Batch Management
+import BatchList from "./pages/inventory/BatchList";
+
+// Supplier & Warehouse
+import SupplierList from "./pages/inventory/SupplierList";
+import SupplierForm from "./pages/inventory/SupplierForm";
+import SupplierDetail from "./pages/inventory/SupplierDetail";
+import AllWarehouse from "./components/inventory/warehouse/AllWarehouse";
+import WarehouseDetail from "./pages/inventory/WarehouseDetail";
+import AllSupplier from "./components/inventory/supplier/AllSupplier";
 
 // Advertisements & Activity
 import AdvertisementManager from "./pages/staff/AdvertisementManager";
@@ -283,13 +93,6 @@ import PatientActivitySearch from "./pages/staff/activity/Patient-Activity";
 import AppointmentActivitySearch from "./pages/staff/activity/Appointment-Activity";
 import AdvertisementActivitySearch from "./pages/staff/activity/Advertisement-Activity";
 
-// Payments
-import PaymentList from "./pages/prescription/PaymentList";
-import PaymentDetails from "./pages/prescription/PaymentDetails";
-
-// Misc
-import ProvoHealDashboard from "./utils/Test";
-
 // Questionnaire
 import QuestionSetList from "./pages/questionnaire/QuestionSetList";
 import CreateQuestionSet from "./pages/questionnaire/CreateQuestionSet";
@@ -297,10 +100,9 @@ import QuestionnairePage from "./pages/questionnaire/QuestionnairePage";
 import SubmissionList from "./pages/questionnaire/SubmissionList";
 import SubmissionDetail from "./pages/questionnaire/SubmissionDetail";
 
+// Misc
+import ProvoHealDashboard from "./utils/Test";
 
-// Warehouse
-import AllWarehouse from "./components/inventory/warehouse/AllWarehouse" 
-import AllSupplier from "./components/inventory/supplier/AllSupplier" 
 export default function App() {
   return (
     <Router>
@@ -309,6 +111,7 @@ export default function App() {
         <Route path="/" element={<Mainhome />} />
         <Route path="/login" element={<AuthContainer activeForm="login" />} />
 
+        {/* Auth Routes */}
         <Route
           path="/doctor/signup"
           element={<AuthContainer activeForm="doctor-signup" />}
@@ -321,11 +124,16 @@ export default function App() {
           path="/patient/signup"
           element={<AuthContainer activeForm={"patient-signup"} />}
         />
-
         <Route
           path="/patient/details"
           element={<AuthContainer activeForm="patient-details" />}
         />
+        <Route
+          path="/admin/signup"
+          element={<AuthContainer activeForm="admin-signup" />}
+        />
+
+        {/* Doctor Routes */}
         <Route path="/doctor" element={<DoctorLayout />}>
           <Route path="home" element={<DoctorDashboard />} />
           <Route path="profile" element={<DoctorProfile />} />
@@ -347,9 +155,11 @@ export default function App() {
           <Route path="schedule" element={<SchedulePage />} />
         </Route>
 
-        {/* Admin routes (with AdminLayout) */}
+        {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="home" element={<AdminHomePage />} />
+          
+          {/* Appointment Management */}
           <Route
             path="appointment"
             element={<AppointmentsPage role="admin" />}
@@ -364,6 +174,7 @@ export default function App() {
           />
           <Route path="appointment/create" element={<BookSlot />} />
 
+          {/* User Management */}
           <Route path="doctor-search" element={<StaffDoctorSearch />} />
           <Route
             path="doctor-search/profile/:doctorId"
@@ -373,7 +184,6 @@ export default function App() {
             path="doctor-search/addDoctor/"
             element={<AdminAddUser initialRole="DOCTOR" />}
           />
-
           <Route path="patient-search" element={<PatientSearch />} />
           <Route
             path="patient-search/profile/:patientId"
@@ -383,13 +193,13 @@ export default function App() {
             path="patient-search/addPatient/"
             element={<AdminAddUser initialRole="PATIENT" />}
           />
-
           <Route path="staff-search" element={<StaffRoleManagement />} />
           <Route
             path="staff-search/addStaff/"
             element={<AdminAddUser initialRole="STAFF" />}
           />
 
+          {/* Advertisement Management */}
           <Route path="advertisement" element={<ShowAdvertisements />} />
           <Route
             path="advertisement/create"
@@ -400,10 +210,43 @@ export default function App() {
             element={<UpdateAdvertisement />}
           />
 
-          <Route path="inventory/create" element={<InventoryPage />} />
-          <Route path="inventory" element={<InventoryItemList />} />
-          <Route path="inventory/:id" element={<InventoryItemDetail />} />
+          {/* Inventory Management */}
+          <Route path="inventory" element={<InventoryPage />} />
+          <Route path="inventory/create" element={<InventoryItemForm />} />
+          <Route path="inventory/items" element={<InventoryItemList />} />
+          <Route path="inventory/items/:id" element={<InventoryItemDetail />} />
+          <Route path="inventory/items/:id/edit" element={<InventoryItemForm />} />
+          <Route path="inventory/records" element={<InventoryRecordList />} />
+          <Route path="inventory/records/:id" element={<InventoryRecordDetail />} />
+          <Route path="inventory/transactions" element={<InventoryTransactionList />} />
+          <Route path="inventory/categories" element={<CategoryManagement />} />
+          <Route path="inventory/batches" element={<BatchList />} />
+          <Route path="inventory/suppliers" element={<SupplierList />} />
+          <Route path="inventory/suppliers/create" element={<SupplierForm />} />
+          <Route path="inventory/suppliers/:id" element={<SupplierDetail />} />
+          <Route path="inventory/suppliers/:id/edit" element={<SupplierForm />} />
+          <Route path="inventory/warehouses" element={<AllWarehouse />} />
+          <Route path="inventory/warehouses/:id" element={<WarehouseDetail />} />
 
+          {/* Goods Receipts */}
+          <Route path="inventory/receipt" element={<GoodsReceiptList />} />
+          <Route path="inventory/receipt/create" element={<GoodsReceiptCreate />} />
+          <Route path="inventory/receipt/:id" element={<GoodsReceiptDetail />} />
+
+          {/* Purchase Orders */}
+          <Route path="purchase-orders" element={<PurchaseOrderList />} />
+          <Route path="purchase-orders/create" element={<PurchaseOrderCreate />} />
+
+          {/* Prescription Management */}
+          <Route path="prescriptions" element={<PrescriptionList />} />
+          <Route path="prescriptions/create" element={<CreatePrescriptionPage />} />
+
+          {/* Billing & Payments */}
+          <Route path="billing/payments" element={<PaymentList />} />
+          <Route path="billing/payments/:id" element={<PaymentDetails />} />
+          <Route path="billing/invoices" element={<InvoiceList />} />
+
+          {/* Activity Management */}
           <Route path="all-activity" element={<ActivitySearch />} />
           <Route path="doctor-activity" element={<DoctorActivitySearch />} />
           <Route path="patient-activity" element={<PatientActivitySearch />} />
@@ -416,22 +259,25 @@ export default function App() {
             element={<AdvertisementActivitySearch />}
           />
 
-          <Route path="payment" element={<PaymentList />} />
-          <Route path="payment/:id" element={<PaymentDetails />} />
+          {/* Questionnaire Management */}
           <Route path="questionnaire" element={<QuestionSetList />} />
           <Route path="questionnaire/create" element={<CreateQuestionSet />} />
           <Route path="questionnaire/:id" element={<QuestionnairePage />} />
           <Route path="submissions" element={<SubmissionList />} />
           <Route path="submissions/:id" element={<SubmissionDetail />} />
+
+          {/* Legacy Routes */}
+          <Route path="payment" element={<PaymentList />} />
+          <Route path="payment/:id" element={<PaymentDetails />} />
           <Route path="warehouse" element={<AllWarehouse />} />
           <Route path="supplier" element={<AllSupplier />} />
-
-
         </Route>
 
-        {/* Staff routes (with StaffLayout) */}
+        {/* Staff Routes */}
         <Route path="/staff" element={<StaffLayout />}>
           <Route path="home" element={<AdminHomePage />} />
+          
+          {/* Appointment Management */}
           <Route
             path="appointment"
             element={<AppointmentsPage role="admin" />}
@@ -446,6 +292,7 @@ export default function App() {
           />
           <Route path="BookSlot" element={<BookSlot />} />
 
+          {/* User Management */}
           <Route path="doctor-search" element={<StaffDoctorSearch />} />
           <Route
             path="doctor-search/profile/:doctorId"
@@ -455,7 +302,6 @@ export default function App() {
             path="doctor-search/addDoctor/"
             element={<AdminAddUser initialRole="DOCTOR" />}
           />
-
           <Route path="patient-search" element={<PatientSearch />} />
           <Route
             path="patient-search/profile/:patientId"
@@ -465,13 +311,13 @@ export default function App() {
             path="patient-search/addPatient/"
             element={<AdminAddUser initialRole="PATIENT" />}
           />
-
           <Route path="staff-search" element={<StaffRoleManagement />} />
           <Route
             path="staff-search/addStaff/"
             element={<AdminAddUser initialRole="STAFF" />}
           />
 
+          {/* Advertisement Management */}
           <Route path="advertisement" element={<ShowAdvertisements />} />
           <Route
             path="advertisement/create"
@@ -482,10 +328,12 @@ export default function App() {
             element={<UpdateAdvertisement />}
           />
 
+          {/* Inventory Management */}
           <Route path="inventory/create" element={<InventoryPage />} />
           <Route path="inventory" element={<InventoryItemList />} />
           <Route path="inventory/:id" element={<InventoryItemDetail />} />
 
+          {/* Activity Management */}
           <Route path="all-activity" element={<ActivitySearch />} />
           <Route path="doctor-activity" element={<DoctorActivitySearch />} />
           <Route path="patient-activity" element={<PatientActivitySearch />} />
@@ -498,11 +346,12 @@ export default function App() {
             element={<AdvertisementActivitySearch />}
           />
 
+          {/* Payments */}
           <Route path="payment" element={<PaymentList />} />
           <Route path="payment/:id" element={<PaymentDetails />} />
         </Route>
 
-        {/* Patient routes (with PatientLayout) */}
+        {/* Patient Routes */}
         <Route path="/patient" element={<PatientLayout />}>
           <Route path="profile" element={<PatientProfile />} />
           <Route path="profile/:patientId" element={<PatientProfile />} />
@@ -519,10 +368,6 @@ export default function App() {
             element={<AppointmentBooking />}
           />
           <Route
-            path="appointment"
-            element={<AppointmentsPage role="patient" />}
-          />
-          <Route
             path="appointment/token/:tokenId"
             element={<AppointmentDetails />}
           />
@@ -530,17 +375,15 @@ export default function App() {
           <Route path="payments/:id" element={<PaymentDetails />} />
         </Route>
 
-        {/* Misc standalone routes */}
+        {/* Standalone Routes */}
         <Route path="/patient/adv" element={<PatientPage />} />
         <Route path="/doctorSearch" element={<DoctorSearch />} />
-        <Route
-          path="/admin/signup"
-          element={<AuthContainer activeForm="admin-signup" />}
-        />
         <Route path="/adv/management" element={<AdvertisementManager />} />
         <Route path="/staff/create-adv" element={<CreateAdvertisement />} />
         <Route path="/staff/update-adv/:id" element={<UpdateAdvertisement />} />
         <Route path="/staff/all-adv" element={<ShowAdvertisements />} />
+        
+        {/* Legacy Inventory Routes */}
         <Route path="/inventory-items/create" element={<InventoryPage />} />
         <Route path="/inventory-items" element={<InventoryItemList />} />
         <Route path="/inventory-items/:id" element={<InventoryItemDetail />} />
@@ -553,6 +396,8 @@ export default function App() {
           path="/prescription/create"
           element={<CreatePrescriptionPage />}
         />
+        
+        {/* Legacy Questionnaire Routes */}
         <Route path="/test" element={<AllSupplier />} />
         <Route path="/questionnaires" element={<QuestionSetList />} />
         <Route path="/question-sets/create" element={<CreateQuestionSet />} />
@@ -563,7 +408,7 @@ export default function App() {
 
       <ToastContainer
         position="top-right"
-        autoClose={3000}
+        autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
@@ -571,6 +416,7 @@ export default function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
+        theme="light"
       />
     </Router>
   );

@@ -6,6 +6,7 @@ import {
   createSupplier,
   deleteSupplier,
 } from "../../../services/inventory/supplier";
+import { toast } from 'react-toastify';
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState([]);
@@ -40,7 +41,7 @@ export default function SuppliersPage() {
       await deleteSupplier(id);
       setSuppliers((prev) => prev.filter((s) => s.id !== id));
     } catch {
-      alert("Failed to delete supplier. Please try again.");
+      toast.error("Failed to delete supplier. Please try again.");
     }
   };
 
@@ -53,7 +54,7 @@ export default function SuppliersPage() {
   const handleCreate = async () => {
     const { name, email } = formData;
     if (!name.trim() || !email.trim()) {
-      alert("Name and Email are required.");
+      toast.error("Name and Email are required.");
       return;
     }
     try {
@@ -61,7 +62,7 @@ export default function SuppliersPage() {
       setSuppliers((prev) => [...prev, newSupplier]);
       closeModal();
     } catch {
-      alert("Failed to create supplier. Please try again.");
+      toast.error("Failed to create supplier. Please try again.");
     }
   };
 

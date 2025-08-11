@@ -4,6 +4,7 @@ import PrescriptionForm from '../prescription/PrescriptionForm';
 import PrescriptionReport from '../prescription/PrescriptionDetails';
 import image from '../../images/image.jpg';
 import PatientAppointmentsPage from './PatientAppointment';
+import apiService from '../../utils/api';
 const CompleteSlot = () => {
   const { tokenId } = useParams();
   const navigate = useNavigate();
@@ -24,9 +25,7 @@ const CompleteSlot = () => {
   useEffect(() => {
     const fetchAppointmentData = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/token/${tokenId}`);
-        if (!response.ok) throw new Error('Failed to fetch appointment data');
-        const data = await response.json();
+        const data = await apiService.get(`/bookingAppointments/token/${tokenId}`);
         setAppointmentData(data);
 
         if (data.status === "completed") setIsCompleted(true);
@@ -43,11 +42,8 @@ const CompleteSlot = () => {
 
     const fetchPrescriptionByBooking = async (bookingId) => {
       try {
-        const resp = await fetch(`${process.env.REACT_APP_BACKEND_URL}/prescriptions/booking/${bookingId}`);
-        if (resp.ok) {
-          const prescriptionData = await resp.json();
-          setCreatedPrescription(prescriptionData);
-        }
+        const prescriptionData = await apiService.get(`/prescriptions/booking/${bookingId}`);
+        setCreatedPrescription(prescriptionData);
       } catch (err) {
         console.error('No existing prescription found for this booking', err);
       }
@@ -57,15 +53,7 @@ const CompleteSlot = () => {
   }, [tokenId]);
   const handleAppointmentCompleted = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/completed-appointment/${tokenId}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-      if (!response.ok) throw new Error('Failed to mark appointment as completed');
-      const data = await response.json();
+      const data = await apiService.post(`/bookingAppointments/completed-appointment/${tokenId}`);
       // Update state or handle the response here as needed
     } catch (error) {
       console.error('Error completing appointment:', error);

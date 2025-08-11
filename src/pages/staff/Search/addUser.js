@@ -13,9 +13,11 @@ import {
   MdAttachMoney,
   MdMonetizationOn,
 } from "react-icons/md";
+import { toast } from "react-toastify";
 // import { Signup } from "../services/patient/patient_api";
 import { Signup } from "../../../services/patient/patient_api";
 import { addDoctorProfile } from "../../../services/doctor/doctor_api";
+import apiService from "../../../utils/api";
 
 export default function AdminAddUser({ initialRole = "PATIENT" }) {
   const [role, setRole] = useState(initialRole);
@@ -26,14 +28,14 @@ export default function AdminAddUser({ initialRole = "PATIENT" }) {
     password: "",
   });
   const [patientData, setPatientData] = useState({
-    age: "",
+    dateOfBirth: "",
     gender: "",
     address: "",
     city: "",
     pincode: "",
   });
   const [doctorData, setDoctorData] = useState({
-    age: "",
+    dateOfBirth: "",
     gender: "",
     address: "",
     city: "",
@@ -66,31 +68,20 @@ export default function AdminAddUser({ initialRole = "PATIENT" }) {
 
       // For roles with extra profile data, make additional API calls
       if (role === "PATIENT") {
-        const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/patient/addProfile/${baseData.username}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("Token")}`,
-            },
-            body: JSON.stringify(patientData),
-          }
-        );
-        if (!res.ok) throw new Error("Failed to save patient profile");
+        await apiService.post(`/patient/addProfile/${baseData.username}`, patientData);
       } else if (role === "DOCTOR") {
         await addDoctorProfile({ username: baseData.username, ...doctorData });
       }
       // For STAFF, only the signup is needed.
 
-      alert(`${role} created successfully!`);
+      toast.success(`${role} created successfully!`);
 
       // Reset base fields
       setBaseData({ username: "", email: "", phoneNumber: "", password: "" });
       // Reset profile fields if applicable
-      setPatientData({ age: "", gender: "", address: "", city: "", pincode: "" });
+      setPatientData({ dateOfBirth: "", gender: "", address: "", city: "", pincode: "" });
       setDoctorData({
-        age: "",
+        dateOfBirth: "",
         gender: "",
         address: "",
         city: "",
@@ -102,6 +93,7 @@ export default function AdminAddUser({ initialRole = "PATIENT" }) {
     } catch (err) {
       console.error(err);
       setError(err.message || "An error occurred");
+      toast.error(err.message || "Failed to create user. Please try again.");
     }
   };
 
@@ -171,20 +163,20 @@ export default function AdminAddUser({ initialRole = "PATIENT" }) {
         {/* Profile-specific fields for PATIENT and DOCTOR */}
         {(role === "PATIENT" || role === "DOCTOR") && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Age */}
+            {/* Date of Birth */}
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-700">
-                Age
+                Date of Birth
               </label>
               <div className="relative">
                 <MdCake className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  name="age"
-                  type="number"
-                  value={profileFields.age}
+                  name="dateOfBirth"
+                  type="date"
+                  value={profileFields.dateOfBirth}
                   onChange={onProfileChange}
                   required
-                  placeholder="Age"
+                  placeholder="Date of Birth"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition"
                 />
               </div>
@@ -213,7 +205,7 @@ export default function AdminAddUser({ initialRole = "PATIENT" }) {
             </div>
 
             {/* Address */}
-            <div className="md:col-span-2">
+            <div>
               <label className="block mb-2 text-sm font-medium text-gray-700">
                 Address
               </label>

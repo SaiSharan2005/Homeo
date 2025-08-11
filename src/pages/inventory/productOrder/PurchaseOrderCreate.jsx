@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import AdminNavbar from '../../../components/navbar/AdminNavbar';
+import { createPurchaseOrder } from '../../../services/inventory/purchaseOrder';
 
 const PurchaseOrderCreate = () => {
   const navigate = useNavigate();
@@ -12,6 +14,7 @@ const PurchaseOrderCreate = () => {
     // Optionally, add purchaseOrderItems: [] here if needed
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,23 +23,16 @@ const PurchaseOrderCreate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL + '/api/purchase-orders',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderData)
-        }
-      );
-      if (!response.ok) {
-        throw new Error('Failed to create purchase order');
-      }
-      alert('Purchase order created successfully!');
+      await createPurchaseOrder(orderData);
+      toast.success('Purchase order created successfully!');
       navigate('/purchase-orders');
     } catch (err) {
       console.error(err);
-      setError('Failed to create purchase order. Please try again.');
+      toast.error('Failed to create purchase order');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,8 +45,9 @@ const PurchaseOrderCreate = () => {
           {error && <div className="text-red-500 mb-4">{error}</div>}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block font-semibold mb-1">Order Date</label>
+              <label htmlFor="orderDate" className="block font-semibold mb-1">Order Date</label>
               <input
+                id="orderDate"
                 type="datetime-local"
                 name="orderDate"
                 value={orderData.orderDate}
@@ -60,8 +57,9 @@ const PurchaseOrderCreate = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block font-semibold mb-1">Status</label>
+              <label htmlFor="status" className="block font-semibold mb-1">Status</label>
               <select
+                id="status"
                 name="status"
                 value={orderData.status}
                 onChange={handleChange}
@@ -74,8 +72,9 @@ const PurchaseOrderCreate = () => {
               </select>
             </div>
             <div className="mb-4">
-              <label className="block font-semibold mb-1">Total Amount</label>
+              <label htmlFor="totalAmount" className="block font-semibold mb-1">Total Amount</label>
               <input
+                id="totalAmount"
                 type="number"
                 name="totalAmount"
                 value={orderData.totalAmount}
@@ -86,8 +85,9 @@ const PurchaseOrderCreate = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block font-semibold mb-1">Supplier ID</label>
+              <label htmlFor="supplierId" className="block font-semibold mb-1">Supplier ID</label>
               <input
+                id="supplierId"
                 type="number"
                 name="supplierId"
                 value={orderData.supplierId}

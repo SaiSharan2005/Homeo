@@ -247,6 +247,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PatientNavbar from "../../components/navbar/PatientNavbar";
+import { getDoctorById } from "../../services/doctor/doctor_api";
+import { getDoctorSchedule, createAppointment } from "../../services/appointment";
+import { toast } from 'react-toastify';
 
 const AppointmentBooking = () => {
   const { doctorId } = useParams();
@@ -257,21 +260,15 @@ const AppointmentBooking = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Fetch the doctor data based on doctorId
     const fetchDoctorData = async () => {
       try {
-        const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL+`/doctor/byId/${doctorId}`
-        );
-        const data = await response.json();
+        const data = await getDoctorById(doctorId);
         setDoctor(data);
         setIsLoading(false);
       } catch (error) {
-        console.error("Failed to fetch doctor data:", error);
         setIsLoading(false);
       }
     };
-
     fetchDoctorData();
   }, [doctorId]);
 
@@ -287,24 +284,21 @@ const AppointmentBooking = () => {
   // };
 
   useEffect(() => {
-    // Fetch the schedules based on doctorId
     const fetchSchedule = async () => {
       try {
-        const response = await fetch(process.env.REACT_APP_BACKEND_URL+`/schedule/doctor/${doctorId}`);
-        const data = await response.json();
-        setSchedules(data);
+        const data = await getDoctorSchedule(doctorId);
+        setSchedules(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Failed to fetch schedule data:", error);
         setIsLoading(false);
       }
     };
-
     fetchSchedule();
   }, [doctorId]);
 
   const BookAppointment = async () => {
     if (!selectedSchedule) {
-      console.error("No schedule selected");
+      toast.error('Please select a schedule slot.');
       return;
     }
 
@@ -324,49 +318,16 @@ const AppointmentBooking = () => {
     };
 
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_URL+"/bookingAppointments", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
-
-        },
-        body: JSON.stringify(data),
-      });
-      
-      if (response.ok) {
-        const responseData = await response.json();
-
-        const sendEmail = async () => {
-          try {
-            const response = await fetch(process.env.REACT_APP_BACKEND_URL+`/sendEmail?token=${responseData.token}`);
-            if (!response.ok) {
-              throw new Error('Failed to send email');
-            }
-            const data = await response.text();
-            console.log(data); // Log success message
-            alert('Email sent successfully!');
-          } catch (error) {
-            console.error('Error sending email:', error);
-            alert('Failed to send email. Please try again later.');
-          }
-        };
-        sendEmail()
-        console.log("Appointment booked successfully!" +responseData);
-        navigate( `/patient/appointment/token/${responseData.token}`)
-        // Optionally update the schedule state to reflect the booked appointment
-        setSchedules((prevSchedules) =>
-          prevSchedules.map((sch) =>
-            sch.scheduleId === selectedSchedule.scheduleId ? { ...sch, booked: true } : sch
-          )
-        );
-      } else {
-        console.error("Failed to book appointment");
-      }
-      
-
+      const responseData = await createAppointment(data);
+      toast.success('Appointment booked successfully!');
+      navigate( `/patient/appointment/token/${responseData.token}`)
+      setSchedules((prevSchedules) =>
+        prevSchedules.map((sch) =>
+          sch.scheduleId === selectedSchedule.scheduleId ? { ...sch, booked: true } : sch
+        )
+      );
     } catch (error) {
-      console.error("Failed to book appointment:", error);
+      toast.error('Failed to book appointment: ' + (error.message || 'Unknown error'));
     }
   };
 

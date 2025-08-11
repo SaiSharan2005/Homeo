@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FaTimes, FaPlus, FaSearch } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { getInventoryItems } from '../../services/inventory/inventoryItem';
+import { createPrescription, addPrescriptionItem as addItemToPrescription } from '../../services/prescription';
 
 const PrescriptionForm = ({ 
   onClose, 
@@ -35,14 +38,9 @@ const PrescriptionForm = ({
   useEffect(() => {
     const fetchInventoryItems = async () => {
       try {
-        const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL + '/inventory-items'
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch inventory items');
-        }
-        const data = await response.json();
-        setAvailableItems(data);
+        const page = 0, size = 100;
+        const res = await getInventoryItems(page, size);
+        setAvailableItems(res.content || res || []);
       } catch (error) {
         console.error(error);
       }
@@ -51,7 +49,7 @@ const PrescriptionForm = ({
   }, []);
 
   // Add a new empty prescription item with local search state and quantity field.
-  const addPrescriptionItem = () => {
+  const addPrescriptionItemRow = () => {
     setPrescriptionItems(prev => [
       ...prev,
       {
@@ -98,18 +96,7 @@ const PrescriptionForm = ({
     };
 
     try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL + '/prescriptions',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(prescriptionDto)
-        }
-      );
-      if (!response.ok) {
-        throw new Error('Failed to create prescription');
-      }
-      const createdPrescription = await response.json();
+      const createdPrescription = await createPrescription(prescriptionDto);
 
       // Add each prescription item using the separate endpoint
       for (const item of prescriptionItems) {
@@ -122,17 +109,7 @@ const PrescriptionForm = ({
           quantity: item.quantity
         };
 
-        const itemResponse = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/prescriptions/${createdPrescription.id}/items`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(itemPayload)
-          }
-        );
-        if (!itemResponse.ok) {
-          throw new Error('Failed to add a prescription item');
-        }
+        await addItemToPrescription(createdPrescription.id, itemPayload);
       }
 
       const totalAmount = prescriptionItems.reduce((acc, item) => {
@@ -141,12 +118,12 @@ const PrescriptionForm = ({
         return acc + price * qty;
       }, 0);
 
-      alert(`Prescription created successfully. Total Amount: ₹${totalAmount.toFixed(2)}`);
+      toast.success(`Prescription created successfully. Total Amount: ₹${totalAmount.toFixed(2)}`);
       onPrescriptionCreated(createdPrescription);
       onClose();
     } catch (error) {
       console.error(error);
-      alert(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -169,10 +146,11 @@ const PrescriptionForm = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Prescription Number */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="prescriptionNumber" className="block text-sm font-medium text-gray-700 mb-2">
               Prescription Number
             </label>
             <input
+              id="prescriptionNumber"
               type="text"
               value={prescriptionNumber}
               onChange={(e) => setPrescriptionNumber(e.target.value)}
@@ -182,10 +160,11 @@ const PrescriptionForm = ({
           </div>
           {/* General Instructions */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="generalInstructions" className="block text-sm font-medium text-gray-700 mb-2">
               General Instructions
             </label>
             <textarea
+              id="generalInstructions"
               value={generalInstructions}
               onChange={(e) => setGeneralInstructions(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
@@ -264,13 +243,14 @@ const PrescriptionForm = ({
                     </>
                   )}
                 </div>
-                {/* Dosage, Frequency, Duration, Additional Instructions, and Quantity */}
+                 {/* Dosage, Frequency, Duration, Additional Instructions, and Quantity */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor={`dosage-${index}`} className="block text-sm font-medium text-gray-700 mb-2">
                       Dosage
                     </label>
                     <input
+                      id={`dosage-${index}`}
                       type="text"
                       value={item.dosage}
                       onChange={(e) =>
@@ -281,10 +261,11 @@ const PrescriptionForm = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor={`frequency-${index}`} className="block text-sm font-medium text-gray-700 mb-2">
                       Frequency
                     </label>
                     <select
+                      id={`frequency-${index}`}
                       value={item.frequency}
                       onChange={(e) => updatePrescriptionItem(index, 'frequency', e.target.value)}
                       className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
@@ -297,10 +278,11 @@ const PrescriptionForm = ({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor={`duration-${index}`} className="block text-sm font-medium text-gray-700 mb-2">
                       Duration
                     </label>
                     <input
+                      id={`duration-${index}`}
                       type="text"
                       value={item.duration}
                       onChange={(e) =>
@@ -311,10 +293,11 @@ const PrescriptionForm = ({
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor={`additionalInstructions-${index}`} className="block text-sm font-medium text-gray-700 mb-2">
                       Additional Instructions
                     </label>
                     <textarea
+                      id={`additionalInstructions-${index}`}
                       value={item.additionalInstructions}
                       onChange={(e) =>
                         updatePrescriptionItem(index, 'additionalInstructions', e.target.value)
@@ -324,10 +307,11 @@ const PrescriptionForm = ({
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor={`quantity-${index}`} className="block text-sm font-medium text-gray-700 mb-2">
                       Quantity
                     </label>
                     <input
+                      id={`quantity-${index}`}
                       type="number"
                       min="1"
                       value={item.quantity}
@@ -342,7 +326,7 @@ const PrescriptionForm = ({
             <div className="flex justify-end">
               <button
                 type="button"
-                onClick={addPrescriptionItem}
+                onClick={addPrescriptionItemRow}
                 className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg transition-colors"
               >
                 <FaPlus /> Add Prescription Item
