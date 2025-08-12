@@ -6,6 +6,7 @@ import {
   deleteWarehouse,
   createWarehouse,
 } from "../../../services/inventory/warehouse";
+import { toast } from 'react-toastify';
 
 export default function WarehousesPage() {
   const [warehouses, setWarehouses] = useState([]);
@@ -34,7 +35,8 @@ export default function WarehousesPage() {
   );
 
   const handleRowClick = (id) => {
-    navigate(`${id}`);
+    // Navigate to admin inventory warehouse detail route
+    navigate(`/admin/inventory/warehouses/${id}`);
   };
 
   const handleDelete = async (e, id) => {
@@ -45,7 +47,7 @@ export default function WarehousesPage() {
       setWarehouses((prev) => prev.filter((w) => w.id !== id));
     } catch (err) {
       console.error("Error deleting warehouse:", err);
-      alert("Failed to delete warehouse. Please try again.");
+      toast.error("Failed to delete warehouse. Please try again.");
     }
   };
 
@@ -61,7 +63,7 @@ export default function WarehousesPage() {
 
   const handleCreate = async () => {
     if (!newName.trim() || !newLocation.trim()) {
-      alert("Please fill out both name and location.");
+      toast.error("Please fill out both name and location.");
       return;
     }
     try {
@@ -70,7 +72,7 @@ export default function WarehousesPage() {
       loadWarehouses();
     } catch (err) {
       console.error("Error creating warehouse:", err);
-      alert("Failed to create warehouse. Please try again.");
+      toast.error("Failed to create warehouse. Please try again.");
     }
   };
 

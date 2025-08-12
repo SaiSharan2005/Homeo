@@ -2,19 +2,26 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import apiService from '../../utils/api';
 
 export default function CreateQuestionSet() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [questions, setQuestions] = useState(['']);
+  const [loading, setLoading] = useState(false);
+
+  const questionSet = {
+    name,
+    description,
+    questions,
+  };
 
   const handleQuestionChange = (idx, value) => {
-    setQuestions(qs => {
-      const copy = [...qs];
-      copy[idx] = value;
-      return copy;
-    });
+    const newQuestions = [...questions];
+    newQuestions[idx] = value;
+    setQuestions(newQuestions);
   };
 
   const handleAddQuestion = () => {
@@ -25,33 +32,18 @@ export default function CreateQuestionSet() {
     setQuestions(qs => qs.filter((_, i) => i !== idx));
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      name,
-      description,
-      questions: questions.map(text => ({ text }))
-    };
-
+    setLoading(true);
     try {
-      const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/question-sets`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('Token')}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-      if (!res.ok) {
-        throw new Error(`Error ${res.status}`);
-      }
-      navigate('/questionnaires');
+      await apiService.post('/question-sets', questionSet);
+      toast.success('Question set created successfully!');
+      navigate('/questionnaire');
     } catch (err) {
       console.error(err);
-      alert('Failed to create question set.');
+      toast.error('Failed to create question set.');
+    } finally {
+      setLoading(false);
     }
   };
 

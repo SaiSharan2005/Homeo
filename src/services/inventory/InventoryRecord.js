@@ -1,41 +1,87 @@
-import { getData, postData, putData, deleteData } from '../api';
+/**
+ * Inventory Record Service
+ * Handles all inventory record-related API calls
+ */
 
-// Fetch all inventory records
-export const fetchInventoryRecords = async () => {
-  return await getData('/inventory-records');
+import { api } from '../api';
+
+/**
+ * Get all inventory records with pagination
+ * @param {number} page - Page number (0-based)
+ * @param {number} size - Page size
+ * @returns {Promise<Object>} Paginated inventory records
+ */
+export const getInventoryRecords = async (page = 0, size = 10) => {
+  return await api.get(`/inventory-records?page=${page}&size=${size}`);
 };
 
-// Fetch a single inventory record by ID
-export const fetchInventoryRecordById = async (id) => {
-  return await getData(`/inventory-records/${id}`);
+/**
+ * Get inventory record by ID
+ * @param {string|number} id - Inventory record ID
+ * @returns {Promise<Object>} Inventory record data
+ */
+export const getInventoryRecordById = async (id) => {
+  return await api.get(`/inventory-records/${id}`);
 };
 
-// Fetch all records for a given inventory item
-export const fetchRecordsByInventoryItemId = async (inventoryItemId) => {
-  return await getData(`/inventory-records/item/${inventoryItemId}`);
+/**
+ * Create new inventory record
+ * @param {Object} recordData - Inventory record data
+ * @returns {Promise<Object>} Created inventory record
+ */
+export const createInventoryRecord = async (recordData) => {
+  return await api.post('/inventory-records', recordData);
 };
 
-// Create a new inventory record
-export const createInventoryRecord = async (recordDto) => {
-  return await postData('/inventory-records', recordDto);
+/**
+ * Update inventory record
+ * @param {string|number} id - Inventory record ID
+ * @param {Object} recordData - Updated inventory record data
+ * @returns {Promise<Object>} Updated inventory record
+ */
+export const updateInventoryRecord = async (id, recordData) => {
+  return await api.put(`/inventory-records/${id}`, recordData);
 };
 
-// Update an existing inventory record
-export const updateInventoryRecord = async (id, recordDto) => {
-  return await putData(`/inventory-records/${id}`, recordDto);
-};
-
-// Delete an inventory record
+/**
+ * Delete inventory record
+ * @param {string|number} id - Inventory record ID
+ * @returns {Promise<null>} Success response
+ */
 export const deleteInventoryRecord = async (id) => {
-  return await deleteData(`/inventory-records/${id}`);
+  return await api.delete(`/inventory-records/${id}`);
 };
 
-// Increase the quantity of a record by a specified amount
-export const increaseInventoryRecord = async (id, amount) => {
-  return await putData(`/inventory-records/${id}/increase?amount=${amount}`, {});
+/**
+ * Get inventory records by item ID with pagination
+ * @param {string|number} itemId - Inventory item ID
+ * @param {number} page - Page number (0-based)
+ * @param {number} size - Page size
+ * @returns {Promise<Object>} Paginated inventory records for item
+ */
+export const getInventoryRecordsByItem = async (itemId, page = 0, size = 10) => {
+  return await api.get(`/inventory-records/item/${itemId}?page=${page}&size=${size}`);
 };
 
-// Decrease the quantity of a record by a specified amount
-export const decreaseInventoryRecord = async (id, amount) => {
-  return await putData(`/inventory-records/${id}/decrease?amount=${amount}`, {});
+/**
+ * Get inventory records by warehouse ID with pagination
+ * @param {string|number} warehouseId - Warehouse ID
+ * @param {number} page - Page number (0-based)
+ * @param {number} size - Page size
+ * @returns {Promise<Object>} Paginated inventory records for warehouse
+ */
+export const getInventoryRecordsByWarehouse = async (warehouseId, page = 0, size = 10) => {
+  return await api.get(`/inventory-records/warehouse/${warehouseId}?page=${page}&size=${size}`);
 };
+
+/**
+ * Get inventory record count
+ * @returns {Promise<Object>} Inventory record count
+ */
+export const getInventoryRecordCount = async () => {
+  return await api.get('/inventory-records/count');
+};
+
+// Legacy aliases used by UI
+export const fetchInventoryRecords = (page = 0, size = 10) => getInventoryRecords(page, size);
+export const fetchInventoryRecordById = (id) => getInventoryRecordById(id);

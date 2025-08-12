@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import apiService from "../../../utils/api";
 
 const DoctorSearchPage = () => {
   const navigate = useNavigate();
@@ -20,13 +21,7 @@ const DoctorSearchPage = () => {
           page: page.toString(),
           size: size.toString(),
         });
-        const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/doctor/search?${params}`
-        );
-        if (!res.ok) {
-          throw new Error("Failed to fetch doctors");
-        }
-        const data = await res.json();
+        const data = await apiService.get(`/doctor/search?${params}`);
         setDoctors(data.content || []);
         setTotalPages(data.totalPages);
       } catch (err) {
@@ -112,7 +107,7 @@ const DoctorSearchPage = () => {
                   "Doctor ID",
                   "Specialization",
                   "City",
-                  "Age",
+                  "Date of Birth",
                   "Gender",
                   "Address",
                   "Pincode",
@@ -129,7 +124,7 @@ const DoctorSearchPage = () => {
                 <tr
                   key={doc.id}
                   className="hover:bg-gray-50 transition cursor-pointer border-b"
-                  onClick={() => navigate(`profile/${doc.userId || doc.id}`)}
+                  onClick={() => navigate(`profile/${doc.id || doc.userId}`)}
                 >
                   <td className="px-6 py-4">{renderProfile(doc)}</td>
                   <td className="px-6 py-4">{doc.username || "-"}</td>
@@ -142,7 +137,11 @@ const DoctorSearchPage = () => {
                   <td className="px-6 py-4">
                     {doc.doctorDetails?.city || "-"}
                   </td>
-                  <td className="px-6 py-4">{doc.doctorDetails?.age || "-"}</td>
+                  <td className="px-6 py-4">
+                    {doc.doctorDetails?.dateOfBirth 
+                      ? new Date(doc.doctorDetails.dateOfBirth).toLocaleDateString() 
+                      : "-"}
+                  </td>
                   <td className="px-6 py-4">
                     {renderGenderIcon(doc.doctorDetails?.gender)}
                   </td>

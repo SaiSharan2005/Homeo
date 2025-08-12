@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../services/api";
 
 const PatientAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
   const [appointments, setAppointments] = useState([]);
@@ -10,17 +12,7 @@ const PatientAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/patient/my-appointments`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("Token")}`,
-            },
-          }
-        );
-        const data = await response.json();
+        const data = await api.get(`/bookingAppointments/patient/my-appointments`);
         setAppointments(data);
       } catch (error) {
         console.error("Error fetching patient appointments:", error);
@@ -196,3 +188,7 @@ const PatientAppointmentsPage = ({ defaultStatusFilter = "All" }) => {
 };
 
 export default PatientAppointmentsPage;
+
+PatientAppointmentsPage.propTypes = {
+  defaultStatusFilter: PropTypes.string,
+};

@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { MdPerson, MdPhone, MdEmail, MdLock } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
-import { Signup } from "../../services/patient/patient_api"; // Your signup API function
-// Note: createDoctor is imported if needed but here we forward based on role
-// import { createDoctor } from '../../services/doctor/doctor_api';
+import React, { useState, useEffect } from "react";
+import { MdPerson, MdPhone, MdEmail, MdLock, MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Signup } from "../../services/patient/patient_api";
+import { sendPasswordReset, verifyEmail } from "../../services/auth";
 
 export default function SignUpForm({ rolesFromParams }) {
   const navigate = useNavigate();
@@ -117,39 +116,22 @@ export default function SignUpForm({ rolesFromParams }) {
     event.preventDefault();
     // reuse your validations for email/phone/etc.
     setError(null);
-    await fetch(
-      `${
-        process.env.REACT_APP_BACKEND_URL
-      }/verify/request?email=${encodeURIComponent(credentials.email)}`,
-      { method: "POST" }
-    );
-    setVerificationSent(true);
+    try {
+      await sendPasswordReset(credentials.email);
+      setVerificationSent(true);
+    } catch (error) {
+      setError("Failed to send verification code. Please try again.");
+    }
   };
 
   // ── new: confirm the code, then call real signup
   const handleConfirmCode = async (event) => {
     event.preventDefault();
-    const token = localStorage.getItem("Token");
-
-    const res = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/verify/confirm` +
-        `?email=${encodeURIComponent(credentials.email)}` +
-        `&code=${encodeURIComponent(code)}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-      }
-    );
-    const msg = await res.text();
-    if (res.ok && msg.includes("success")) {
+    try {
+      await verifyEmail(code);
       // now actually sign up
-        // navigate("/patient/details", { state: { data: responseData } });
-                navigate("/patient/details");
-
-    } else {
+      navigate("/patient/details");
+    } catch (error) {
       setError("Invalid or expired verification code.");
     }
   };

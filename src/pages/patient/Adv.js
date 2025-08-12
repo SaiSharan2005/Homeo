@@ -1,5 +1,6 @@
 // src/components/Adv.jsx
 import React, { useState, useEffect } from 'react';
+import apiService from '../../utils/api';
 
 export default function AdBanner({ targetPage, className = '' }) {
   const [ad, setAd] = useState(null);
@@ -7,11 +8,7 @@ export default function AdBanner({ targetPage, className = '' }) {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/ads/active?targetPage=${targetPage}`
-        );
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+        const data = await apiService.get(`/ads/active?targetPage=${encodeURIComponent(targetPage)}`);
         setAd(Object.keys(data || {}).length ? data : null);
       } catch (e) {
         console.error("Ad fetch failed:", e);

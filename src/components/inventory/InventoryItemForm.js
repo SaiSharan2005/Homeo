@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { getCategories } from '../../services/inventory/category';
+import { createInventoryItem } from '../../services/inventory/inventoryItem';
+import { createInventoryRecord } from '../../services/inventory/InventoryRecord';
 
 const InventoryItemAndRecordForm = () => {
   const API_BASE_URL = process.env.REACT_APP_BACKEND_URL; // Backend URL from .env file
@@ -49,23 +52,16 @@ const InventoryItemAndRecordForm = () => {
       setError("No authentication token found.");
       return;
     }
-    fetch(`${API_BASE_URL}/categories`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("Failed to fetch categories.");
-        return response.json();
-      })
-      .then((data) => setCategories(data))
-      .catch((err) => {
+    (async () => {
+      try {
+        const res = await getCategories(0, 100);
+        setCategories(res.content || res || []);
+      } catch (err) {
         console.error("Error fetching categories:", err);
         setError("Error fetching categories.");
-      });
-  }, [API_BASE_URL, token]);
+      }
+    })();
+  }, [token]);
 
   // Handle change for inventory item fields
   const handleItemChange = (e) => {
@@ -100,15 +96,7 @@ const InventoryItemAndRecordForm = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/inventory-items`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-      if (!response.ok) throw new Error('Failed to create inventory item.');
-      const data = await response.json();
+      const data = await createInventoryItem(formData);
       setMessage('Inventory item created successfully!');
       setCreatedItemId(data.id);
       setItemFormData({
@@ -162,16 +150,7 @@ const InventoryItemAndRecordForm = () => {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/inventory-records`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      if (!response.ok) throw new Error('Failed to create inventory record.');
-      await response.json();
+      await createInventoryRecord(payload);
       setMessage('Inventory record created successfully!');
       setRecordQuantity(0);
       setCreatedItemId(null);

@@ -1,37 +1,108 @@
-import { getData, postData, putData, deleteData } from '../api';
+/**
+ * Inventory Item Service
+ * Handles all inventory item-related API calls
+ */
 
-// Fetch all inventory items
-export const fetchInventoryItems = async () => {
-  return await getData('/inventory-items');
+import { api } from '../api';
+
+/**
+ * Get all inventory items with pagination
+ * @param {number} page - Page number (0-based)
+ * @param {number} size - Page size
+ * @returns {Promise<Object>} Paginated inventory items
+ */
+export const getInventoryItems = async (page = 0, size = 10) => {
+  return await api.get(`/inventory-items?page=${page}&size=${size}`);
 };
 
-// Fetch a single inventory item by ID
-export const fetchInventoryItemById = async (id) => {
-  return await getData(`/inventory-items/${id}`);
+/**
+ * Get inventory item by ID
+ * @param {string|number} id - Inventory item ID
+ * @returns {Promise<Object>} Inventory item data
+ */
+export const getInventoryItemById = async (id) => {
+  return await api.get(`/inventory-items/${id}`);
 };
 
-// Create a new inventory item (with optional image)
-export const createInventoryItem = async (itemDto, imageFile) => {
+/**
+ * Create new inventory item (multipart/form-data)
+ * Backend expects @RequestPart("inventoryItem") JSON and optional @RequestPart("image") file
+ * @param {Object} itemData - Inventory item data
+ * @param {File|undefined} imageFile - Optional image file
+ * @returns {Promise<Object>} Created inventory item
+ */
+export const createInventoryItem = async (itemData, imageFile) => {
   const formData = new FormData();
-  formData.append('inventoryItem', new Blob([JSON.stringify(itemDto)], { type: 'application/json' }));
-  if (imageFile) formData.append('image', imageFile);
-  return await postData('/inventory-items', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+  formData.append('inventoryItem', new Blob([JSON.stringify(itemData)], { type: 'application/json' }));
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
+  return await api.post('/inventory-items', formData);
 };
 
-// Update an existing inventory item (with optional image)
-export const updateInventoryItem = async (id, itemDto, imageFile) => {
+/**
+ * Update inventory item (multipart/form-data)
+ * Backend expects @RequestPart("inventoryItem") JSON and optional @RequestPart("image") file
+ * @param {string|number} id - Inventory item ID
+ * @param {Object} itemData - Updated inventory item data
+ * @param {File|undefined} imageFile - Optional image file
+ * @returns {Promise<Object>} Updated inventory item
+ */
+export const updateInventoryItem = async (id, itemData, imageFile) => {
   const formData = new FormData();
-  formData.append('inventoryItem', new Blob([JSON.stringify(itemDto)], { type: 'application/json' }));
-  if (imageFile) formData.append('image', imageFile);
-  return await putData(`/inventory-items/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+  formData.append('inventoryItem', new Blob([JSON.stringify(itemData)], { type: 'application/json' }));
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
+  return await api.put(`/inventory-items/${id}`, formData);
 };
 
-// Delete an inventory item
+/**
+ * Delete inventory item
+ * @param {string|number} id - Inventory item ID
+ * @returns {Promise<null>} Success response
+ */
 export const deleteInventoryItem = async (id) => {
-  return await deleteData(`/inventory-items/${id}`);
+  return await api.delete(`/inventory-items/${id}`);
 };
 
-// Update stock for an inventory item by a change amount
-export const updateInventoryItemStock = async (id, change) => {
-  return await putData(`/inventory-items/${id}/stock?change=${change}`, {});
+/**
+ * Get inventory items by category with pagination
+ * @param {string|number} categoryId - Category ID
+ * @param {number} page - Page number (0-based)
+ * @param {number} size - Page size
+ * @returns {Promise<Object>} Paginated inventory items for category
+ */
+export const getInventoryItemsByCategory = async (categoryId, page = 0, size = 10) => {
+  return await api.get(`/inventory-items/category/${categoryId}?page=${page}&size=${size}`);
 };
+
+/**
+ * Search inventory items by name or description
+ * @param {string} searchTerm - Search term
+ * @param {number} page - Page number (0-based)
+ * @param {number} size - Page size
+ * @returns {Promise<Object>} Paginated search results
+ */
+export const searchInventoryItems = async (searchTerm, page = 0, size = 10) => {
+  return await api.get(`/inventory-items/search?q=${encodeURIComponent(searchTerm)}&page=${page}&size=${size}`);
+};
+
+/**
+ * Upload inventory item image
+ * @param {string|number} id - Inventory item ID
+ * @param {File} imageFile - Image file
+ * @returns {Promise<Object>} Upload response
+ */
+// Note: image is uploaded alongside create/update via multipart; separate endpoint not used
+
+/**
+ * Get inventory item count
+ * @returns {Promise<Object>} Inventory item count
+ */
+export const getInventoryItemCount = async () => {
+  return await api.get('/inventory-items/count');
+};
+
+// Legacy alias used by UI
+export const fetchInventoryItems = (page = 0, size = 10) => getInventoryItems(page, size);

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchCurrentPayment, fetchPaymentDetail } from "../../services/other/other";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 export default function CurrentPaymentBanner({ role }) {
   const [current, setCurrent] = useState(null);         // { id, prescriptionId, … }
@@ -17,6 +18,7 @@ export default function CurrentPaymentBanner({ role }) {
         setCurrent(summary);
       } catch (err) {
         console.error("Could not load current payment:", err);
+        toast.error('Failed to load current payment');
       }
     })();
   }, [role]);
@@ -30,6 +32,7 @@ export default function CurrentPaymentBanner({ role }) {
         setDetail(full);
       } catch (err) {
         console.error("Could not load payment detail:", err);
+        toast.error('Failed to load payment details');
       }
     })();
   }, [current]);

@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'Frontend/package-lock.json'
+    
+    - name: Install dependencies
+      run: |
+        cd Frontend
+        npm ci
+    
+    - name: Run ESLint
+      run: |
+        cd Frontend
+        npm run lint
+    
+    - name: Run tests
+      run: |
+        cd Frontend
+        npm test -- --watchAll=false --coverage
+    
+    - name: Build project
+      run: |
+        cd Frontend
+        npm run build

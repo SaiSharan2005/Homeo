@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
+import { getAllDoctors } from '../../services/doctor/doctor_api';
+import { getDoctorSchedule } from '../../services/appointment';
+import { getBookingAppointments, createAppointment } from '../../services/appointment';
+import { getAllPatients } from '../../services/patient/patient_api';
 
 const AdminBookSlot = () => {
   const [patients, setPatients] = useState([]);
@@ -18,13 +23,10 @@ const AdminBookSlot = () => {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const res = await fetch(`${BASE}/patient/all?page=0&size=100`);
-        if (!res.ok) throw new Error("Failed to fetch patients");
-        const json = await res.json();
-        // json is a Page object; actual list is in json.content
+        const json = await getAllPatients(0, 100);
         setPatients(Array.isArray(json.content) ? json.content : []);
       } catch (err) {
-        alert(err.message);
+        toast.error(err.message);
       }
     };
     fetchPatients();
@@ -34,12 +36,10 @@ const AdminBookSlot = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const res = await fetch(`${BASE}/doctor/availableDoctors?page=0&size=100`);
-        if (!res.ok) throw new Error("Failed to fetch doctors");
-        const json = await res.json();
-        setDoctors(Array.isArray(json.content) ? json.content : []);
+        const json = await getAllDoctors(0, 100);
+        setDoctors(json.content || []);
       } catch (err) {
-        alert(err.message);
+        toast.error(err.message);
       }
     };
     fetchDoctors();
@@ -55,13 +55,10 @@ const AdminBookSlot = () => {
 
     const fetchSchedules = async () => {
       try {
-        const res = await fetch(`${BASE}/schedule/doctor/${selectedDoctor.id}`);
-        if (!res.ok) throw new Error("Failed to fetch schedules");
-        const json = await res.json();
-        // Assuming your schedule service now returns a plain array
+        const json = await getDoctorSchedule(selectedDoctor.id);
         setSchedules(Array.isArray(json) ? json : []);
       } catch (err) {
-        alert(err.message);
+        toast.error(err.message);
       }
     };
     fetchSchedules();
@@ -70,7 +67,7 @@ const AdminBookSlot = () => {
   // 4) Booking an appointment
   const bookAppointment = async () => {
     if (!selectedPatient || !selectedDoctor || !selectedSchedule) {
-      alert("Please select a patient, a doctor, and a slot.");
+      toast.error("Please select a patient, a doctor, and a slot.");
       return;
     }
 
@@ -82,21 +79,11 @@ const AdminBookSlot = () => {
 
     try {
       setIsLoading(true);
-      const res = await fetch(`${BASE}/bookingAppointments/byStaff`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bookingData),
-      });
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText || "Failed to book appointment");
-      }
-      const created = await res.json();
-      alert("Appointment booked successfully!");
-      // Navigate to token page
+      const created = await createAppointment(bookingData);
+      toast.success("Appointment booked successfully!");
       navigate(`/token/${created.token}`);
     } catch (err) {
-      alert(err.message);
+      toast.error('Failed to book appointment: ' + (err.message || 'Unknown error'));
     } finally {
       setIsLoading(false);
     }

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { doctorLogin } from "../../services/auth";
 
 export default function DoctorLogin() {
   const navigate = useNavigate();
@@ -19,25 +20,13 @@ export default function DoctorLogin() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const url = process.env.REACT_APP_BACKEND_URL + "/auth/login";
     const data = {
       phoneNumber: credentials.phoneNumber,
       password: credentials.password,
     };
 
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(errorMessage);
-      }
-
-      const responseData = await response.json();
+      const responseData = await doctorLogin(data);
       console.log("Doctor logged in successfully:", responseData);
       localStorage.setItem("userId", responseData.id);
       localStorage.setItem("doctorId", responseData.doctorId);

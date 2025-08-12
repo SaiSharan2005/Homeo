@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import apiService from '../../utils/api';
 
 export default function AdBanner({ targetPage }) {
   const [ad, setAd] = useState(null);
@@ -6,13 +8,7 @@ export default function AdBanner({ targetPage }) {
   useEffect(() => {
     const fetchAd = async () => {
       try {
-        const response = await fetch(process.env.REACT_APP_BACKEND_URL+`/ads/active?targetPage=${targetPage}`);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
+        const data = await apiService.get(`/ads/active?targetPage=${encodeURIComponent(targetPage)}`);
         
         if (data && Object.keys(data).length !== 0) {
           setAd(data);
@@ -42,3 +38,7 @@ export default function AdBanner({ targetPage }) {
     </div>
   );
 }
+
+AdBanner.propTypes = {
+  targetPage: PropTypes.string.isRequired,
+};

@@ -3,6 +3,7 @@ import { parse, format, addMinutes, isBefore } from "date-fns";
 import { FiEdit, FiTrash2, FiCheck, FiX } from "react-icons/fi";
 import { resetDoctorTimings, createDoctorTimings } from "../../services/doctor/doctor_api"; // adjust the import path as needed
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const DoctorScheduleCreation = () => {
   const navigate = useNavigate();
@@ -19,6 +20,14 @@ const DoctorScheduleCreation = () => {
   const [editingSlotId, setEditingSlotId] = useState(null);
   const [editingSlot, setEditingSlot] = useState({ startTime: "", endTime: "" });
 
+  // Loading state for save operation
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Show welcome message on component mount
+  React.useEffect(() => {
+    toast.info("Create your daily schedule by adding time slots. You can edit or delete slots as needed. Click 'Save Schedule' when done to make slots available for appointments.");
+  }, []);
+
   // Update new slot form values.
   const handleNewSlotChange = (e) => {
     const { name, value } = e.target;
@@ -32,11 +41,11 @@ const DoctorScheduleCreation = () => {
     const gapMinutes = parseInt(newSlot.gap, 10);
 
     if (!isBefore(start, end)) {
-      alert("Start time must be before end time");
+      toast.error("Start time must be before end time");
       return;
     }
     if (isNaN(gapMinutes) || gapMinutes <= 0) {
-      alert("Please provide a valid gap in minutes");
+      toast.error("Please provide a valid gap in minutes");
       return;
     }
 
@@ -64,6 +73,9 @@ const DoctorScheduleCreation = () => {
       endTime: "05:00 PM",
       gap: "60",
     });
+
+    // Show success toast with more details
+    toast.success(`${newSlots.length} slots added successfully! Total slots: ${allSlots.length}`);
   };
 
   // Start editing a slot.
@@ -80,6 +92,15 @@ const DoctorScheduleCreation = () => {
 
   // Save the edited slot.
   const saveEditedSlot = () => {
+    // Validate the edited slot times
+    const start = parse(editingSlot.startTime, "h:mm a", new Date());
+    const end = parse(editingSlot.endTime, "h:mm a", new Date());
+
+    if (!isBefore(start, end)) {
+      toast.error("Start time must be before end time");
+      return;
+    }
+
     const updatedSlots = slots.map((slot) => {
       if (slot.id === editingSlotId) {
         return {
@@ -97,6 +118,8 @@ const DoctorScheduleCreation = () => {
     setSlots(sortedSlots);
     setEditingSlotId(null);
     setEditingSlot({ startTime: "", endTime: "" });
+    
+    toast.success("Slot updated successfully");
   };
 
   // Cancel editing.
@@ -108,13 +131,24 @@ const DoctorScheduleCreation = () => {
   // Delete a slot.
   const deleteSlot = (id) => {
     setSlots(slots.filter((slot) => slot.id !== id));
+    toast.success("Slot deleted successfully");
   };
 
   // Handle Save Schedule: reset timings and create new ones.
   const handleSaveSchedule = async () => {
     try {
+      // Check if there are slots to save
+      if (slots.length === 0) {
+        toast.error("Please add at least one slot before saving the schedule");
+        return;
+      }
+
+      setIsSaving(true);
+      console.log("Saving schedule with", slots.length, "slots");
+
       // First, reset the timings.
       await resetDoctorTimings();
+      console.log("Doctor timings reset successfully");
       
       // Convert slots to required format.
       const data = slots.map((slot) => {
@@ -130,10 +164,20 @@ const DoctorScheduleCreation = () => {
       // Call createDoctorTimings with the data.
       await createDoctorTimings(data);
       console.log("Schedule saved successfully", data);
-      navigate("/doctor/home");
+      
+      // Show success toast with more details
+      toast.success(`Schedule saved successfully! ${slots.length} slots created and ready for appointments.`);
+      
+      // Navigate back to home after a short delay
+      setTimeout(() => {
+        navigate("/doctor/home");
+      }, 1500);
 
     } catch (error) {
       console.error("Error saving schedule", error);
+      toast.error("Failed to save schedule. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -248,9 +292,21 @@ const DoctorScheduleCreation = () => {
       {/* Save Schedule Button */}
       <button
         onClick={handleSaveSchedule}
-        className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
+        disabled={isSaving}
+        className={`w-full px-4 py-2 rounded-lg ${
+          isSaving 
+            ? 'bg-gray-400 cursor-not-allowed' 
+            : 'bg-green-500 hover:bg-green-600'
+        } text-white`}
       >
-        Save Schedule
+        {isSaving ? (
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+            Saving Schedule...
+          </div>
+        ) : (
+          'Save Schedule'
+        )}
       </button>
     </div>
   );

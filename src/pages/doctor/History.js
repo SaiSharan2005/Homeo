@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import profile1 from "../../images/doctorPatient.jpg";
 import DoctorNavbar from "../../components/navbar/DoctorNavbar";
 import { useNavigate } from "react-router-dom";
+import { getDoctorAppointments } from "../../services/doctor";
 
 export default function DoctorHistory() {
   const [appointments, setAppointments] = useState([]);
@@ -10,18 +11,12 @@ export default function DoctorHistory() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/doctor/my-appointments`, {
-          method: "GET",
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
-
-          },
-        }
-      );
-      const data = await response.json();
-      setAppointments(data);
+      try {
+        const data = await getDoctorAppointments();
+        setAppointments(data);
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
     };
     fetchData();
   }, []);

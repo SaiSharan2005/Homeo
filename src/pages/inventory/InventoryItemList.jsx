@@ -1,25 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { MdDelete } from "react-icons/md";
-import { fetchInventoryItems } from "../../services/doctor/appointment";
+import { getInventoryItems, deleteInventoryItem } from "../../services/inventory/inventoryItem";
 
-const InventoryItemsPage = () => {
+const InventoryItemsPage = ({ navigateBase = "" }) => {
   const [inventoryItems, setInventoryItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const userRole = localStorage.getItem("ROLE");
 
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const pageSize = 10;
+
   useEffect(() => {
     const loadInventoryItems = async () => {
       try {
-        const data = await fetchInventoryItems();
-        setInventoryItems(data);
+        const data = await getInventoryItems(currentPage, pageSize);
+        setInventoryItems(data.content || data || []);
+        setTotalPages(data.totalPages || 0);
       } catch (error) {
         console.error("Error fetching inventory items:", error);
+        toast.error("Failed to fetch inventory items");
       }
     };
     loadInventoryItems();
-  }, []);
+  }, [currentPage]);
 
   const filteredItems = inventoryItems.filter((item) =>
     (item.name || "").toLowerCase().includes(searchQuery.toLowerCase())
@@ -54,7 +61,13 @@ const InventoryItemsPage = () => {
   };
 
   const handleRowClick = (id) => {
-    navigate(`${id}`);
+    if (navigateBase) {
+      // ensure single slash join
+      const base = navigateBase.endsWith("/") ? navigateBase.slice(0, -1) : navigateBase;
+      navigate(`${base}/${id}`);
+    } else {
+      navigate(`${id}`);
+    }
   };
 
   const handleDelete = async (e, id) => {
@@ -66,18 +79,12 @@ const InventoryItemsPage = () => {
     }
 
     try {
-      const res = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/inventory-items/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-      if (!res.ok) throw new Error("Delete failed");
-      // Remove locally
+      await deleteInventoryItem(id);
       setInventoryItems((prev) => prev.filter((item) => item.id !== id));
+      toast.success("Inventory item deleted successfully");
     } catch (err) {
       console.error("Error deleting inventory item:", err);
-      alert("Failed to delete item. Please try again.");
+      toast.error("Failed to delete item. Please try again.");
     }
   };
 

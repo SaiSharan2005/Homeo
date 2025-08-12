@@ -1,61 +1,79 @@
 // src/services/questionnaire_api.js
 
-import { getData, postData } from '../api';
+import api from '../api';
 
-/**
- * Pagination params are optional (page defaults to 0, size to 10).
- * Returns the Spring‐Data Page object.
- */
-export const fetchQuestionSets = async (page = 0, size = 10) => {
-  return await getData(`/question-sets?page=${page}&size=${size}`);
+// Questionnaire CRUD operations
+export const createQuestionnaire = async (questionnaireData) => {
+  return api.post('/questionnaires', questionnaireData);
 };
 
-/**
- * Create a new Question Set with its questions.
- * payload = { name, description, questions: [{ text }, …] }
- */
-export const createQuestionSet = async (payload) => {
-  return await postData('/question-sets', payload);
+export const getAllQuestionnaires = async (page = 0, size = 10) => {
+  return api.get(`/questionnaires?page=${page}&size=${size}`);
 };
 
-/**
- * Fetch a single set (without pagination).
- */
-export const fetchQuestionSetById = async (setId) => {
-  return await getData(`/question-sets/${setId}`);
+export const getQuestionnaireById = async (id) => {
+  return api.get(`/questionnaires/${id}`);
 };
 
-/**
- * Submit a user’s answers to one set.
- * payload = { answers: [ { questionId, response }, … ] }
- */
-export const submitQuestionnaire = async (setId, payload) => {
-  return await postData(`/question-sets/${setId}/submit`, payload);
+export const updateQuestionnaire = async (id, questionnaireData) => {
+  return api.put(`/questionnaires/${id}`, questionnaireData);
 };
 
-/**
- * Fetch paged submissions for a particular Question Set.
- * Returns the Spring‐Data Page object.
- */
-export const fetchSubmissionsBySet = async (setId, page = 0, size = 10) => {
-  return await getData(`/question-sets/${setId}/submissions?page=${page}&size=${size}`);
+export const deleteQuestionnaire = async (id) => {
+  return api.delete(`/questionnaires/${id}`);
 };
 
-/**
- * Fetch paged submissions for a particular user.
- */
-export const fetchSubmissionsByUser = async (username, page = 0, size = 10) => {
-  return await getData(`/submissions/user/${username}?page=${page}&size=${size}`);
+// Question set operations
+export const createQuestionSet = async (questionSetData) => {
+  return api.post('/question-sets', questionSetData);
 };
 
-/**
- * Fetch all submissions globally (paged).
- */
-export const fetchAllSubmissions = async (page = 0, size = 10) => {
-  return await getData(`/submissions?page=${page}&size=${size}`);
+export const getAllQuestionSets = async (page = 0, size = 10) => {
+  return api.get(`/question-sets?page=${page}&size=${size}`);
 };
 
+export const getQuestionSetById = async (id) => {
+  return api.get(`/question-sets/${id}`);
+};
 
-export const fetchSubmissionById = async (submissionId) => {
-    return await getData(`/submissions/${submissionId}`);
-  };
+export const updateQuestionSet = async (id, questionSetData) => {
+  return api.put(`/question-sets/${id}`, questionSetData);
+};
+
+export const deleteQuestionSet = async (id) => {
+  return api.delete(`/question-sets/${id}`);
+};
+
+// Question operations
+export const createQuestion = async (questionData) => {
+  return api.post('/questions', questionData);
+};
+
+export const updateQuestion = async (id, questionData) => {
+  return api.put(`/questions/${id}`, questionData);
+};
+
+export const deleteQuestion = async (id) => {
+  return api.delete(`/questions/${id}`);
+};
+
+// Patient responses
+export const submitQuestionnaireResponse = async (responseData) => {
+  return api.post('/questionnaire-responses', responseData);
+};
+
+export const getPatientResponses = async (patientId, page = 0, size = 10) => {
+  return api.get(`/questionnaire-responses/patient/${patientId}?page=${page}&size=${size}`);
+};
+
+export const getQuestionnaireResponses = async (questionnaireId, page = 0, size = 10) => {
+  return api.get(`/questionnaire-responses/questionnaire/${questionnaireId}?page=${page}&size=${size}`);
+};
+
+// Legacy aliases expected by pages
+export const fetchQuestionSets = (page = 0, size = 10) => getAllQuestionSets(page, size);
+export const fetchQuestionSetById = (id) => getQuestionSetById(id);
+export const submitQuestionnaire = (questionSetId, payload) => api.post(`/questionnaire-responses/submit/${questionSetId}`, payload);
+export const fetchSubmissionById = (id) => api.get(`/questionnaire-responses/${id}`);
+export const fetchSubmissionsBySet = (setId, page = 0, size = 10) => api.get(`/questionnaire-responses/by-set/${setId}?page=${page}&size=${size}`);
+export const fetchSubmissionsByUser = (username, page = 0, size = 10) => api.get(`/questionnaire-responses/user/${username}?page=${page}&size=${size}`);

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaPhone, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import AppointmentsPage from "../../../components/appointment/Appointments";
+import { fetchPatientById, fetchCurrentPatient } from '../../../services/patient/patient_api';
+import { fetchAppointmentsByPatientId, fetchMyPatientAppointments } from '../../../services/appointment';
 
 const PatientProfile = () => {
   const [patient, setPatient] = useState(null);
@@ -15,20 +17,9 @@ const PatientProfile = () => {
   useEffect(() => {
     const fetchPatient = async () => {
       try {
-        const url = patientId
-          ? `${process.env.REACT_APP_BACKEND_URL}/patient/${patientId}`
-          : `${process.env.REACT_APP_BACKEND_URL}/patient/me`;
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("Token")}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch patient details");
-        }
-        const data = await response.json();
+        const data = patientId
+          ? await fetchPatientById(patientId)
+          : await fetchCurrentPatient();
         setPatient(data);
       } catch (error) {
         console.error("Error fetching patient:", error);
@@ -43,24 +34,12 @@ const PatientProfile = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        let url;
+        let data;
         if (patient) {
-          // Use the provided patientId from the URL.
-          url = `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/patient/${patient.id}`;
+          data = await fetchAppointmentsByPatientId(patient.id);
         } else {
-          url = `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/patient/my-appointments`;
+          data = await fetchMyPatientAppointments();
         }
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("Token")}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch appointments");
-        }
-        const data = await response.json();
         setAppointments(data);
       } catch (error) {
         console.error("Error fetching appointments:", error);
@@ -98,8 +77,10 @@ const PatientProfile = () => {
             <div>
               <h2 className="text-xl font-bold">{patient.username}</h2>
               <p className="text-sm text-gray-600 mt-1">
-                {patient.patientDetails.gender} | Age:{" "}
-                {patient.patientDetails.age}
+                {patient.patientDetails.gender} | Date of Birth:{" "}
+                {patient.patientDetails.dateOfBirth 
+                  ? new Date(patient.patientDetails.dateOfBirth).toLocaleDateString() 
+                  : "Not specified"}
               </p>
               <p className="text-sm text-gray-500">
                 {patient.patientDetails.address},{" "}

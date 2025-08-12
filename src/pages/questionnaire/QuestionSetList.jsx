@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 // import AdBanner from "../appointments/Adv"; // adjust path if needed
 import { fetchQuestionSets } from "../../services/other/questionnaireApi";
 import SubmissionList from "./SubmissionList";
+import { toast } from 'react-toastify';
 
 const QuestionSetList = ({ defaultFilter = "All" }) => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const QuestionSetList = ({ defaultFilter = "All" }) => {
         setTotalPages(data.totalPages);
       } catch (err) {
         console.error("Error fetching question sets:", err);
+        toast.error('Failed to fetch question sets');
       } finally {
         setLoading(false);
       }
@@ -149,7 +151,7 @@ const QuestionSetList = ({ defaultFilter = "All" }) => {
         <AdBanner targetPage="questionsets-bottom" />
       </div> */}
     </div>
-    <div class= "py-5">
+    <div className="py-5">
     <SubmissionList/>
 
 

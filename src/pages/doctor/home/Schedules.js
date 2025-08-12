@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import doctorImage from '../../../images/doctorPatient.jpg'; // Adjust the path as needed
+import { getDoctorAppointments } from '../../../services/doctor';
 
 export default function Schedules({ date }) {
   const [appointments, setAppointments] = useState([]);
@@ -7,16 +8,7 @@ export default function Schedules({ date }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/doctor/my-appointments`,
-          {
-            method: "GET", // Specify the method explicitly
-            headers: {
-              'Content-Type': 'application/json', // Ensures the backend knows the data format
-              'Authorization': `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
-            },}
-        );
-        const data = await response.json();
+        const data = await getDoctorAppointments();
 
         const currentTime = new Date(); // Get the current time
 

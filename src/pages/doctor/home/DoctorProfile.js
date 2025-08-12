@@ -11,6 +11,8 @@ import {
   FaMobileAlt 
 } from "react-icons/fa";
 import AppointmentsPage from "../../../components/appointment/Appointments";
+import { fetchDoctorById, fetchCurrentDoctor } from '../../../services/doctor/doctor_api';
+import { fetchAppointmentsByDoctorId, fetchMyDoctorAppointments } from '../../../services/appointment';
 
 // Pencil icon for edit mode
 const PencilIcon = ({ onClick }) => (
@@ -49,20 +51,9 @@ const DoctorProfile = ({ appointments: appointmentsProp }) => {
   useEffect(() => {
     const fetchDoctorData = async () => {
       try {
-        const url = doctorId 
-          ? `${process.env.REACT_APP_BACKEND_URL}/doctor/${doctorId}` 
-          : `${process.env.REACT_APP_BACKEND_URL}/doctor/me`;
-        const res = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("Token")}`,
-          },
-        });
-        if (!res.ok) {
-          throw new Error("Failed to fetch doctor data");
-        }
-        const data = await res.json();
+        const data = doctorId 
+          ? await fetchDoctorById(doctorId)
+          : await fetchCurrentDoctor();
         setDoctor(data);
         setDoctorDetails(data.doctorDetails || {});
       } catch (error) {
@@ -78,25 +69,12 @@ const DoctorProfile = ({ appointments: appointmentsProp }) => {
   useEffect(() => {
     const loadAppointments = async () => {
       try {
-        let url;
+        let data;
         if (doctorId) {
-          // Use the provided doctorId from the route.
-          url = `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/doctor/${doctorId}`;
+          data = await fetchAppointmentsByDoctorId(doctorId);
         } else {
-          // Otherwise, use the logged-in doctor's appointments route.
-          url = `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/doctor/my-appointments`;
+          data = await fetchMyDoctorAppointments();
         }
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("Token")}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch appointments");
-        }
-        const data = await response.json();
         setAppointments(data);
       } catch (error) {
         console.error("Error fetching appointments:", error);

@@ -6,14 +6,18 @@ import serviceImage1 from "../../../images/doctorPatient.jpg";
 import serviceImage2 from "../../../images/doctorPatient.jpg";
 import serviceImage3 from "../../../images/doctorPatient.jpg";
 import DoctorNavbar from "../../../components/navbar/DoctorNavbar";
-import { fetchDoctorById } from "../../../utils/doctorService";
+import { fetchCurrentDoctor, fetchDoctorScheduleByDate, createDoctorScheduleByDate } from '../../../services/doctor/doctor_api';
+import { fetchMyDoctorAppointments } from '../../../services/appointment';
 import "react-calendar/dist/Calendar.css";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function DoctorHome() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [doctorData, setDoctorData] = useState({});
   const [schedules, setSchedules] = useState([]);
+  const [isCreatingSchedule, setIsCreatingSchedule] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   const handleDateChange = (date) => {
@@ -35,68 +39,46 @@ export default function DoctorHome() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/doctor/my-appointments`,
-          {
-            method: "GET", // Specify the method explicitly
-            headers: {
-              "Content-Type": "application/json", // Ensures the backend knows the data format
-              Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
-            },
-          }
-        );
-
-        if (!response.ok) {
-          // Handle HTTP errors
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setAppointments(data); // Update state with the fetched data
+        const data = await fetchMyDoctorAppointments();
+        setAppointments(data);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
     };
-
-    // Call the fetchData function once when the component mounts
     fetchData();
-  }, []); // Empty dependency array ensures this runs only once
+  }, []);
 
   useEffect(() => {
     const fetchDoctorData = async () => {
       try {
-        const doctor = await fetch(
-          process.env.REACT_APP_BACKEND_URL + `/doctor/me`,
-          {
-            method: "GET", // Specify the method explicitly
-            headers: {
-              "Content-Type": "application/json", // Ensures the backend knows the data format
-              Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
-            },
-          }
-        );
+        setIsLoading(true);
+        const doctor = await fetchCurrentDoctor();
         setDoctorData(doctor);
-        const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL +
-            `/schedule/doctor/date/${formatDate(selectedDate)}`,
-          {
-            method: "GET", // Specify the method explicitly
-            headers: {
-              "Content-Type": "application/json", // Ensures the backend knows the data format
-              Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
-            },
-          }
-        );
-        const data = await response.json();
+        console.log("Doctor data fetched:", doctor);
+        
+        const data = await fetchDoctorScheduleByDate(formatDate(selectedDate));
+        console.log("Schedule data fetched:", data);
         setSchedules(Array.isArray(data) ? data : []);
-        // console.log(data);
+        
+        // Show schedule status toast
+        if (Array.isArray(data) && data.length > 0) {
+          toast.info(`Found ${data.length} slots for ${formatDate(selectedDate)}`);
+        }
       } catch (error) {
         console.error("Failed to fetch doctor data:", error);
+        // Handle specific error cases
+        if (error.response?.status === 401) {
+          toast.error("Please login again to continue.");
+          navigate("/login");
+        } else {
+          toast.error("Failed to fetch doctor data. Please refresh the page.");
+        }
+      } finally {
+        setIsLoading(false);
       }
     };
-
     fetchDoctorData();
-  }, [selectedDate]);
+  }, [selectedDate, navigate]);
 
   const formatTime = (time) => {
     const [hours, minutes] = time.split(":");
@@ -109,27 +91,30 @@ export default function DoctorHome() {
 
   const createSchedule = async () => {
     try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL +
-          `/create-appointment-slots/date/${formatDate(selectedDate)}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("Token")}`, // Retrieve token from local storage
-          },
-        }
-      );
-      if (response.ok) {
-        console.log("Schedule created successfully");
-        // Fetch the updated schedules after creation
-        const data = await response.json();
-        setSchedules(Array.isArray(data) ? data : []);
+      setIsCreatingSchedule(true);
+      console.log("Creating schedule for date:", formatDate(selectedDate));
+      const response = await createDoctorScheduleByDate(formatDate(selectedDate));
+      console.log("Schedule creation response:", response);
+      
+      // Check if schedule creation was successful
+      if (response && response.success) {
+        console.log("Schedule created successfully:", response.message);
+        
+        // After creating schedule, fetch the updated schedule
+        const updatedSchedules = await fetchDoctorScheduleByDate(formatDate(selectedDate));
+        setSchedules(Array.isArray(updatedSchedules) ? updatedSchedules : []);
+        
+        // Show success toast with more details
+        toast.success(`Schedule created successfully for ${formatDate(selectedDate)}! ${updatedSchedules.length} slots available.`);
       } else {
-        console.error("Failed to create schedule");
+        console.error("Schedule creation failed:", response?.message);
+        toast.error("Failed to create schedule: " + (response?.message || "Unknown error"));
       }
     } catch (error) {
       console.error("Error creating schedule:", error);
+      toast.error("Failed to create schedule. Please try again.");
+    } finally {
+      setIsCreatingSchedule(false);
     }
   };
 
@@ -181,8 +166,14 @@ export default function DoctorHome() {
 
         <div className="w-full md:[80vw] bg-white rounded-lg shadow-md p-4 text-center">
           <h2 className="text-2xl font-bold mb-4">Doctor Schedules</h2>
-          {!selectedDate && <p className="text-gray-500">No date selected.</p>}
-          {schedules.length > 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <span className="ml-2">Loading schedules...</span>
+            </div>
+          ) : !selectedDate ? (
+            <p className="text-gray-500">No date selected.</p>
+          ) : schedules.length > 0 ? (
             <div className="space-y-4">
               <div>
                 <h3 className="font-semibold mb-2">Morning</h3>
@@ -235,10 +226,22 @@ export default function DoctorHome() {
                 the schedule.
               </p>
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded mt-4 mx-auto"
+                className={`py-2 px-4 rounded mt-4 mx-auto ${
+                  isCreatingSchedule 
+                    ? 'bg-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-500 hover:bg-blue-700'
+                } text-white`}
                 onClick={createSchedule}
+                disabled={isCreatingSchedule}
               >
-                Create Schedule
+                {isCreatingSchedule ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Creating...
+                  </div>
+                ) : (
+                  'Create Schedule'
+                )}
               </button>
             </>
           )}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getPatientActivity } from "../../../services/activity";
 
 const PatientActivitySearch = () => {
   const [keyword, setKeyword] = useState("");
@@ -16,11 +17,7 @@ const PatientActivitySearch = () => {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const resp = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/activity-log?page=${page}&size=${size}`
-        );
-        if (!resp.ok) throw new Error("Failed to fetch activity logs");
-        const data = await resp.json();
+        const data = await getPatientActivity({ page, size });
         setLogsPage({
           content: data.content || [],
           totalPages: data.totalPages || 0,

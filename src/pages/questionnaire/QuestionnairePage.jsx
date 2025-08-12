@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { fetchQuestionSetById, submitQuestionnaire } from '../../services/other/questionnaireApi';
 
 export default function QuestionnairePage() {
@@ -22,7 +23,7 @@ export default function QuestionnairePage() {
       })
       .catch(err => {
         console.error(err);
-        alert('Failed to load questions');
+        toast.error('Failed to load questions');
       })
       .finally(() => setLoading(false));
   }, [questionSetId]);
@@ -41,7 +42,7 @@ export default function QuestionnairePage() {
       .then(() => navigate('/login'))
       .catch(err => {
         console.error(err);
-        alert('Submission failed');
+        toast.error('Submission failed');
       });
   };
 

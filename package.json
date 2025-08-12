@@ -7,6 +7,7 @@
     "@craco/craco": "^7.1.0",
     "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
+    "framer-motion": "^12.23.12",
     "lucide-react": "^0.484.0",
     "my-project": "file:",
     "prop-types": "15.7.2",
@@ -20,7 +21,7 @@
     "react-scripts": "5.0.1",
     "react-tailwindcss-datepicker": "^1.7.2",
     "react-toastify": "^11.0.5",
-    "recharts": "^2.15.1",
+    "recharts": "^2.15.4",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -29,13 +30,23 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build",
+    "lint": "eslint src --ext .js,.jsx",
+    "lint:fix": "eslint src --ext .js,.jsx --fix"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "react/prop-types": "off",
+      "no-console": "warn",
+      "no-empty": "warn",
+      "no-var": "warn",
+      "prefer-const": "warn",
+      "react/no-unescaped-entities": "warn"
+    }
   },
   "browserslist": {
     "production": [
@@ -50,6 +61,12 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.4",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "gh-pages": "^6.1.1",
     "tailwindcss": "^3.4.4"
   }

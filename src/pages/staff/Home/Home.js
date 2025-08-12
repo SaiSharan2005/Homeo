@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, ResponsiveContainer } from 'recharts';
 import AdminNavbar from "../../../components/navbar/AdminNavbar"
+import apiService from '../../../utils/api';
+import { getAppointmentCount, fetchAppointments } from '../../../services/appointment';
 // Function to generate the last N days
 function getLastNDays(date, n) {
     const dates = [];
@@ -26,84 +28,47 @@ const StaffHomePage = () => {
   const [lineData, setLineData] = useState([]);
 
   useEffect(() => {
-    // Fetch counts and statistics
-    fetch(process.env.REACT_APP_BACKEND_URL+'/doctor/count')
-      .then(response => response.json())
-      .then(data => setDoctorCount(data))
-      .catch(error => console.error("There was an error fetching the doctor count!", error));
-
-    fetch(process.env.REACT_APP_BACKEND_URL+'/patient/count')
-      .then(response => response.json())
-      .then(data => setPatientCount(data))
-      .catch(error => console.error("There was an error fetching the patient count!", error));
-
-    fetch(process.env.REACT_APP_BACKEND_URL+'/bookingAppointments/count')
-      .then(response => response.json())
-      .then(data => setAppointmentsToday(data))
-      .catch(error => console.error("There was an error fetching today's appointments count!", error));
-
-    fetch('/appointments/missed/count')
-      .then(response => response.json())
-      .then(data => setMissedAppointments(data.count))
-      .catch(error => console.error("There was an error fetching missed appointments count!", error));
-
-      fetch(process.env.REACT_APP_BACKEND_URL + '/api/activity-log')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch recent activities');
-        }
-        return response.json();
-      })
-      .then(data => {
-        // Assuming 'data' is an array, get the last 3 elements
-        const recentActivities = data.slice(Math.max(data.length - 6, 0));
-        setRecentActivities(recentActivities);
-      })
-      .catch(error => console.error("There was an error fetching recent activities!", error));
-    
-    fetch(process.env.REACT_APP_BACKEND_URL+'/bookingAppointments')
-      .then(response => response.json())
-      .then(data => {
-        // Assuming 'data' is an array, get the last 3 elements
-        const recentActivities = data.slice(Math.max(data.length - 6, 0));
-        setUpcomingAppointments(recentActivities);     }) .catch(error => console.error("There was an error fetching upcoming appointments!", error));
-
-    // Fetch data for the last 6 days
-    const startDate = new Date();
-    const last6Days = getLastNDays(startDate, 6);
-
-    const fetchAppointmentsData = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const promises = last6Days.map(date =>
-          fetch(process.env.REACT_APP_BACKEND_URL+`/daily-summary/date/${date}`)
-            .then(response => {
-              if (!response.ok) {
-                throw new Error(`Failed to fetch data for date ${date}`);
-              }
-              return response.json();
-            })
-            .then(data => {
-              console.log(`Data for ${date}:`, data); // Debugging line
-              return { date, appointments: data.totalAppointments || 0 }; // Adjust according to actual data structure
-            })
-            .catch(error => {
-              console.error(`Error fetching data for ${date}:`, error);
-              return { date, appointments: 0 }; // Default value on error
-            })
-        );
-    
-        const results = await Promise.all(promises);
-        console.log('Results:', results); // Debugging line
+        // Doctor count
+        const doctorCountData = await apiService.get('/doctor/count');
+        setDoctorCount(doctorCountData);
+        // Patient count
+        const patientCountData = await apiService.get('/patient/count');
+        setPatientCount(patientCountData);
+        // Today's appointments count
+        const appointmentsTodayData = await getAppointmentCount();
+        setAppointmentsToday(appointmentsTodayData);
+        // Missed appointments count
+        const missedAppointmentsData = await apiService.get('/appointments/missed/count');
+        setMissedAppointments(missedAppointmentsData.count);
+        // Recent activities
+        const activitiesData = await apiService.get('/api/activity-log');
+        const recentActivities = activitiesData.slice(Math.max(activitiesData.length - 6, 0));
+        setRecentActivities(recentActivities);
+        // Upcoming appointments
+        const upcomingData = await fetchAppointments(0, 100); // fetch all, or adjust as needed
+        const upcomingList = (upcomingData.content || upcomingData).slice(Math.max((upcomingData.content || upcomingData).length - 6, 0));
+        setUpcomingAppointments(upcomingList);
+        // Appointments for the last 6 days
+        const startDate = new Date();
+        const last6Days = getLastNDays(startDate, 6);
+        const linePromises = last6Days.map(async (date) => {
+          try {
+            const summary = await apiService.get(`/daily-summary/date/${date}`);
+            return { date, appointments: summary.totalAppointments || 0 };
+          } catch (error) {
+            console.error(`Error fetching data for ${date}:`, error);
+            return { date, appointments: 0 };
+          }
+        });
+        const results = await Promise.all(linePromises);
         setLineData(results);
       } catch (error) {
-        console.error("There was an error fetching data for the last 6 days!", error);
-        // Optionally set lineData to empty or default values here
-        setLineData(last6Days.map(date => ({ date, appointments: 0 })));
+        console.error('Error fetching dashboard data:', error);
       }
     };
-    
-
-    fetchAppointmentsData();
+    fetchDashboardData();
   }, []);
 
   const data = [

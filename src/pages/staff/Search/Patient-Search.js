@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { searchPatients } from '../../../services/patient/patient_api';
 
 const PatientSearchPage = () => {
   const navigate = useNavigate();
@@ -20,14 +21,7 @@ const PatientSearchPage = () => {
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const resp = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/patient/search?query=${encodeURIComponent(
-            keyword
-          )}&page=${page}&size=${size}`
-        );
-        if (!resp.ok) throw new Error("Fetch failed");
-        const data = await resp.json();
-        // data has fields: content, totalPages, totalElements, etc.
+        const data = await searchPatients(keyword, page, size);
         setPatientsPage({
           content: data.content || [],
           totalPages: data.totalPages || 0,
@@ -76,7 +70,11 @@ const PatientSearchPage = () => {
       <td className="px-6 py-4 border-b">{p.username || "-"}</td>
       <td className="px-6 py-4 border-b">{p.userId || "-"}</td>
       <td className="px-6 py-4 border-b">{p.patientDetails?.city || "-"}</td>
-      <td className="px-6 py-4 border-b">{p.patientDetails?.age || "-"}</td>
+      <td className="px-6 py-4 border-b">
+        {p.patientDetails?.dateOfBirth 
+          ? new Date(p.patientDetails.dateOfBirth).toLocaleDateString() 
+          : "-"}
+      </td>
       <td className="px-6 py-4 border-b">{renderGenderIcon(p.patientDetails?.gender)}</td>
       <td className="px-6 py-4 border-b">{p.patientDetails?.address || "-"}</td>
       <td className="px-6 py-4 border-b">{p.patientDetails?.pincode || "-"}</td>
@@ -116,7 +114,7 @@ const PatientSearchPage = () => {
                 <th className="px-6 py-3 text-sm">Patient Name</th>
                 <th className="px-6 py-3 text-sm">Patient ID</th>
                 <th className="px-6 py-3 text-sm">City</th>
-                <th className="px-6 py-3 text-sm">Age</th>
+                <th className="px-6 py-3 text-sm">Date of Birth</th>
                 <th className="px-6 py-3 text-sm">Gender</th>
                 <th className="px-6 py-3 text-sm">Address</th>
                 <th className="px-6 py-3 text-sm">Pincode</th>

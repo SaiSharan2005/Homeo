@@ -19,7 +19,7 @@ export default function DoctorDetails() {
 
   const [formData, setFormData] = useState({
     username: "", // We'll assume that we forward username from signup
-    age: '',
+    dateOfBirth: '',
     gender: '',
     address: '',
     city: '',
@@ -66,19 +66,19 @@ export default function DoctorDetails() {
       <h2 className="mb-4 text-3xl font-bold text-center text-gray-800">Doctor Details</h2>
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="flex flex-wrap -mx-2">
-          {/* Age Field */}
+          {/* Date of Birth Field */}
           <div className="w-full sm:w-1/2 px-2 mb-4">
-            <label htmlFor="age" className="mb-1 block text-sm font-medium text-gray-700">Age</label>
+            <label htmlFor="dateOfBirth" className="mb-1 block text-sm font-medium text-gray-700">Date of Birth</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <MdCake className="h-5 w-5 text-gray-400" />
               </div>
               <input
-                id="age"
-                name="age"
-                type="number"
-                placeholder="Enter Age"
-                value={formData.age}
+                id="dateOfBirth"
+                name="dateOfBirth"
+                type="date"
+                placeholder="Enter Date of Birth"
+                value={formData.dateOfBirth}
                 onChange={handleInputChange}
                 required
                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200 text-sm"

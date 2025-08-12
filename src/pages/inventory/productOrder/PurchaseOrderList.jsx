@@ -1,132 +1,195 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import AdminNavbar from '../../../components/navbar/AdminNavbar';
+import { toast } from 'react-toastify';
+import { getAllPurchaseOrders, getPurchaseOrdersByStatus } from '../../../services/inventory/purchaseOrder';
+
+// Align with backend statuses
+const STATUS_OPTIONS = ['CREATED', 'ORDERED', 'RECEIVED', 'CANCELLED'];
+const PAGE_SIZE_OPTIONS = [10, 20, 50];
+
+const formatCurrency = (value) =>
+  typeof value === 'number'
+    ? value.toLocaleString(undefined, { style: 'currency', currency: 'USD' })
+    : value;
+
+const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString() : '—');
+
+const StatusChip = ({ status }) => {
+  const normalized = (status || '').toUpperCase();
+  const color =
+    normalized === 'CREATED'
+      ? 'bg-amber-100 text-amber-800'
+      : normalized === 'ORDERED'
+      ? 'bg-blue-100 text-blue-800'
+      : normalized === 'RECEIVED'
+      ? 'bg-emerald-100 text-emerald-800'
+      : 'bg-rose-100 text-rose-800';
+  return (
+    <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${color}`}>
+      {normalized}
+    </span>
+  );
+};
 
 const PurchaseOrderList = () => {
-  const [orders, setOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 10;
+  const [statusFilter, setStatusFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const load = async () => {
+      setIsLoading(true);
+      setError('');
       try {
-        const response = await fetch(
-          process.env.REACT_APP_BACKEND_URL + '/purchase-orders'
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch purchase orders');
-        }
-        const data = await response.json();
-        setOrders(data);
+        const res = statusFilter
+          ? await getPurchaseOrdersByStatus(statusFilter, 0, 200)
+          : await getAllPurchaseOrders(0, 200);
+        const content = res?.content || res?.items || res || [];
+        setAllOrders(Array.isArray(content) ? content : []);
+        setPage(1);
       } catch (err) {
-        console.error(err);
-        setError(err.message);
+        setError(err?.message || 'Failed to load purchase orders');
+        toast.error('Failed to load purchase orders');
       } finally {
         setIsLoading(false);
       }
     };
+    load();
+  }, [statusFilter]);
 
-    fetchOrders();
-  }, []);
+  const filtered = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return allOrders;
+    return allOrders.filter((o) =>
+      (o.orderNumber || `${o.orderId || o.id}` || '').toLowerCase().includes(q) ||
+      (o.supplier?.name || o.supplierName || '').toLowerCase().includes(q) ||
+      (o.status || '').toLowerCase().includes(q)
+    );
+  }, [allOrders, searchTerm]);
 
-  // Filter orders by supplier ID or status or any field if needed (example: filtering by status)
-  const filteredOrders = orders.filter((order) =>
-    order.status.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
-  const startIndex = (currentPage - 1) * ordersPerPage;
-  const currentOrders = filteredOrders.slice(startIndex, startIndex + ordersPerPage);
+  const total = filtered.length;
+  const startIndex = (page - 1) * pageSize;
+  const current = filtered.slice(startIndex, startIndex + pageSize);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
-    <>
-      <AdminNavbar />
-      <div className="min-h-screen bg-gray-100 p-8">
-        <h1 className="text-3xl font-bold mb-6 text-center">Purchase Orders</h1>
-        <div className="flex justify-center mb-4">
-          <input
-            type="text"
-            placeholder="Search by status..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="border border-gray-300 p-2 rounded w-1/3"
-          />
-        </div>
-        {isLoading ? (
-          <div className="text-center">Loading purchase orders...</div>
-        ) : error ? (
-          <div className="text-center text-red-500">{error}</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white shadow-md rounded-lg">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="py-2 px-4 border">Order ID</th>
-                  <th className="py-2 px-4 border">Order Date</th>
-                  <th className="py-2 px-4 border">Status</th>
-                  <th className="py-2 px-4 border">Total Amount</th>
-                  <th className="py-2 px-4 border">Supplier ID</th>
-                  <th className="py-2 px-4 border">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentOrders.map((order) => (
-                  <tr key={order.orderId} className="hover:bg-gray-100">
-                    <td className="py-2 px-4 border text-center">{order.orderId}</td>
-                    <td className="py-2 px-4 border text-center">
-                      {new Date(order.orderDate).toLocaleString()}
-                    </td>
-                    <td className="py-2 px-4 border text-center">{order.status}</td>
-                    <td className="py-2 px-4 border text-center">{order.totalAmount}</td>
-                    <td className="py-2 px-4 border text-center">{order.supplier ? order.supplier.id : 'N/A'}</td>
-                    <td className="py-2 px-4 border text-center">
-                      <Link
-                        to={`/purchase-orders/${order.orderId}`}
-                        className="text-blue-500 hover:underline"
-                      >
-                        View
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-                {currentOrders.length === 0 && (
-                  <tr>
-                    <td colSpan="6" className="text-center py-4">
-                      No orders found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+    <div className="min-h-screen bg-gray-50">
+      <div className="px-6 pt-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Purchase Orders</h1>
+        <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex gap-2 items-center w-full md:w-auto">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+              placeholder="Search by PO #, supplier, or status"
+              className="w-full md:w-80 px-3 py-2 rounded-md border border-gray-300"
+            />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 rounded-md border border-gray-300"
+            >
+              <option value="">All Statuses</option>
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
           </div>
-        )}
-        <div className="flex justify-center items-center mt-6 space-x-4">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
+          <Link to="/admin/purchase-orders/create" className="px-3 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700">
+            Create Purchase Order
+          </Link>
         </div>
       </div>
-    </>
+
+      <div className="px-6 py-4">
+        <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+          <table className="min-w-full bg-white">
+            <thead className="bg-gray-50">
+              <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3">PO #</th>
+                <th className="px-4 py-3">Supplier</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Items</th>
+                <th className="px-4 py-3">Amount</th>
+                <th className="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {isLoading ? (
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">Loading…</td></tr>
+              ) : error ? (
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-rose-600">{error}</td></tr>
+              ) : current.length === 0 ? (
+                <tr><td colSpan={7} className="px-4 py-12 text-center text-gray-500">No purchase orders found</td></tr>
+              ) : (
+                current.map((o) => {
+                  const id = o.orderId || o.id;
+                  const supplierName = o.supplier?.name || o.supplierName || `#${o.supplier?.id || o.supplierId || '—'}`;
+                  const totalItems = o.totalItems ?? o.purchaseOrderItems?.length ?? o.items?.length ?? 0;
+                  return (
+                    <tr key={id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-sm text-gray-900">{o.orderNumber || id}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{supplierName}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{formatDate(o.orderDate)}</td>
+                      <td className="px-4 py-3"><StatusChip status={o.status} /></td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{totalItems}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">{formatCurrency(o.totalAmount)}</td>
+                          <td className="px-4 py-3 text-right">
+                        <Link to={`/admin/purchase-orders/${id}`} className="px-2 py-1 text-sm rounded border border-gray-300 hover:bg-gray-50">
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div className="text-sm text-gray-600">
+            {total === 0 ? '0-0 of 0' : `${startIndex + 1}-${Math.min(startIndex + current.length, total)} of ${total}`}
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm text-gray-600">Rows per page</label>
+            <select
+              value={pageSize}
+              onChange={(e) => { setPageSize(parseInt(e.target.value, 10)); setPage(1); }}
+              className="px-2 py-1 rounded-md border border-gray-300"
+            >
+              {PAGE_SIZE_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <div className="text-sm text-gray-600">Page {page} of {totalPages}</div>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

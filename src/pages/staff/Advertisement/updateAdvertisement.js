@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { getAdvertisementById, updateAdvertisement } from "../../../services/advertisement";
 // Optionally import the AdminNavbar if needed
 // import AdminNavbar from "../../../components/navbar/AdminNavbar";
 
@@ -19,13 +21,7 @@ export default function UpdateAdvertisement() {
     const fetchAdDetails = async () => {
       if (id) {
         try {
-          const response = await fetch(
-            process.env.REACT_APP_BACKEND_URL + `/ads/${id}`
-          );
-          if (!response.ok) {
-            throw new Error("Failed to fetch advertisement details");
-          }
-          const data = await response.json();
+          const data = await getAdvertisementById(id);
           setTitle(data.title || "");
           setDescription(data.description || "");
           setTargetPage(data.targetPage || "");
@@ -33,6 +29,7 @@ export default function UpdateAdvertisement() {
           setEndDate(data.endDate ? data.endDate.split("T")[0] : "");
         } catch (error) {
           console.error(error.message);
+          toast.error("Failed to fetch advertisement details");
         }
       }
     };
@@ -52,20 +49,12 @@ export default function UpdateAdvertisement() {
     }
 
     try {
-      const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL + `/ads/${id}`,
-        {
-          method: "PUT",
-          body: formData,
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed to update advertisement");
-      }
+      await updateAdvertisement(id, formData);
+      toast.success("Advertisement updated successfully!");
       navigate("/admin/advertisement/");
     } catch (error) {
       console.error(error.message);
-      alert("Error updating advertisement.");
+      toast.error("Error updating advertisement.");
     }
   };
 
@@ -76,6 +65,7 @@ export default function UpdateAdvertisement() {
     setTargetPage("");
     setEndDate("");
     setFile(null);
+    toast.info("Form reset.");
   };
 
   return (

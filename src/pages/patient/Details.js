@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { MdCake, MdTransgender, MdHome, MdLocationCity, MdLocalPostOffice } from 'react-icons/md';
+import { savePatientProfile } from '../../services/patient/patient_api';
 
 export default function PatientDetails() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    age: '',
+    dateOfBirth: '',
     gender: '',
     address: '',
     city: '',
@@ -22,18 +23,9 @@ export default function PatientDetails() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // If needed, you can attach additional data (e.g., patientId from location state)
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/patient/CreateProfile`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem("Token")}`
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      if (response.ok) {
+      const response = await savePatientProfile(formData);
+      if (response) {
         console.log('Patient details saved successfully!');
         navigate("/questionnaire/1");
       } else {
@@ -48,19 +40,19 @@ export default function PatientDetails() {
     <div className="min-h-[400px] flex flex-col justify-center p-6 bg-white rounded-2xl max-w-2xl mx-auto">
       <h2 className="mb-4 text-3xl font-bold text-center text-gray-800">Patient Details</h2>
       <form className="space-y-4" onSubmit={handleSubmit}>
-        {/* Age Field */}
+        {/* Date of Birth Field */}
         <div className="flex flex-col">
-          <label htmlFor="age" className="mb-1 text-sm font-medium text-gray-700">Age</label>
+          <label htmlFor="dateOfBirth" className="mb-1 text-sm font-medium text-gray-700">Date of Birth</label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <MdCake className="h-5 w-5 text-gray-400" />
             </div>
             <input
-              id="age"
-              name="age"
-              type="number"
-              placeholder="Enter Age"
-              value={formData.age}
+              id="dateOfBirth"
+              name="dateOfBirth"
+              type="date"
+              placeholder="Enter Date of Birth"
+              value={formData.dateOfBirth}
               onChange={handleInputChange}
               required
               className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition duration-200"

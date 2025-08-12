@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchDoctorAppointments } from "../../services/doctor/doctor_api";
 import AdBanner from "./Adv";
+import { toast } from 'react-toastify';
+import apiService from "../../utils/api";
+import Card from "../common/Card";
+import Button from "../common/Button";
+import Input from "../common/Input";
+import Select from "../common/Select";
+import { Search, Plus, Pencil, Trash2 } from "lucide-react";
 
 const AppointmentsPage = ({
   role,
@@ -9,7 +15,7 @@ const AppointmentsPage = ({
   appointments: appointmentsProp,
 }) => {
 //   const [page, setPage] = useState(0);
-// const size = 10;
+//const size = 10;
 // const [totalPages, setTotalPages] = useState(0);
 
   const [appointments, setAppointments] = useState([]);
@@ -25,51 +31,16 @@ const AppointmentsPage = ({
   // Function to fetch appointments based on role
   const loadAppointments = async () => {
     try {
-      // let data;
-      // if (role === "doctor") {
-      //   data = await fetchDoctorAppointments();
-      let data, json;
+      let json;
       if (role === "doctor") {
-        const resp = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/doctor/my-appointments?page=${page}&size=${size}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("Token")}`,
-            },
-          }
-        );
-        json = await resp.json();
+        json = await apiService.get(`/bookingAppointments/doctor/my-appointments?page=${page}&size=${size}`);
       } else if (role === "patient") {
-               const response = await fetch(
-                `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/patient/my-appointments?page=${page}&size=${size}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("Token")}`,
-            },
-          }
-        );
-        // data = await response.json();
-        json = await response.json();
-
+        json = await apiService.get(`/bookingAppointments/patient/my-appointments?page=${page}&size=${size}`);
       } else if (role === "admin") {
-        // Define your admin endpoint or fetching logic here
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments?page=${page}&size=${size}`,
-          
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("Token")}`,
-            },
-          }
-        );
-        json = await response.json();
+        json = await apiService.get(`/bookingAppointments?page=${page}&size=${size}`);
       }
-      // setAppointments(data);
-           setAppointments(json.content);
+      
+      setAppointments(json.content);
       setTotalPages(json.totalPages);
 
     } catch (error) {
@@ -147,24 +118,12 @@ const AppointmentsPage = ({
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/bookingAppointments/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("Token")}`,
-          },
-        }
-      );
-
-      if (response.status === 204) {
-        setAppointments((prev) => prev.filter((appt) => appt.id !== id));
-      } else {
-        alert("Failed to delete appointment.");
-      }
+              await apiService.delete(`/bookingAppointments/${id}`);
+      setAppointments((prev) => prev.filter((appt) => appt.id !== id));
+      toast.success("Appointment deleted successfully.");
     } catch (error) {
       console.error("Error deleting appointment:", error);
-      alert("An error occurred while deleting.");
+      toast.error("An error occurred while deleting.");
     }
   };
 
@@ -191,81 +150,77 @@ const AppointmentsPage = ({
     <div>
       <div className="flex w-full">
         {/* main table area */}
-        <div className="flex-1 bg-white rounded-md shadow p-4">
-          {" "}
-          {/* Heading with Create Appointment Button for Admin */}
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-gray-800">
-                {role === "doctor" && "Appointments List"}
-                {role === "patient" && "Your Appointments"}
-                {role === "admin" && "All Appointments"}
-              </h2>
-              <p className="text-sm text-gray-500">
-                {role === "doctor" &&
-                  "Here are all your recent and upcoming appointments."}
-                {role === "patient" &&
-                  "Here are your recent and upcoming appointments with doctors."}
-                {role === "admin" && "Manage all appointments in the system."}
-              </p>
-            </div>
-            {role === "admin" && (
-              <button
-                onClick={() => navigate("create")}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-              >
-                Create Appointment
-              </button>
-            )}
-          </div>
-          {/* Search and Status Filter */}
-          <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="relative w-full sm:w-1/2">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg
-                  className="w-5 h-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 17.5a7.5 7.5 0 006.15-3.85z"
-                  />
-                </svg>
+        <div className="flex-1">
+          <Card
+            header={
+              <div className="flex items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    {role === "doctor" && "Appointments"}
+                    {role === "patient" && "Your Appointments"}
+                    {role === "admin" && "All Appointments"}
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    {role === "doctor" &&
+                      "Recent and upcoming appointments."}
+                    {role === "patient" &&
+                      "Your recent and upcoming visits."}
+                    {role === "admin" && "Manage appointments across the system."}
+                  </p>
+                </div>
+                {role === "admin" && (
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={() => navigate("create")}
+                    className="whitespace-nowrap"
+                  >
+                    <Plus className="h-4 w-4 mr-2" /> Create Appointment
+                  </Button>
+                )}
               </div>
-              <input
-                type="text"
-                placeholder={
-                  role === "doctor"
-                    ? "Search by patient name..."
-                    : "Search by doctor name..."
-                }
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
+            }
+          >
+            {/* Search and Status Filter */}
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="w-full sm:w-1/2">
+                <Input
+                  type="search"
+                  placeholder={
+                    role === "doctor"
+                      ? "Search by patient name..."
+                      : role === "admin"
+                      ? "Search by doctor or patient..."
+                      : "Search by doctor name..."
+                  }
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  leftIcon={<Search className="h-4 w-4 text-gray-400" />}
+                />
+              </div>
+              <div className="w-full sm:w-1/6">
+                <Select
+                  options={[
+                    { label: 'All Status', value: 'All' },
+                    { label: 'Completed', value: 'Completed' },
+                    { label: 'Upcoming', value: 'Upcoming' },
+                    { label: 'Cancelled', value: 'Cancelled' },
+                    { label: 'Missed', value: 'Missed' },
+                  ]}
+                  value={statusFilter}
+                  onChange={(val) => setStatusFilter(val)}
+                  placeholder="Filter status"
+                  fullWidth
+                  size="md"
+                  clearable
+                />
+              </div>
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full sm:w-1/6 p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              <option value="All">All Status</option>
-              <option value="Completed">Completed</option>
-              <option value="Upcoming">Upcoming</option>
-              <option value="Cancelled">Cancelled</option>
-              <option value="Missed">Missed</option>
-            </select>
-          </div>
-          {/* Appointments Table */}
-          <div className="overflow-x-auto">
+            {/* Appointments Table */}
+            <div className="overflow-x-auto">
             <table className="w-full table-auto text-left border-collapse">
               <thead>
-                <tr className="text-gray-600 border-b">
+                <tr className="text-gray-600 border-b bg-gray-50">
                   <th className="py-3 px-4 text-sm font-medium">Token</th>
                   {role === "doctor" && (
                     <>
@@ -408,28 +363,30 @@ const AppointmentsPage = ({
                         </td>
                         {role === "admin" && (
                           <td className="py-3 px-4 flex gap-2">
-                            <button
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={(e) => {
-                                e.stopPropagation(); // prevent row navigation
-                                navigate(
-                                  `/admin/appointment/token/update/${token}`
-                                );
+                                e.stopPropagation();
+                                navigate(`/admin/appointment/token/update/${token}`);
                               }}
-                              className="text-blue-500 hover:text-blue-700"
                               title="Update Appointment"
+                              className="text-blue-600 hover:text-blue-700"
                             >
-                              ✏️
-                            </button>
-                            <button
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDelete(bookingId);
                               }}
-                              className="text-red-500 hover:text-red-700"
                               title="Delete Appointment"
+                              className="text-red-600 hover:text-red-700"
                             >
-                              🗑️
-                            </button>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </td>
                         )}
                       </tr>
@@ -439,49 +396,53 @@ const AppointmentsPage = ({
               </tbody>
             </table>
             {/* ── Pagination Bar ── */}
-<div className="flex justify-center items-center mt-4 space-x-2">
-  <button
-    onClick={() => setPage(p => Math.max(p - 1, 0))}
-    disabled={page === 0}
-    className="px-3 py-1 border rounded disabled:opacity-50"
-  >
-    Prev
-  </button>
+            <div className="flex justify-center items-center mt-4 gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(p - 1, 0))}
+                disabled={page === 0}
+              >
+                Prev
+              </Button>
 
-  {Array.from({ length: totalPages }, (_, i) => (
-    <button
-      key={i}
-      onClick={() => setPage(i)}
-      className={`px-3 py-1 border rounded ${i === page ? "bg-blue-500 text-white" : ""}`}
-    >
-      {i + 1}
-    </button>
-  ))}
+              {Array.from({ length: totalPages }, (_, i) => (
+                <Button
+                  key={i}
+                  variant={i === page ? "primary" : "outline"}
+                  size="sm"
+                  onClick={() => setPage(i)}
+                >
+                  {i + 1}
+                </Button>
+              ))}
 
-  <button
-    onClick={() => setPage(p => Math.min(p + 1, totalPages - 1))}
-    disabled={page >= totalPages - 1}
-    className="px-3 py-1 border rounded disabled:opacity-50"
-  >
-    Next
-  </button>
-</div>
-{/* ────────────────────── */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
+                disabled={page >= totalPages - 1}
+              >
+                Next
+              </Button>
+            </div>
+            {/* ────────────────────── */}
 
-          </div>
+            </div>
+          </Card>
         </div>
-        {/* {role === "patient" && ( */}
+        {role === "patient" && (
           <div className="hidden lg:block w-[20%] pl-4">
             <AdBanner targetPage="history-right" />
           </div>
-        {/* )} */}
+        )}
       </div>
 
-      {/* {role === "patient" && ( */}
+      {role === "patient" && (
         <div className="w-full mt-6 lg:mt-8">
           <AdBanner targetPage="appointments-bottom" />
         </div>
-      {/* )} */}
+      )}
     </div>
   );
 };

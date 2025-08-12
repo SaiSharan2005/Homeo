@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import AdminNavbar from "../../components/navbar/AdminNavbar"
+import apiService from "../../utils/api";
 const GetAllAppointment = () => {
   const [appointments, setAppointments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -13,30 +14,22 @@ const GetAllAppointment = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(process.env.REACT_APP_BACKEND_URL+'/bookingAppointments')
-      .then(response => response.json())
-      .then(data => {
+    const fetchAppointments = async () => {
+      try {
+        const data = await apiService.get('/bookingAppointments');
         const activeAppointments = data.filter(appointment => appointment.status && appointment.status.toLowerCase() !== 'cancel');
         setAppointments(activeAppointments);
         setFilteredAppointments(activeAppointments);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error fetching appointments:', error);
-      });
+      }
+    };
+    fetchAppointments();
   }, []);
 
   const cancelAppointment = async (id, doctorId) => {
     try {
-      const response = await fetch(process.env.REACT_APP_BACKEND_URL+`/bookingAppointments/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      await apiService.delete(`/bookingAppointments/${id}`);
 
       setResponseMessage('Appointment deleted successfully');
       setAppointments(appointments.filter(appointment => appointment.bookingId !== id));
@@ -54,19 +47,8 @@ const GetAllAppointment = () => {
       };
 
       try {
-        const response = await fetch(process.env.REACT_APP_BACKEND_URL+'/appointmentHistory/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
-
-        if (response.ok) {
-          console.log("Appointment history updated successfully!");
-        } else {
-          console.error("Failed to update appointment history");
-        }
+        await apiService.post('/appointmentHistory/add', data);
+        console.log("Appointment history updated successfully!");
       } catch (error) {
         console.error("Failed to update appointment history:", error);
       }

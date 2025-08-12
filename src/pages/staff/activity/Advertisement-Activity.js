@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getAdvertisementActivity } from "../../../services/activity";
 import AdminNavBar from "../../../components/navbar/AdminNavbar"; // Uncomment if needed
 
 const AdvertisementActivitySearch = () => {
@@ -9,11 +10,8 @@ const AdvertisementActivitySearch = () => {
   // Fetch activity logs from the API
   const fetchActivityLogs = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/activity-log`
-      );
-      const data = await response.json();
-      setActivityLogs(data);
+      const data = await getAdvertisementActivity();
+      setActivityLogs(data.content || data);
     } catch (error) {
       console.error("Error fetching activity logs:", error);
     }

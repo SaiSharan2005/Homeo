@@ -4,6 +4,8 @@ import {
   fetchPaymentDetail,
   fetchNextPayment,
   fetchLastPayment,
+  fetchDuesForPatient,
+  recordPaymentAmount,
 } from "../../services/other/other";
 import {
   MdCheck,
@@ -12,13 +14,7 @@ import {
   MdLocalShipping,
   MdAutorenew,
 } from "react-icons/md"; // Using react-icons
-import {
-  fetchDuesForPatient,
-  payCash,
-  recordPaymentAmount,
-  setDeliveryStatus,
-  setPaymentStatus,
-} from "../../services/other/paymentApi";
+import { uploadPaymentProof } from "../../services/billing/payment";
 
 // optionally pull in an icon for delivered/not:
 const PaymentDetails = () => {
@@ -100,19 +96,8 @@ const PaymentDetails = () => {
 
   const handleFileChange = (e) => setFile(e.target.files[0]);
   const handleToggleDelivery = async () => {
-    setTogglingDelivery(true);
-    try {
-      const updated = await setDeliveryStatus(payment.id, !delivered);
-      setDelivered(updated.deliveryStatus);
-      setPayment((prev) => ({
-        ...prev,
-        deliveryStatus: updated.deliveryStatus,
-      }));
-    } catch (err) {
-      console.error("Failed to update delivery status", err);
-    } finally {
-      setTogglingDelivery(false);
-    }
+    // Delivery toggling depends on legacy endpoints; omit for aligned flow
+    console.warn('Delivery toggle not supported in aligned flow');
   };
   // + Handler to apply one due into current payment
   const handleApplyDue = (due) => {
@@ -134,15 +119,7 @@ const PaymentDetails = () => {
 
   /** Mark this payment’s status to “DUE” */
   const handleMarkAsDue = async () => {
-    try {
-      const response = await setPaymentStatus(payment.id, "DUE");
-      if (!response.ok) throw new Error("Failed to mark as unpaid");
-
-      const refreshed = await fetchPaymentDetail(payment.id);
-      setPayment(refreshed);
-    } catch (err) {
-      console.error("Failed to mark as DUE", err);
-    }
+    console.warn('Mark as due is not supported in aligned flow');
   };
 
   const handleUpload = async () => {
@@ -152,12 +129,7 @@ const PaymentDetails = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/payments/${payment.id}/complete-payment`,
-        { method: "PUT", body: formData }
-      );
-      if (!response.ok) throw new Error("Upload failed");
-      const updatedPayment = await response.json();
+      const updatedPayment = await uploadPaymentProof(payment.id, file);
       setPayment(updatedPayment);
       setShowQRCode(false);
       setFile(null);
@@ -169,33 +141,10 @@ const PaymentDetails = () => {
   };
 
   const handleFinalizeCash = async () => {
-    try {
-      // 1) pay the main payment
-      await payCash(payment.id);
-
-      // 2) pay each of the selected dues
-      await Promise.all(payableDues.map((due) => payCash(due.id)));
-      // 3) reload the payment detail & clear out dues
-      const refreshed = await fetchPaymentDetail(payment.id);
-      setPayment(refreshed);
-      setDues([]); // no more unpaid dues
-      setPayableDues([]); // reset your “to‐pay” bucket
-    } catch (error) {
-      console.error("Error finalizing cash payments:", error);
-    }
+    console.warn('Cash finalize is not supported in aligned flow');
   };
   const handleMarkAsUnpaid = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:8000/api/payments/${payment.id}/mark-unpaid`,
-        { method: "PUT" }
-      );
-      if (!response.ok) throw new Error("Failed to mark as unpaid");
-      const refreshed = await fetchPaymentDetail(payment.id);
-      setPayment(refreshed);
-    } catch (error) {
-      console.error("Error marking as unpaid:", error);
-    }
+    console.warn('Mark as unpaid is not supported in aligned flow');
   };
 
   return (

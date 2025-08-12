@@ -14,17 +14,16 @@ export const createPayment = async (payload) => {
  * Complete an online payment by uploading screenshot
  * file: File object
  */
-export const completePayment = async (paymentId, file) => {
-  const formData = new FormData();
-  formData.append('file', file);
-  return await putData(`/payments/${paymentId}/complete-payment`, formData);
+// Legacy completePayment replaced by uploadPaymentProof in billing/payment service
+export const completePayment = async () => {
+  throw new Error('Deprecated: use services/billing/payment.uploadPaymentProof');
 };
 
 /**
  * Mark a payment as unpaid/failed
  */
-export const markUnpaid = async (paymentId) => {
-  return await putData(`/payments/${paymentId}/mark-unpaid`);
+export const markUnpaid = async () => {
+  throw new Error('Deprecated: mark-unpaid is not supported in aligned flow');
 };
 
 /**
@@ -44,8 +43,8 @@ export const fetchPaymentById = async (paymentId) => {
 /**
  * Pay by cash for a payment
  */
-export const payCash = async (paymentId) => {
-  return await putData(`/payments/${paymentId}/cash-payment`);
+export const payCash = async () => {
+  throw new Error('Deprecated: cash-payment is not supported in aligned flow');
 };
 
 /**
@@ -107,15 +106,15 @@ export const fetchNextAfterPayment = async (paymentId) => {
 /**
  * Set delivery status for a payment
  */
-export const setDeliveryStatus = async (paymentId, delivered) => {
-  return await putData(`/payments/${paymentId}/delivery?delivered=${delivered}`);
+export const setDeliveryStatus = async () => {
+  throw new Error('Deprecated: delivery status endpoint is not supported in aligned flow');
 };
 
 /**
  * Record a partial or full payment amount toward total
  */
-export const recordPaymentAmount = async (paymentId, amount) => {
-  return await putData(`/payments/${paymentId}/pay?amount=${amount}`);
+export const recordPaymentAmount = async () => {
+  throw new Error('Deprecated: record-payment endpoint is not supported in aligned flow');
 };
 
 /**
@@ -128,7 +127,7 @@ export const fetchDuesForPatient = async (patientId) => {
 
 
 // PUT /api/payments/{id}/status?status=DUE
-export const setPaymentStatus = async (id, status) =>{
-  await putData(`/payments/${id}/status?status=${status}`);
+export const setPaymentStatus = async () =>{
+  throw new Error('Deprecated: set status endpoint is not supported in aligned flow');
 }
 
