@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getAllPurchaseOrders, getPurchaseOrdersByStatus } from '../../../services/inventory/purchaseOrder';
 
-const STATUS_OPTIONS = ['PENDING', 'APPROVED', 'COMPLETED', 'REJECTED'];
+// Align with backend statuses
+const STATUS_OPTIONS = ['CREATED', 'ORDERED', 'RECEIVED', 'CANCELLED'];
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
 const formatCurrency = (value) =>
@@ -15,15 +16,18 @@ const formatCurrency = (value) =>
 const formatDate = (iso) => (iso ? new Date(iso).toLocaleDateString() : '—');
 
 const StatusChip = ({ status }) => {
+  const normalized = (status || '').toUpperCase();
   const color =
-    status === 'PENDING'
+    normalized === 'CREATED'
       ? 'bg-amber-100 text-amber-800'
-      : status === 'APPROVED' || status === 'COMPLETED'
+      : normalized === 'ORDERED'
+      ? 'bg-blue-100 text-blue-800'
+      : normalized === 'RECEIVED'
       ? 'bg-emerald-100 text-emerald-800'
       : 'bg-rose-100 text-rose-800';
   return (
     <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${color}`}>
-      {status}
+      {normalized}
     </span>
   );
 };
@@ -128,17 +132,17 @@ const PurchaseOrderList = () => {
                 current.map((o) => {
                   const id = o.orderId || o.id;
                   const supplierName = o.supplier?.name || o.supplierName || `#${o.supplier?.id || o.supplierId || '—'}`;
-                  const totalItems = o.totalItems ?? o.items?.length ?? 0;
+                  const totalItems = o.totalItems ?? o.purchaseOrderItems?.length ?? o.items?.length ?? 0;
                   return (
                     <tr key={id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-sm text-gray-900">{o.orderNumber || id}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{supplierName}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{formatDate(o.orderDate)}</td>
-                      <td className="px-4 py-3"><StatusChip status={(o.status || 'PENDING').toUpperCase()} /></td>
+                      <td className="px-4 py-3"><StatusChip status={o.status} /></td>
                       <td className="px-4 py-3 text-sm text-gray-700">{totalItems}</td>
                       <td className="px-4 py-3 text-sm text-gray-900">{formatCurrency(o.totalAmount)}</td>
-                      <td className="px-4 py-3 text-right">
-                        <Link to={`/purchase-orders/${id}`} className="px-2 py-1 text-sm rounded border border-gray-300 hover:bg-gray-50">
+                          <td className="px-4 py-3 text-right">
+                        <Link to={`/admin/purchase-orders/${id}`} className="px-2 py-1 text-sm rounded border border-gray-300 hover:bg-gray-50">
                           View
                         </Link>
                       </td>

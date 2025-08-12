@@ -96,4 +96,22 @@ export const getInventoryTransactionCount = async () => {
 };
 
 // Legacy alias used by UI
-export const fetchInventoryTransactions = (page = 0, size = 10) => getInventoryTransactions(page, size);
+export const fetchInventoryTransactions = async (page = 0, size = 200) => {
+  const res = await getInventoryTransactions(page, size);
+  const pageObj = res || {};
+  const content = pageObj.content || pageObj.items || [];
+  const normalized = content.map((t) => ({
+    id: t.id,
+    source: t.source,
+    transactionType: t.transactionType,
+    quantity: t.quantity,
+    transactionDate: t.transactionDate,
+    inventoryItem: {
+      name: t.inventoryItemName,
+      commonName: t.inventoryItemCommonName,
+      id: t.inventoryItemId,
+    },
+    inventoryRecord: t.batchNumber ? { batchNumber: t.batchNumber } : null,
+  }));
+  return { success: true, data: normalized, page: { totalElements: pageObj.totalElements, totalPages: pageObj.totalPages } };
+};

@@ -1,30 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import AdminNavbar from '../../components/navbar/AdminNavbar';
 import { AiOutlineCalendar } from 'react-icons/ai';
-import { FaIndustry, FaCube, FaTags, FaClipboardList, FaHome } from 'react-icons/fa';
+import { FaIndustry, FaCube, FaTags, FaClipboardList, FaHome, FaArrowLeft } from 'react-icons/fa';
 import { getInventoryItemById } from '../../services/inventory/inventoryItem';
-import { createPurchaseOrder } from '../../services/inventory/purchaseOrder';
 
 const InventoryItemDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Purchase order state
-  const [orderQty, setOrderQty] = useState(0);
-  const [orderLoading, setOrderLoading] = useState(false);
-  const [orderError, setOrderError] = useState('');
-  const [orderSuccess, setOrderSuccess] = useState(null);
+  // No purchase order state on detail page
 
   useEffect(() => {
     const fetchItem = async () => {
       try {
         const data = await getInventoryItemById(id);
-        setItem(data);
+        // Support both plain object and { data: ... } API shapes
+        const itemData = (data && data.data) ? data.data : data;
+        setItem(itemData);
       } catch (err) {
         console.error(err);
         setError('Failed to load inventory item.');
@@ -36,36 +33,7 @@ const InventoryItemDetail = () => {
     fetchItem();
   }, [id]);
 
-  const handlePlaceOrder = async () => {
-    if (!orderQty) return;
-    setOrderError('');
-    setOrderLoading(true);
-    try {
-      const orderDto = {
-        orderDate: new Date().toISOString(),
-        status: 'CREATED',
-        totalAmount: orderQty * item.costPrice,
-        supplierId: 1,                     // default supplier
-        purchaseOrderItems: [
-          {
-            inventoryItemId: item.id,
-            quantityOrdered: orderQty,
-            unitPrice: item.costPrice,      // use costPrice
-          },
-        ],
-      };
-      const newOrder = await createPurchaseOrder(orderDto);
-      setOrderSuccess(newOrder.orderId || newOrder.id);
-      setOrderQty(0);
-      toast.success('Purchase order placed successfully');
-    } catch (err) {
-      console.error(err);
-      setOrderError('Failed to place purchase order');
-      toast.error('Failed to place purchase order');
-    } finally {
-      setOrderLoading(false);
-    }
-  };
+  // Removed place order handler
 
   if (loading) {
     return (
@@ -86,88 +54,90 @@ const InventoryItemDetail = () => {
   if (!item) return null;
 
   // total stock
-  const totalStock = item.records.reduce((sum, rec) => sum + rec.quantity, 0);
+  const totalStock = (item.records || []).reduce((sum, rec) => sum + (rec?.quantity || 0), 0);
 
   return (
     
-      <div className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-200 p-8">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-white p-6 md:p-8">
+        <div className="max-w-5xl mx-auto space-y-8">
+          {/* Top bar */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-900"
+            >
+              <FaArrowLeft className="w-4 h-4" /> Back
+            </button>
+          </div>
+
           {/* Header Section */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="flex flex-col sm:flex-row items-center">
+          <div className="bg-white/70 backdrop-blur rounded-2xl shadow-md p-6 border border-gray-100">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center">
               {item.imageUrl && (
                 <img
                   src={item.imageUrl}
                   alt={item.name}
-                  className="w-32 h-32 object-cover rounded-lg mr-6 mb-4 sm:mb-0"
+                  className="w-28 h-28 object-cover rounded-xl mr-6 mb-4 sm:mb-0 shadow"
                 />
               )}
-              <div>
-                <h2 className="text-3xl font-extrabold text-gray-800 border-b pb-3 mb-4">
-                  {item.name}
-                </h2>
-                <p className="text-gray-600 font-medium">
-                  Common Name: <span className="text-gray-800">{item.commonName}</span>
-                </p>
-                <p className="text-gray-600 font-medium">
-                  Source: <span className="text-gray-800">{item.source}</span>
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-              {/* Manufacturer */}
-              <div className="flex items-center space-x-3">
-                <FaIndustry className="w-6 h-6 text-green-500" />
-                <div>
-                  <p className="text-gray-600 font-medium">Manufacturer</p>
-                  <p className="text-gray-800">{item.manufacturer}</p>
+              <div className="flex-1">
+                <div className="flex items-start gap-3 flex-wrap">
+                  <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">{item.name}</h2>
+                  {item.category?.name && (
+                    <span className="px-2 py-1 text-xs rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-1">
+                      <FaTags className="w-3 h-3" /> {item.category.name}
+                    </span>
+                  )}
                 </div>
-              </div>
-              {/* Unit */}
-              <div className="flex items-center space-x-3">
-                <FaCube className="w-6 h-6 text-purple-500" />
-                <div>
-                  <p className="text-gray-600 font-medium">Unit</p>
-                  <p className="text-gray-800">{item.unit}</p>
-                </div>
-              </div>
-              {/* Reorder Level */}
-              <div className="flex items-center space-x-3">
-                <FaClipboardList className="w-6 h-6 text-red-500" />
-                <div>
-                  <p className="text-gray-600 font-medium">Reorder Level</p>
-                  <p className="text-gray-800">{item.reorderLevel}</p>
-                </div>
-              </div>
-              {/* Expiry Date */}
-              <div className="flex items-center space-x-3">
-                <AiOutlineCalendar className="w-6 h-6 text-yellow-500" />
-                <div>
-                  <p className="text-gray-600 font-medium">Expiry Date</p>
-                  <p className="text-gray-800">{item.expiryDate}</p>
-                </div>
-              </div>
-              {/* Category */}
-              {item.category?.name && (
-                <div className="flex items-center space-x-3">
-                  <FaTags className="w-6 h-6 text-indigo-500" />
-                  <div>
-                    <p className="text-gray-600 font-medium">Category</p>
-                    <p className="text-gray-800">{item.category.name}</p>
+                {(item.commonName || item.source) && (
+                  <div className="mt-2 text-gray-600 flex gap-4 flex-wrap">
+                    {item.commonName && (
+                      <span>
+                        Common: <span className="text-gray-800">{item.commonName}</span>
+                      </span>
+                    )}
+                    {item.source && (
+                      <span>
+                        Source: <span className="text-gray-800">{item.source}</span>
+                      </span>
+                    )}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-            {/* Description */}
-            <div className="mt-6">
-              <p className="text-gray-600 font-medium mb-1">Description</p>
-              <p className="text-gray-800">{item.description}</p>
+            {/* Chips */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+              <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+                <p className="text-xs text-emerald-700">Total Stock</p>
+                <p className="text-lg font-semibold text-emerald-900">{totalStock}</p>
+              </div>
+              <div className="p-3 rounded-lg bg-amber-50 border border-amber-100 flex items-center gap-2">
+                <AiOutlineCalendar className="w-5 h-5 text-amber-600" />
+                <div>
+                  <p className="text-xs text-amber-700">Expiry</p>
+                  <p className="text-sm font-medium text-amber-900">{item.expiryDate || '—'}</p>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-violet-50 border border-violet-100 flex items-center gap-2">
+                <FaCube className="w-5 h-5 text-violet-600" />
+                <div>
+                  <p className="text-xs text-violet-700">Unit</p>
+                  <p className="text-sm font-medium text-violet-900">{item.unit || '—'}</p>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-rose-50 border border-rose-100 flex items-center gap-2">
+                <FaClipboardList className="w-5 h-5 text-rose-600" />
+                <div>
+                  <p className="text-xs text-rose-700">Reorder Level</p>
+                  <p className="text-sm font-medium text-rose-900">{item.reorderLevel ?? '—'}</p>
+                </div>
+              </div>
             </div>
           </div>
 
           
           {/* Additional Details Section */}
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white/70 backdrop-blur rounded-2xl shadow-md p-6 border border-gray-100">
             <h3 className="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">
               Additional Details
             </h3>
@@ -218,7 +188,7 @@ const InventoryItemDetail = () => {
 
                     {/* Inventory Records Section */}
           {item.records && item.records.length > 0 && (
-            <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="bg-white/70 backdrop-blur rounded-2xl shadow-md p-6 border border-gray-100">
               <h3 className="text-2xl font-bold text-gray-800 border-b pb-2 mb-4 flex items-center space-x-2">
                 <FaHome className="w-6 h-6 text-teal-500" />
                 <span>Inventory Records</span>
@@ -234,7 +204,7 @@ const InventoryItemDetail = () => {
                         Warehouse:
                       </span>
                       <span className="text-gray-800">
-                        {record.warehouse.name} ({record.warehouse.location})
+                        {record?.warehouse?.name || 'Unknown'}{record?.warehouse?.location ? ` (${record.warehouse.location})` : ''}
                       </span>
                     </div>
                     <div className="mt-2 sm:mt-0">
@@ -248,46 +218,26 @@ const InventoryItemDetail = () => {
               </div>
             </div>
           )}
-          {/* Purchase Order Section */}
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <div className="text-2xl font-bold mb-4 flex items-center space-x-2">
-              <FaHome className="w-6 h-6 text-teal-500" />
-              <span>Place Purchase Order</span>
+          {/* Description & Manufacturer */}
+          {(item.description || item.manufacturer) && (
+            <div className="bg-white/70 backdrop-blur rounded-2xl shadow-md p-6 border border-gray-100">
+              <h3 className="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">About</h3>
+              {item.manufacturer && (
+                <div className="mb-3 flex items-center gap-2 text-gray-700">
+                  <FaIndustry className="w-5 h-5 text-emerald-600" />
+                  <span><span className="text-gray-600">Manufacturer:</span> {item.manufacturer}</span>
+                </div>
+              )}
+              {item.description && (
+                <p className="text-gray-800 leading-relaxed">{item.description}</p>
+              )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <input
-                type="number"
-                value={orderQty}
-                onChange={e => setOrderQty(Number(e.target.value))}
-                className="border px-3 py-2 rounded w-full"
-                placeholder="Quantity"
-              />
-              <input
-                type="number"
-                value={item.costPrice}
-                readOnly
-                className="border px-3 py-2 rounded w-full bg-gray-100 text-gray-600"
-                placeholder="Unit Price"
-              />
-            </div>
-            <button
-              onClick={handlePlaceOrder}
-              disabled={orderLoading}
-              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition disabled:opacity-50"
-            >
-              {orderLoading ? 'Placing Order...' : 'Place Order'}
-            </button>
-            {orderError && <p className="text-red-500 mt-2">{orderError}</p>}
-            {orderSuccess && <p className="text-green-600 mt-2">Order placed: #{orderSuccess}</p>}
-          </div>
+          )}
 
           {/* Back Button */}
-          <div className="text-center">
-            <Link
-              to="/inventory-items"
-              className="inline-block px-8 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-            >
-              Back to Inventory List
+          <div className="flex items-center justify-center">
+            <Link to="/admin/inventory/items" className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition">
+              Back to Inventory
             </Link>
           </div>
         </div>
@@ -297,3 +247,4 @@ const InventoryItemDetail = () => {
 };
 
 export default InventoryItemDetail;
+

@@ -5,12 +5,8 @@ import { toast } from 'react-toastify';
 import InventoryItemList from '../InventoryItemList';
 import InventoryItemDetail from '../InventoryItemDetail';
 import * as ItemSvc from '../../../services/inventory/inventoryItem';
-import * as POService from '../../../services/inventory/purchaseOrder';
 
 jest.mock('../../../services/inventory/inventoryItem');
-jest.mock('../../../services/inventory/purchaseOrder', () => ({
-  createPurchaseOrder: jest.fn(),
-}));
 jest.mock('react-toastify');
 
 const renderWithRouter = (ui) => render(<BrowserRouter>{ui}</BrowserRouter>);
@@ -57,15 +53,17 @@ describe('Inventory Item pages', () => {
     });
   });
 
-  it('renders InventoryItemDetail and places a purchase order', async () => {
+  it('renders InventoryItemDetail with modern UI and data', async () => {
     ItemSvc.getInventoryItemById.mockResolvedValue({
       id: 5,
       name: 'Arnica',
       commonName: 'Arnica Montana',
-      costPrice: 20,
+      unit: 'Bottle',
+      reorderLevel: 5,
+      expiryDate: '2026-12-01',
+      category: { name: 'Pain Relief' },
       records: [ { id: 1, quantity: 10, warehouse: { name: 'Main', location: 'HQ' } } ]
     });
-    const spy = jest.spyOn(POService, 'createPurchaseOrder').mockResolvedValue({ id: 123 });
 
     const { MemoryRouter, Route, Routes } = require('react-router-dom');
     render(
@@ -76,14 +74,10 @@ describe('Inventory Item pages', () => {
       </MemoryRouter>
     );
 
-    await waitFor(() => expect(screen.getByText('Arnica')).toBeInTheDocument());
-
-    const qtyInput = screen.getByPlaceholderText('Quantity');
-    fireEvent.change(qtyInput, { target: { value: '2' } });
-    fireEvent.click(screen.getByText(/Place Order/i));
-
     await waitFor(() => {
-      expect(spy).toHaveBeenCalled();
+      expect(screen.getByText('Arnica')).toBeInTheDocument();
+      expect(screen.getByText('Total Stock')).toBeInTheDocument();
+      expect(screen.getByText('Inventory Records')).toBeInTheDocument();
     });
   });
 });
