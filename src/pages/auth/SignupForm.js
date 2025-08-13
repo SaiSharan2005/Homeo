@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { MdPerson, MdPhone, MdEmail, MdLock, MdVisibility, MdVisibilityOff } from "react-icons/md";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Signup } from "../../services/patient/patient_api";
-import { sendPasswordReset, verifyEmail } from "../../services/auth";
+import React, { useState } from "react";
+import { MdPerson, MdPhone, MdEmail, MdLock } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+import { Signup } from "../../services/patient/patient_api"; // Your signup API function
+// Note: createDoctor is imported if needed but here we forward based on role
+// import { createDoctor } from '../../services/doctor/doctor_api';
 
 export default function SignUpForm({ rolesFromParams }) {
   const navigate = useNavigate();
@@ -12,13 +13,13 @@ export default function SignUpForm({ rolesFromParams }) {
     email: "",
     password: "",
   });
+  const [TempData,setTempData] = useState({})
 
   const [error, setError] = useState(null);
   const [verificationSent, setVerificationSent] = useState(false);
   const [code, setCode] = useState("");
-
+  const [roles, setRoles] = useState(rolesFromParams || ["PATIENT"]); // Default to PATIENT if no roles provided
   // Use roles from props, defaulting to ["PATIENT"] if not provided
-  const roles = rolesFromParams || ["PATIENT"];
   const isPatient = roles.includes("PATIENT");
 
   const onChange = (event) => {
@@ -88,20 +89,22 @@ export default function SignUpForm({ rolesFromParams }) {
 
     try {
       const responseData = await Signup(data);
-      if (!responseData.status) {
+      setTempData(responseData);
+      localStorage.setItem("Token", responseData.token);
+      console.log("User registered successfully:", responseData.status);
+      if (!responseData) {
         setError(responseData?.message || "Sign up Failes ");
       }
-      // Navigate to the respective details page based on role
       else if (roles.includes("DOCTOR")) {
         localStorage.setItem("ROLE", "DOCTOR");
         // Forward to doctor details page with responseData (which contains user data)
         navigate("/doctor/details", {
           state: { data: { username: data.username } },
         });
-      } else if (roles.includes("PATIENT")) {
+      } else if (roles.includes('PATIENT')) {
         localStorage.setItem("ROLE", "PATIENT");
         // navigate("/patient/details", { state: { data: responseData } });
-        setVerificationSent(true);
+        // setVerificationSent(true);
       } else if (roles.includes("ADMIN")) {
         localStorage.setItem("ROLE", "ADMIN");
         navigate("/admin/home", { state: { data: responseData } });
@@ -116,22 +119,39 @@ export default function SignUpForm({ rolesFromParams }) {
     event.preventDefault();
     // reuse your validations for email/phone/etc.
     setError(null);
-    try {
-      await sendPasswordReset(credentials.email);
-      setVerificationSent(true);
-    } catch (error) {
-      setError("Failed to send verification code. Please try again.");
-    }
+    await fetch(
+      `${
+        process.env.REACT_APP_BACKEND_URL
+      }/verify/request?email=${encodeURIComponent(credentials.email)}`,
+      { method: "POST" }
+    );
+    setVerificationSent(true);
   };
 
   // ── new: confirm the code, then call real signup
   const handleConfirmCode = async (event) => {
     event.preventDefault();
-    try {
-      await verifyEmail(code);
+    const token = localStorage.getItem("Token");
+
+    const res = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/verify/confirm` +
+        `?email=${encodeURIComponent(credentials.email)}` +
+        `&code=${encodeURIComponent(code)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }
+    );
+    const msg = await res.text();
+    if (res.ok && msg.includes("success")) {
       // now actually sign up
-      navigate("/patient/details");
-    } catch (error) {
+        navigate("/patient/details", { state: { data: TempData } });
+                // navigate("/patient/details");
+// 
+    } else {
       setError("Invalid or expired verification code.");
     }
   };

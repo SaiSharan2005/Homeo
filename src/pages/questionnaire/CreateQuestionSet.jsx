@@ -12,10 +12,11 @@ export default function CreateQuestionSet() {
   const [questions, setQuestions] = useState(['']);
   const [loading, setLoading] = useState(false);
 
+  // Convert questions array of strings to array of objects with text property
   const questionSet = {
     name,
     description,
-    questions,
+    questions: questions.map(q => ({ text: q })),
   };
 
   const handleQuestionChange = (idx, value) => {

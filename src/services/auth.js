@@ -1,4 +1,15 @@
 /**
+ * Request email verification code
+ * @param {string} email - User's email address
+ * @returns {Promise<Response>} The fetch response
+ */
+export const requestEmailVerification = async (email) => {
+  return fetch(
+    `${process.env.REACT_APP_BACKEND_URL}/verify/request?email=${encodeURIComponent(email)}`,
+    { method: "POST" }
+  );
+};
+/**
  * Authentication Service - Handles all authentication-related API calls
  * Replaces direct fetch calls in auth components
  */
@@ -46,8 +57,32 @@ export const doctorLogin = async (credentials) => {
  * @param {string} token - Email verification token
  * @returns {Promise<Object>} Verification response
  */
-export const verifyEmail = async (token) => {
-  return api.post('/auth/verify-email', { token });
+/**
+ * Verify email with code
+ * @param {string} email - User's email address
+ * @param {string} code - Verification code
+ * @returns {Promise<string>} The response message
+ */
+export const verifyEmail = async (email, code) => {
+  const token = localStorage.getItem("Token");
+  const res = await fetch(
+    `${process.env.REACT_APP_BACKEND_URL}/verify/confirm` +
+      `?email=${encodeURIComponent(email)}` +
+      `&code=${encodeURIComponent(code)}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    }
+  );
+  const msg = await res.text();
+  if (res.ok && msg.includes("success")) {
+    return msg;
+  } else {
+    throw new Error(msg || "Verification failed");
+  }
 };
 
 /**

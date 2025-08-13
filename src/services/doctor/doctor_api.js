@@ -57,5 +57,5 @@ export const createDoctorScheduleByDate = async (date) => api.post(`/schedule/cr
 export const fetchDoctorAppointments = async (page = 0, size = 10) => getData(`/bookingAppointments/doctor/my-appointments?page=${page}&size=${size}`);
 
 // Doctor profile creation used by admin/staff flows
-export const addDoctorProfile = async (profileData) => postData('/doctor/addProfile', profileData);
+export const addDoctorProfile = async (profileData) => postData(`/doctor/addProfile/${profileData.username}`, profileData);
 

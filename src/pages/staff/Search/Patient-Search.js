@@ -9,10 +9,9 @@ const PatientSearchPage = () => {
   const [keyword, setKeyword] = useState("");
   const [patientsPage, setPatientsPage] = useState({ content: [], totalPages: 0 });
   const [page, setPage] = useState(0);
-  const size = 10; // or pull from state if you want dynamic sizes
-  // ────────────────────────────────────────────────────────────────
+  const size = 10;
 
-  // Whenever keyword changes, reset to first page
+  
   useEffect(() => {
     setPage(0);
   }, [keyword]);

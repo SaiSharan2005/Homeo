@@ -7,7 +7,7 @@ export default function PatientDetails() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     dateOfBirth: '',
-    gender: '',
+    gender: '',  
     address: '',
     city: '',
     pincode: ''

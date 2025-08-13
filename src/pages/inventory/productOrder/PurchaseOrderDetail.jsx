@@ -8,7 +8,6 @@ import {
   rejectPurchaseOrder 
 } from '../../../services/inventory/purchaseOrder';
 import { 
-  getPurchaseOrderItemsByPurchaseOrder,
   createPurchaseOrderItem,
   updatePurchaseOrderItem,
   deletePurchaseOrderItem 
@@ -38,15 +37,13 @@ const PurchaseOrderDetail = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [poData, itemsData, inventoryData] = await Promise.all([
+        const [poData, inventoryData] = await Promise.all([
           getPurchaseOrderById(id),
-          getPurchaseOrderItemsByPurchaseOrder(id, 0, 100),
           getInventoryItems(0, 1000)
         ]);
-        
-        setPurchaseOrder(poData);
-        setItems(itemsData.content || []);
-        setInventoryItems(inventoryData.content || []);
+  setPurchaseOrder(poData);
+  setItems(poData.purchaseOrderItems || []);
+  setInventoryItems(inventoryData.content || []);
       } catch (err) {
         toast.error('Failed to load purchase order: ' + err.message);
         navigate('/inventory/purchase-orders');
@@ -194,6 +191,10 @@ const PurchaseOrderDetail = () => {
     return item ? item.name : 'Unknown Item';
   };
 
+  // Compute subtotal and tax if not present
+  const subtotal = items.reduce((sum, item) => sum + (item.quantityOrdered * item.unitPrice), 0);
+  const taxAmount = 0; // Adjust if you have tax logic
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -273,15 +274,15 @@ const PurchaseOrderDetail = () => {
             <div className="space-y-2">
               <div>
                 <span className="text-sm font-medium text-gray-500">Supplier:</span>
-                <p className="text-gray-900">{purchaseOrder.supplierName || 'N/A'}</p>
+                <p className="text-gray-900">{purchaseOrder.supplier?.name || 'N/A'}</p>
               </div>
               <div>
                 <span className="text-sm font-medium text-gray-500">Contact:</span>
-                <p className="text-gray-900">{purchaseOrder.supplierContact || 'N/A'}</p>
+                <p className="text-gray-900">{purchaseOrder.supplier?.contactDetails || 'N/A'}</p>
               </div>
               <div>
                 <span className="text-sm font-medium text-gray-500">Email:</span>
-                <p className="text-gray-900">{purchaseOrder.supplierEmail || 'N/A'}</p>
+                <p className="text-gray-900">{purchaseOrder.supplier?.email || 'N/A'}</p>
               </div>
             </div>
           </div>
@@ -291,11 +292,11 @@ const PurchaseOrderDetail = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal:</span>
-                <span className="font-medium">${purchaseOrder.subtotal?.toFixed(2) || '0.00'}</span>
+                <span className="font-medium">${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Tax:</span>
-                <span className="font-medium">${purchaseOrder.taxAmount?.toFixed(2) || '0.00'}</span>
+                <span className="font-medium">${taxAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-lg font-semibold border-t pt-2">
                 <span className="text-gray-900">Total:</span>

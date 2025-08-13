@@ -15,7 +15,7 @@ export const getPatientProfile = async () => {
 };
 
 export const updatePatientProfile = async (profileData) => {
-  return api.put('/patient/updateMyProfile', profileData);
+  return api.post('/patient/CreateProfile', profileData);
 };
 
 export const changePatientPassword = async (passwordData) => {
@@ -24,7 +24,7 @@ export const changePatientPassword = async (passwordData) => {
 
 // Patient registration
 export const patientRegistration = async (registrationData) => {
-  return api.post('/patient/register', registrationData);
+  return api.post('/auth/register', registrationData);
 };
 
 export const verifyPatientEmail = async (token) => {
@@ -46,7 +46,7 @@ export const getPatientPrescriptions = async (page = 0, size = 10) => {
 
 // Patient search and listing
 export const searchPatients = async (query, page = 0, size = 10) => {
-  return api.get(`/patient/search?q=${encodeURIComponent(query)}&page=${page}&size=${size}`);
+  return api.get(`/patient/search?query=${encodeURIComponent(query)}&page=${page}&size=${size}`);
 };
 
 export const getAllPatients = async (page = 0, size = 10) => {
@@ -62,4 +62,4 @@ export { getPatientProfile as fetchCurrentPatient };
 export { getPatientById as fetchPatientById };
 export { updatePatientProfile as savePatientProfile };
 export { patientRegistration as Signup };
-export { patientLogin as Login };
+export { patientLogin as Login }; 

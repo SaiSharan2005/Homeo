@@ -59,6 +59,7 @@ import InventoryRecordDetail from "./pages/inventory/InventoryRecordDetail";
 import InventoryTransactionList from "./pages/inventory/InventoryTransactionList";
 import CategoryManagement from "./pages/inventory/CategoryManagement";
 import PurchaseOrderCreate from "./pages/inventory/productOrder/PurchaseOrderCreate";
+import PurchaseOrderDetail from "./pages/inventory/productOrder/PurchaseOrderDetail";
 import PurchaseOrderList from "./pages/inventory/productOrder/PurchaseOrderList";
 import GoodsReceiptList from "./pages/inventory/receipt/GoodsReceiptList";
 import GoodsReceiptDetail from "./pages/inventory/receipt/GoodsReceiptDetail";
@@ -236,6 +237,7 @@ export default function App() {
           {/* Purchase Orders */}
           <Route path="purchase-orders" element={<PurchaseOrderList />} />
           <Route path="purchase-orders/create" element={<PurchaseOrderCreate />} />
+          <Route path="purchase-orders/:id" element={<PurchaseOrderDetail />} />
 
           {/* Prescription Management */}
           <Route path="prescriptions" element={<PrescriptionList />} />

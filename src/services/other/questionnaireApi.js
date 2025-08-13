@@ -1,3 +1,8 @@
+// SubmissionController routes (backend: /api/submissions)
+export const fetchAllSubmissions = (page = 0, size = 10) => api.get(`/submissions?page=${page}&size=${size}`);
+export const fetchSubmissionsBySetId = (setId, page = 0, size = 10) => api.get(`/submissions/set/${setId}?page=${page}&size=${size}`);
+export const fetchSubmissionsByUser = (username, page = 0, size = 10) => api.get(`/submissions/user/${username}?page=${page}&size=${size}`);
+export const fetchSubmissionById = (submissionId) => api.get(`/submissions/${submissionId}`);
 // src/services/questionnaire_api.js
 
 import api from '../api';
@@ -57,23 +62,8 @@ export const deleteQuestion = async (id) => {
   return api.delete(`/questions/${id}`);
 };
 
-// Patient responses
-export const submitQuestionnaireResponse = async (responseData) => {
-  return api.post('/questionnaire-responses', responseData);
-};
-
-export const getPatientResponses = async (patientId, page = 0, size = 10) => {
-  return api.get(`/questionnaire-responses/patient/${patientId}?page=${page}&size=${size}`);
-};
-
-export const getQuestionnaireResponses = async (questionnaireId, page = 0, size = 10) => {
-  return api.get(`/questionnaire-responses/questionnaire/${questionnaireId}?page=${page}&size=${size}`);
-};
-
 // Legacy aliases expected by pages
 export const fetchQuestionSets = (page = 0, size = 10) => getAllQuestionSets(page, size);
 export const fetchQuestionSetById = (id) => getQuestionSetById(id);
-export const submitQuestionnaire = (questionSetId, payload) => api.post(`/questionnaire-responses/submit/${questionSetId}`, payload);
-export const fetchSubmissionById = (id) => api.get(`/questionnaire-responses/${id}`);
-export const fetchSubmissionsBySet = (setId, page = 0, size = 10) => api.get(`/questionnaire-responses/by-set/${setId}?page=${page}&size=${size}`);
-export const fetchSubmissionsByUser = (username, page = 0, size = 10) => api.get(`/questionnaire-responses/user/${username}?page=${page}&size=${size}`);
+export const submitQuestionnaire = (questionSetId, payload) => api.post(`/question-sets/${questionSetId}/submit`, payload);
+export const fetchSubmissionsBySet = (setId, page = 0, size = 10) => api.get(`/question-sets/${setId}/submissions?page=${page}&size=${size}`);

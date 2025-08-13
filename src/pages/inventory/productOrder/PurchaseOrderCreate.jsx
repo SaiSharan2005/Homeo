@@ -23,9 +23,7 @@ const PurchaseOrderCreate = () => {
     status: 'CREATED',
     supplierId: '',
   });
-  const [items, setItems] = useState([
-    { inventoryItemId: '', quantityOrdered: 1, unitPrice: '' }
-  ]);
+  const [items, setItems] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -152,13 +150,14 @@ const PurchaseOrderCreate = () => {
   const validate = () => {
     if (!form.supplierId) return 'Please select a supplier';
     if (!form.orderDate) return 'Order date is required';
-    if (!items.length) return 'Add at least one item';
     for (const [idx, it] of items.entries()) {
-      if (!it.inventoryItemId) return `Item #${idx + 1}: Inventory Item ID is required`;
-      const qty = Number(it.quantityOrdered);
-      if (!Number.isFinite(qty) || qty <= 0) return `Item #${idx + 1}: Quantity must be > 0`;
-      const price = Number(it.unitPrice);
-      if (!Number.isFinite(price) || price < 0) return `Item #${idx + 1}: Unit price must be >= 0`;
+      if (!it.inventoryItemId && (it.quantityOrdered || it.unitPrice)) return `Item #${idx + 1}: Inventory Item ID is required`;
+      if (it.inventoryItemId) {
+        const qty = Number(it.quantityOrdered);
+        if (!Number.isFinite(qty) || qty <= 0) return `Item #${idx + 1}: Quantity must be > 0`;
+        const price = Number(it.unitPrice);
+        if (!Number.isFinite(price) || price < 0) return `Item #${idx + 1}: Unit price must be >= 0`;
+      }
     }
     return '';
   };
@@ -177,12 +176,11 @@ const PurchaseOrderCreate = () => {
       supplierId: Number(form.supplierId),
       orderDate: form.orderDate, // ISO-like string acceptable by backend LocalDateTime
       status: form.status,
-      // Align with backend response naming
-      purchaseOrderItems: items.map((it) => ({
-        inventoryItemId: Number(it.inventoryItemId),
-        quantityOrdered: Number(it.quantityOrdered),
-        unitPrice: Number(it.unitPrice),
-      })),
+      items: items.map((it) => ({
+        inventoryItemId: it.inventoryItemId ? Number(it.inventoryItemId) : undefined,
+        quantityOrdered: it.quantityOrdered ? Number(it.quantityOrdered) : undefined,
+        unitPrice: it.unitPrice ? Number(it.unitPrice) : undefined,
+      })).filter(it => it.inventoryItemId),
     };
 
     setIsSubmitting(true);
@@ -223,7 +221,7 @@ const PurchaseOrderCreate = () => {
                     value={form.supplierId}
                     onChange={handleFormChange}
                     className="block w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
+                              // required removed
                   >
                     <option value="">Select supplier…</option>
                     {suppliers.map((s) => (
@@ -240,7 +238,7 @@ const PurchaseOrderCreate = () => {
                 name="orderDate"
                   value={form.orderDate}
                   onChange={handleFormChange}
-                required
+                // required removed
               />
 
                 <div>
@@ -347,7 +345,7 @@ const PurchaseOrderCreate = () => {
                               min={1}
                               value={it.quantityOrdered}
                               onChange={(e) => updateItem(idx, 'quantityOrdered', e.target.value)}
-                required
+                // required removed
               />
                           </td>
                           <td className="px-3 py-2 w-[160px]">
